@@ -1,0 +1,7 @@
+Flask==3.0.0
+gunicorn==21.2.0
+mysql-connector-python==9.0.0
+python-dotenv==1.0.1
+pandas==2.2.2
+scikit-learn==1.4.2
+joblib==1.4.2

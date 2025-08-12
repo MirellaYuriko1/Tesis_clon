@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cuestionario SCAS-Child</title>
+</head>
+<body>
+    <h1>Cuestionario SCAS-Child</h1>
+    <form action="/guardar" method="post">
+        <label>Nombre: <input type="text" name="nombre" required></label><br>
+        <label>Edad: <input type="number" name="edad" required></label><br>
+        <label>Género:
+            <select name="genero" required>
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+            </select>
+        </label><br><br>
+<legend>1. Hay cosas que me preocupan</legend>
+<label><input type="radio" name="p1" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p1" value="1" required> A veces</label><br>
+<label><input type="radio" name="p1" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p1" value="3" required> Siempre</label><br>
+
+<legend>2. Me da miedo la oscuridad</legend>
+<label><input type="radio" name="p2" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p2" value="1" required> A veces</label><br>
+<label><input type="radio" name="p2" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p2" value="3" required> Siempre</label><br>
+
+<legend>3. Cuando tengo un problema noto una sensación extraña en el estómago.</legend>
+<label><input type="radio" name="p3" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p3" value="1" required> A veces</label><br>
+<label><input type="radio" name="p3" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p3" value="3" required> Siempre</label><br>
+
+<legend>4. Tengo miedo</legend>
+<label><input type="radio" name="p4" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p4" value="1" required> A veces</label><br>
+<label><input type="radio" name="p4" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p4" value="3" required> Siempre</label><br>
+
+<legend>5. Tendría miedo si me quedara solo en casa</legend>
+<label><input type="radio" name="p5" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p5" value="1" required> A veces</label><br>
+<label><input type="radio" name="p5" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p5" value="3" required> Siempre</label><br>
+
+<legend>6. Me da miedo hacer un examen</legend>
+<label><input type="radio" name="p6" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p6" value="1" required> A veces</label><br>
+<label><input type="radio" name="p6" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p6" value="3" required> Siempre</label><br>
+
+<legend>7. Me da miedo usar aseos públicos</legend>
+<label><input type="radio" name="p7" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p7" value="1" required> A veces</label><br>
+<label><input type="radio" name="p7" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p7" value="3" required> Siempre</label><br>
+
+<legend>8. Me preocupo cuando estoy lejos de mis padres</legend>
+<label><input type="radio" name="p8" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p8" value="1" required> A veces</label><br>
+<label><input type="radio" name="p8" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p8" value="3" required> Siempre</label><br>
+
+<legend>9. Tengo miedo de hacer el ridículo delante de la gente</legend>
+<label><input type="radio" name="p9" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p9" value="1" required> A veces</label><br>
+<label><input type="radio" name="p9" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p9" value="3" required> Siempre</label><br>
+
+<legend>10. Me preocupa hacer mal el trabajo de la escuela</legend>
+<label><input type="radio" name="p10" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p10" value="1" required> A veces</label><br>
+<label><input type="radio" name="p10" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p10" value="3" required> Siempre</label><br>
+
+<legend>11. Me preocupa que algo malo le suceda a alguien de mi familia</legend>
+<label><input type="radio" name="p11" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p11" value="1" required> A veces</label><br>
+<label><input type="radio" name="p11" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p11" value="3" required> Siempre</label><br>
+
+<legend>12. De repente siento que no puedo respirar sin motivo</legend>
+<label><input type="radio" name="p12" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p12" value="1" required> A veces</label><br>
+<label><input type="radio" name="p12" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p12" value="3" required> Siempre</label><br>
+
+<legend>13. Necesito comprobar varias veces que he hecho bien las cosas</legend>
+<label><input type="radio" name="p13" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p13" value="1" required> A veces</label><br>
+<label><input type="radio" name="p13" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p13" value="3" required> Siempre</label><br>
+
+<legend>14. Me da miedo dormir solo</legend>
+<label><input type="radio" name="p14" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p14" value="1" required> A veces</label><br>
+<label><input type="radio" name="p14" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p14" value="3" required> Siempre</label><br>
+
+<legend>15. Estoy nervioso o tengo miedo por las mañanas antes de ir al colegio</legend>
+<label><input type="radio" name="p15" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p15" value="1" required> A veces</label><br>
+<label><input type="radio" name="p15" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p15" value="3" required> Siempre</label><br>
+
+<legend>16. Me dan miedo los perros</legend>
+<label><input type="radio" name="p16" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p16" value="1" required> A veces</label><br>
+<label><input type="radio" name="p16" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p16" value="3" required> Siempre</label><br>
+
+<legend>17. No puedo dejar de pensar en cosas malas o tontas</legend>
+<label><input type="radio" name="p17" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p17" value="1" required> A veces</label><br>
+<label><input type="radio" name="p17" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p17" value="3" required> Siempre</label><br>
+
+<legend>18. Cuando tengo un problema mi corazón late muy fuerte</legend>
+<label><input type="radio" name="p18" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p18" value="1" required> A veces</label><br>
+<label><input type="radio" name="p18" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p18" value="3" required> Siempre</label><br>
+
+<legend>19. De repente empiezo a temblar sin motivo</legend>
+<label><input type="radio" name="p19" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p19" value="1" required> A veces</label><br>
+<label><input type="radio" name="p19" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p19" value="3" required> Siempre</label><br>
+
+<legend>20. Me preocupa que algo malo pueda pasarme</legend>
+<label><input type="radio" name="p20" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p20" value="1" required> A veces</label><br>
+<label><input type="radio" name="p20" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p20" value="3" required> Siempre</label><br>
+
+<legend>21. Me da miedo ir al médico o al dentista</legend>
+<label><input type="radio" name="p21" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p21" value="1" required> A veces</label><br>
+<label><input type="radio" name="p21" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p21" value="3" required> Siempre</label><br>
+
+<legend>22. Cuando tengo un problema me siento nervioso</legend>
+<label><input type="radio" name="p22" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p22" value="1" required> A veces</label><br>
+<label><input type="radio" name="p22" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p22" value="3" required> Siempre</label><br>
+
+<legend>23. Me dan miedo los lugares altos o los ascensores</legend>
+<label><input type="radio" name="p23" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p23" value="1" required> A veces</label><br>
+<label><input type="radio" name="p23" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p23" value="3" required> Siempre</label><br>
+
+<legend>24. Tengo que pensar en cosas especiales para evitar que pase algo malo</legend>
+<label><input type="radio" name="p24" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p24" value="1" required> A veces</label><br>
+<label><input type="radio" name="p24" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p24" value="3" required> Siempre</label><br>
+
+<legend>25. Me da miedo viajar en coche, autobús o tren</legend>
+<label><input type="radio" name="p25" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p25" value="1" required> A veces</label><br>
+<label><input type="radio" name="p25" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p25" value="3" required> Siempre</label><br>
+
+<legend>26. Me preocupa lo que otras personas piensan de mí</legend>
+<label><input type="radio" name="p26" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p26" value="1" required> A veces</label><br>
+<label><input type="radio" name="p26" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p26" value="3" required> Siempre</label><br>
+
+<legend>27. Me da miedo estar en lugares donde hay mucha gente</legend>
+<label><input type="radio" name="p27" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p27" value="1" required> A veces</label><br>
+<label><input type="radio" name="p27" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p27" value="3" required> Siempre</label><br>
+
+<legend>28. De repente tengo mucho miedo sin motivo</legend>
+<label><input type="radio" name="p28" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p28" value="1" required> A veces</label><br>
+<label><input type="radio" name="p28" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p28" value="3" required> Siempre</label><br>
+
+<legend>29. Me dan miedo los insectos o las arañas</legend>
+<label><input type="radio" name="p29" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p29" value="1" required> A veces</label><br>
+<label><input type="radio" name="p29" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p29" value="3" required> Siempre</label><br>
+
+<legend>30. De repente me siento mareado o creo que me voy a desmayar sin motivo</legend>
+<label><input type="radio" name="p30" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p30" value="1" required> A veces</label><br>
+<label><input type="radio" name="p30" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p30" value="3" required> Siempre</label><br>
+
+<legend>31. Me da miedo tener que hablar delante de mis compañeros de clase</legend>
+<label><input type="radio" name="p31" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p31" value="1" required> A veces</label><br>
+<label><input type="radio" name="p31" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p31" value="3" required> Siempre</label><br>
+
+<legend>32. De repente mi corazón late muy rápido sin motivo</legend>
+<label><input type="radio" name="p32" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p32" value="1" required> A veces</label><br>
+<label><input type="radio" name="p32" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p32" value="3" required> Siempre</label><br>
+
+<legend>33. Me preocupa tener miedo de repente sin que haya nada que temer</legend>
+<label><input type="radio" name="p33" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p33" value="1" required> A veces</label><br>
+<label><input type="radio" name="p33" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p33" value="3" required> Siempre</label><br>
+
+<legend>34. Me da miedo estar en lugares pequeños y cerrados</legend>
+<label><input type="radio" name="p34" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p34" value="1" required> A veces</label><br>
+<label><input type="radio" name="p34" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p34" value="3" required> Siempre</label><br>
+
+<legend>35. Tengo que hacer algunas cosas una y otra vez</legend>
+<label><input type="radio" name="p35" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p35" value="1" required> A veces</label><br>
+<label><input type="radio" name="p35" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p35" value="3" required> Siempre</label><br>
+
+<legend>36. Me molestan pensamientos tontos o malos, o imágenes en mi mente</legend>
+<label><input type="radio" name="p36" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p36" value="1" required> A veces</label><br>
+<label><input type="radio" name="p36" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p36" value="3" required> Siempre</label><br>
+
+<legend>37. Tengo que hacer algunas cosas de una forma determinada para evitar que pasen cosas malas</legend>
+<label><input type="radio" name="p37" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p37" value="1" required> A veces</label><br>
+<label><input type="radio" name="p37" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p37" value="3" required> Siempre</label><br>
+
+<legend>38. Me daría miedo pasar la noche fuera de casa</legend>
+<label><input type="radio" name="p38" value="0" required> Nunca</label><br>
+<label><input type="radio" name="p38" value="1" required> A veces</label><br>
+<label><input type="radio" name="p38" value="2" required> Muchas veces</label><br>
+<label><input type="radio" name="p38" value="3" required> Siempre</label><br>
+
+        <!--Cuando lo presionas, el navegador empaqueta todos los name=value y los manda a /guardar por POST-->
+        <input type="submit" value="Obtener mis resultados">
+    </form>
+</body>
+</html>
+
