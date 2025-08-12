@@ -23,10 +23,13 @@ load_dotenv() #lee tu archivo .env y carga esas variables en la memoria del sist
 def get_db():
     return mysql.connector.connect(
         host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT", "3306")),  # <--- importante
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
         database=os.getenv("DB_NAME"),
+        # ssl_disabled=True  # si tu endpoint exige sin SSL. Si falla, pruébalo.
     )
+
 #----------------------------------------------
 #Inicializar la app Flask
 app = Flask(__name__)
@@ -259,5 +262,7 @@ def export_csv():
         return f"Error al exportar: {e}"
 
 # === 9) Run ===
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", "5000"))   # Render define PORT; 5000 de fallback local
+    debug = os.getenv("FLASK_DEBUG", "0") == "1"
+    app.run(host="0.0.0.0", port=port, debug=debug)
