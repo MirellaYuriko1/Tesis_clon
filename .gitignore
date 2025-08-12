@@ -1,0 +1,6 @@
+# secretos / temporales
+.env
+scas_respuestas.csv
+__pycache__/
+*.pyc
+.venv/
