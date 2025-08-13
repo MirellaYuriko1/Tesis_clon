@@ -165,11 +165,6 @@ def home():
 def login():
     return render_template("login.html")
 
-# Ruta para registro
-@app.route('/registro')
-def registro():
-    return render_template("registro.html")
-
 # Ruta para el cuestionario
 @app.route('/cuestionario')
 def cuestionario():
