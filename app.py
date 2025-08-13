@@ -166,7 +166,7 @@ def form_registro():
     return render_template("registro.html")
 
 # Ruta para login
-@app.route('/login')
+@app.route('/form_login')
 def login():
     return render_template("login.html")
 
@@ -180,12 +180,13 @@ def cuestionario():
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'GET':
-        return render_template("registro.html")
+        # muestra la vista normal
+        return render_template("registro.html", exito=False, error=None)
 
     # POST: datos desde el formulario
     nombre   = request.form.get("nombre")
     email    = request.form.get("email")
-    password = request.form.get("password")  # Sin hash, se guarda directo
+    password = request.form.get("password")  # (sin hash, como pediste)
 
     cn = get_db()
     cur = cn.cursor()
@@ -196,10 +197,14 @@ def registro():
             (nombre, email, password)
         )
         cn.commit()
-        return "Registro exitoso. <a href='/login'>Inicia sesión aquí</a>."
+        # <- volvemos a la MISMA vista con la bandera exito=True
+        return render_template("registro.html", exito=True, error=None)
+
     except Exception as e:
         cn.rollback()
-        return f"Error al registrar: {e}"
+        # podrías mapear errores (p.ej. email duplicado) a un mensaje más lindo
+        return render_template("registro.html", exito=False, error=str(e))
+
     finally:
         cur.close()
         cn.close()
