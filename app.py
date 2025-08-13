@@ -170,7 +170,6 @@ def login():
 def cuestionario():
     return render_template("cuestionario.html")
 
-
 # Ruta para registro (GET y POST)
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
