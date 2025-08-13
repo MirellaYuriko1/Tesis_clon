@@ -160,10 +160,16 @@ def interpreta_normas(genero: str, edad: int, sumas_dim: dict, total: int):
 def home():
     return render_template("index.html")
 
+# Ruta para mostrar el formulario registro
+@app.route('/form_registro')
+def form_registro():
+    return render_template("registro.html")
+
 # Ruta para login
 @app.route('/login')
 def login():
     return render_template("login.html")
+
 
 # Ruta para el cuestionario
 @app.route('/cuestionario')
