@@ -162,8 +162,14 @@ def interpreta_normas(genero: str, edad: int, sumas_dim: dict, total: int):
 # === 8) Rutas ===
 @app.route('/')
 def formulario():
+    return render_template("index.html")
+
+# --- Cuestionario (antes era '/'), no lo cambiamos de lógica ---
+@app.route('/cuestionario')
+def formulario():
     return render_template("cuestionario.html")
 
+# === AL DARLE CLICK AL BOTON GUARDAR
 @app.route('/guardar', methods=['POST'])
 def guardar():
     nombre = request.form.get("nombre")
