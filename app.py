@@ -167,7 +167,7 @@ def form_registro():
 
 # Ruta para login
 @app.route('/form_login')
-def login():
+def form_login():
     return render_template("login.html")
 
 
