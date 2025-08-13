@@ -227,16 +227,16 @@
   </script>
 
   {% if exito %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = new bootstrap.Modal(document.getElementById('okModal'));
-  modal.show();
-  document.getElementById('goLogin').addEventListener('click', () => {
-    window.location.href = '/login';
-  });
-});
-</script>
-{% endif %}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = new bootstrap.Modal(document.getElementById('okModal'));
+      modal.show();
+    document.getElementById('goLogin').addEventListener('click', () => {
+      window.location.href = '/login';
+      });
+    });
+  </script>
+  {% endif %}
 
 </body>
 </html>
