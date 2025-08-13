@@ -73,6 +73,7 @@ PRETTY = {
     "OCD": "Obs.-Compulsivo (OCD)",
     "AnsiedadGeneral": "Ansiedad generalizada",
 }
+# =============================================
 
 # === 5) Predicción ML (nivel) ===
 def predecir_nivel_ml(respuestas_dict):
