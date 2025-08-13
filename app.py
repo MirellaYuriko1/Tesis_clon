@@ -161,12 +161,12 @@ def interpreta_normas(genero: str, edad: int, sumas_dim: dict, total: int):
 
 # === 8) Rutas ===
 @app.route('/')
-def formulario():
+def home():
     return render_template("index.html")
 
 # --- Cuestionario (antes era '/'), no lo cambiamos de lógica ---
 @app.route('/cuestionario')
-def formulario():
+def cuestionario():
     return render_template("cuestionario.html")
 
 # === AL DARLE CLICK AL BOTON GUARDAR
