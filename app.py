@@ -1,7 +1,3 @@
-# -------------------------------------------
-# app.py  (SCAS + ML + normas 12–15)
-# -------------------------------------------
-
 # --- Librerías y conexión MySQL ---
 import os
 import mysql.connector
@@ -174,12 +170,41 @@ def login():
 def registro():
     return render_template("registro.html")
 
-# --- Cuestionario (antes era '/'), no lo cambiamos de lógica ---
+# Ruta para el cuestionario
 @app.route('/cuestionario')
 def cuestionario():
     return render_template("cuestionario.html")
 
-# === AL DARLE CLICK AL BOTON GUARDAR
+
+# Ruta para registro (GET y POST)
+@app.route('/registro', methods=['GET', 'POST'])
+def registro():
+    if request.method == 'GET':
+        return render_template("registro.html")
+
+    # POST: datos desde el formulario
+    nombre   = request.form.get("nombre")
+    email    = request.form.get("email")
+    password = request.form.get("password")  # Sin hash, se guarda directo
+
+    cn = get_db()
+    cur = cn.cursor()
+
+    try:
+        cur.execute(
+            "INSERT INTO usuario (nombre, email, contraseña) VALUES (%s, %s, %s)",
+            (nombre, email, password)
+        )
+        cn.commit()
+        return "Registro exitoso. <a href='/login'>Inicia sesión aquí</a>."
+    except Exception as e:
+        cn.rollback()
+        return f"Error al registrar: {e}"
+    finally:
+        cur.close()
+        cn.close()
+
+# === AL DARLE CLICK AL BOTON GUARDAR EL CUESTIONARIO
 @app.route('/guardar', methods=['POST'])
 def guardar():
     nombre = request.form.get("nombre")
