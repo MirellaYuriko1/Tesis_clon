@@ -41,7 +41,7 @@ def cuestionario():
 
 # Ruta para Resultado
 @app.route('/resultado')
-def form_login():
+def resultado():
     return render_template("resultado.html")
 
 # Ruta para que guarde el registro de usuario (GET y POST)
