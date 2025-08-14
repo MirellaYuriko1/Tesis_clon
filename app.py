@@ -35,7 +35,7 @@ def form_login():
 def cuestionario():
     return render_template("cuestionario.html")
 
-# Ruta para registro (GET y POST)
+# Ruta para que guarde el registro de usuario (GET y POST)
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'GET':
