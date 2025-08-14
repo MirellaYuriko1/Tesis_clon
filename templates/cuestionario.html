@@ -108,18 +108,67 @@
       .step-indicator{text-align:left;}
     }
 
-    /* Navbar sencillo */
-    .topbar{background:#fff; border-bottom:1px solid #e9eef5;}
+    /* === Navbar profesional (sin menú) === */
+    .navbar-glass{
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(10px) saturate(160%);
+      -webkit-backdrop-filter: blur(10px) saturate(160%);
+      border-bottom: 1px solid #e9eef5;
+    }
+    @media (prefers-color-scheme: dark){
+      .navbar-glass{
+        background: rgba(17,24,39,.75);
+        border-color:#263244;
+      }
+    }
+    .navbar-brand{
+      font-weight:800; letter-spacing:.2px; color:var(--ink);
+      display:flex; align-items:center; gap:.6rem;
+    }
+    .brand-badge{
+      width:28px; height:28px; border-radius:10px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      display:grid; place-items:center; color:#fff; font-weight:700; font-size:.9rem;
+      box-shadow: 0 6px 18px rgba(21,101,192,.25);
+    }
+    .user-chip{
+      display:flex; align-items:center; gap:.6rem;
+      background: rgba(255,255,255,.6);
+      border:1px solid #e9eef5;
+      border-radius:999px; padding:.35rem .6rem .35rem .35rem;
+    }
+    @media (prefers-color-scheme: dark){
+      .user-chip{ background: rgba(26,33,46,.55); border-color:#263244; }
+    }
+    .avatar{
+      width:28px; height:28px; border-radius:50%;
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      color:#fff; font-weight:700; font-size:.85rem; display:grid; place-items:center;
+    }
+    .user-label{ color:#64748b; font-size:.75rem; line-height:1; }
+    .user-name{ color:var(--ink); font-weight:600; line-height:1; }
   </style>
 </head>
 <body>
-  <!-- NAVBAR con el nombre del usuario a la derecha -->
-  <nav class="navbar topbar">
-    <div class="container">
-      <a class="navbar-brand fw-bold text-primary" href="/">SCAS</a>
+  <!-- NAVBAR profesional (sin menú desplegable) -->
+  <nav class="navbar navbar-glass sticky-top">
+    <div class="container-xxl">
+      <!-- Marca -->
+      <a class="navbar-brand" href="/">
+        <span class="brand-badge">S</span>
+        <span>SCAS</span>
+      </a>
+
+      <!-- Usuario -->
       <div class="ms-auto">
-        <span class="text-muted me-2">Usuario:</span>
-        <strong>{{ usuario_nombre or 'Invitado' }}</strong>
+        <div class="user-chip">
+          <div class="avatar">{{ (usuario_nombre[0] if usuario_nombre else 'I')|upper }}</div>
+          <div class="d-none d-sm-block">
+            <div class="user-label">Usuario</div>
+            <div class="user-name">{{ usuario_nombre or 'Invitado' }}</div>
+          </div>
+          <div class="user-name d-sm-none">{{ usuario_nombre or 'Invitado' }}</div>
+        </div>
       </div>
     </div>
   </nav>
