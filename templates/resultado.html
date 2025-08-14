@@ -10,6 +10,36 @@
     body{ background:#f6f9fc; }
     .card{ border-radius:16px; }
     .badge-level{ font-size:.9rem; }
+
+    /* ===== Subescalas: estilo barras tipo “calculando” ===== */
+    .scas-title{ font-size:1.05rem; font-weight:700; color:#0f172a; }
+    .scas-list{ display:grid; gap:14px; }
+    .scas-item{
+      display:grid; grid-template-columns:1fr auto; align-items:center;
+      gap:12px; padding:12px 14px; border:1px solid #e5e7eb; border-radius:14px;
+      background:#fff; box-shadow:0 6px 18px rgba(0,0,0,.04);
+    }
+    .scas-left{ min-width:0; }
+    .scas-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; }
+    .scas-name{ font-weight:600; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .scas-score{ font-size:.88rem; color:#64748b; }
+
+    /* Barra base (estática) */
+    .scas-progress{ height:12px; background:#eef2f7; border-radius:999px; overflow:hidden; }
+    .scas-bar{ height:100%; width:100%; border-radius:999px; } /* siempre llena */
+
+    /* Paleta de colores suaves */
+    .c1{ background:linear-gradient(90deg,#90c2ff,#5aa4ff); }
+    .c2{ background:linear-gradient(90deg,#d9b6ff,#b58cff); }
+    .c3{ background:linear-gradient(90deg,#ffc6a1,#ffa86b); }
+    .c4{ background:linear-gradient(90deg,#a9e4d7,#65d1bd); }
+    .c5{ background:linear-gradient(90deg,#ffe08a,#ffc64d); }
+    .c6{ background:linear-gradient(90deg,#f7a4c0,#f178a1); }
+    .c7{ background:linear-gradient(90deg,#c9f0a8,#8de06b); }
+    .c8{ background:linear-gradient(90deg,#bcd2ff,#86a9ff); }
+
+    /* Badges (reutilizamos tus colores de Bootstrap) */
+    @media (max-width:480px){ .scas-item{ grid-template-columns:1fr; gap:10px; } }
   </style>
 </head>
 <body>
@@ -44,41 +74,42 @@
       </div>
     </div>
 
-    <!-- Subescalas -->
+    <!-- Subescalas (nuevo diseño con barras estáticas) -->
     <div class="card">
       <div class="card-header fw-semibold">Subescalas</div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>Subescala</th>
-                <th class="text-center">Puntaje</th>
-                <th class="text-center">Nivel</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for r in rows %}
-              <tr>
-                <td>{{ r.label }}</td>
-                <td class="text-center">{{ r.score }}</td>
-                <td class="text-center">
-                  {% if r.level == 'Muy alto' %}
-                    <span class="badge bg-danger badge-level">{{ r.level }}</span>
-                  {% elif r.level == 'Alto' %}
-                    <span class="badge bg-warning text-dark badge-level">{{ r.level }}</span>
-                  {% elif r.level == 'Elevado' %}
-                    <span class="badge bg-info text-dark badge-level">{{ r.level }}</span>
-                  {% elif r.level == 'Normal' %}
-                    <span class="badge bg-success badge-level">{{ r.level }}</span>
-                  {% else %}
-                    <span class="badge bg-secondary badge-level">{{ r.level }}</span>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
+      <div class="card-body">
+        <h3 class="scas-title visually-hidden">Subescalas</h3>
+
+        <div class="scas-list">
+          {% for r in rows %}
+          <div class="scas-item">
+            <div class="scas-left">
+              <div class="scas-top">
+                <span class="scas-name">{{ r.label }}</span>
+                <span class="scas-score">{{ r.score }} / 14</span>
+              </div>
+              <div class="scas-progress">
+                <!-- barra estática; solo cambia el color c1..c8 ciclando -->
+                <div class="scas-bar {{ loop.cycle('c1','c2','c3','c4','c5','c6','c7','c8') }}"></div>
+              </div>
+            </div>
+
+            <!-- Nivel (mismo mapeo de colores que tenías) -->
+            <div class="ms-2">
+              {% if r.level == 'Muy alto' %}
+                <span class="badge bg-danger badge-level">{{ r.level }}</span>
+              {% elif r.level == 'Alto' %}
+                <span class="badge bg-warning text-dark badge-level">{{ r.level }}</span>
+              {% elif r.level == 'Elevado' %}
+                <span class="badge bg-info text-dark badge-level">{{ r.level }}</span>
+              {% elif r.level == 'Normal' %}
+                <span class="badge bg-success badge-level">{{ r.level }}</span>
+              {% else %}
+                <span class="badge bg-secondary badge-level">{{ r.level }}</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -91,3 +122,4 @@
 </div>
 </body>
 </html>
+
