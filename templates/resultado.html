@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Resultados SCAS</title>
 
-  <!-- Bootstrap solo para badges base -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -111,139 +110,103 @@
 
       <h1>Resultados SCAS</h1>
       <p class="subtitle">Resumen del cuestionario y subescalas</p>
-      <!-- se llena desde JS -->
-      <p id="userSummary" class="user-summary"></p>
 
-      <!-- Subescalas -->
-      <h3 class="scas-title">Subescalas</h3>
-      <div id="subscaleList" class="scas-list"></div>
+      {% if notfound %}
+        <p class="user-summary">No se encontró un cuestionario guardado para este usuario.</p>
+        <div class="actions">
+          <a href="/cuestionario?uid={{ uid }}" class="btn btn-outline-primary">Ir al cuestionario</a>
+          <a href="/" class="btn btn-link">Inicio</a>
+        </div>
+      {% else %}
 
-      <!-- Puntaje total (abajo y proporcional a /114) -->
-      <h3 class="scas-title mt-4">Puntaje total</h3>
-      <div class="scas-item">
-        <div class="scas-top">
-          <span class="scas-name">Total</span>
-          <div class="scas-right">
-            <span id="totalScore" class="scas-score">0 / 114</span>
-            <span id="totalBadge" class="badge badge-level bg-secondary">-</span>
+        <!-- Frase centrada -->
+        <p class="user-summary">
+          <strong>"{{ nombre }}"</strong> de acuerdo con el test tu nivel es <strong>"{{ nivel_total }}"</strong>
+        </p>
+
+        <!-- ====== Subescalas ====== -->
+        {% set MAX_BY_LABEL = {
+          'Pánico/Agorafobia': 27,
+          'Ansiedad por separación': 18,
+          'Fobia social': 18,
+          'Miedo a lesiones físicas': 15,
+          'Obs.-Compulsivo (OCD)': 18,
+          'Ansiedad generalizada': 18
+        } %}
+
+        <h3 class="scas-title">Subescalas</h3>
+        <div class="scas-list">
+          {% for r in rows %}
+            {% set maxv = MAX_BY_LABEL.get(r.label, 18) %}
+            {% set pct = (r.score * 100 / maxv) | round(0, 'floor') %}
+            <div class="scas-item">
+              <div class="scas-top">
+                <span class="scas-name">{{ r.label }}</span>
+                <div class="scas-right">
+                  <span class="scas-score">{{ r.score }} / {{ maxv }}</span>
+                  {% set lvl = (r.level or '')|lower %}
+                  {% if lvl == 'muy alto' %}
+                    <span class="badge badge-level bg-danger">{{ r.level }}</span>
+                  {% elif lvl == 'alto' %}
+                    <span class="badge badge-level bg-rose">{{ r.level }}</span>
+                  {% elif lvl == 'elevado' %}
+                    <span class="badge badge-level bg-warning text-dark">{{ r.level }}</span>
+                  {% elif lvl == 'normal' %}
+                    <span class="badge badge-level bg-success">{{ r.level }}</span>
+                  {% else %}
+                    <span class="badge badge-level bg-secondary">{{ r.level }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="scas-progress">
+                <div class="scas-bar {{ loop.cycle('c1','c2','c3','c4','c5','c6','c7','c8') }}" data-pct="{{ pct }}"></div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- ====== Puntaje total ====== -->
+        {% set pctTotal = (total * 100 / 114) | round(0, 'floor') %}
+        <h3 class="scas-title mt-4">Puntaje total</h3>
+        <div class="scas-item">
+          <div class="scas-top">
+            <span class="scas-name">Total</span>
+            <div class="scas-right">
+              <span class="scas-score">{{ total }} / 114</span>
+              {% set nt = (nivel_total or '')|lower %}
+              {% if nt == 'muy alto' %}
+                <span class="badge badge-level bg-danger">{{ nivel_total }}</span>
+              {% elif nt == 'alto' %}
+                <span class="badge badge-level bg-rose">{{ nivel_total }}</span>
+              {% elif nt == 'elevado' %}
+                <span class="badge badge-level bg-warning text-dark">{{ nivel_total }}</span>
+              {% elif nt == 'normal' %}
+                <span class="badge badge-level bg-success">{{ nivel_total }}</span>
+              {% else %}
+                <span class="badge badge-level bg-secondary">{{ nivel_total }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="scas-progress">
+            <div class="scas-bar ctotal" data-pct="{{ pctTotal }}"></div>
           </div>
         </div>
-        <div class="scas-progress">
-          <div id="totalBar" class="scas-bar ctotal"></div><!-- se llenará por JS -->
-        </div>
-      </div>
 
-      <div class="actions">
-        <a href="/cuestionario" class="btn btn-outline-primary">Volver al cuestionario</a>
-        <a href="/" class="btn btn-link">Inicio</a>
-      </div>
+        <div class="actions">
+          <a href="/cuestionario?uid={{ uid }}" class="btn btn-outline-primary">Volver al cuestionario</a>
+          <a href="/" class="btn btn-link">Inicio</a>
+        </div>
+      {% endif %}
     </section>
   </main>
 
+  <!-- Mini-script para animar (sin datos fijos) -->
   <script>
-    // ======================================================
-    // 1) Reemplaza 'data' por tus valores reales o del API.
-    // ======================================================
-    const data = {
-      nombre: "Mirella",
-      total: 38,
-      nivel_total: "Normal",
-      rows: [
-        { label: "Pánico/Agorafobia",        score: 9, level: "Elevado" },
-        { label: "Ansiedad por separación",  score: 6, level: "Elevado" },
-        { label: "Fobia social",             score: 6, level: "Normal"  },
-        { label: "Miedo a lesiones físicas", score: 5, level: "Normal"  },
-        { label: "Obs.-Compulsivo (OCD)",    score: 6, level: "Normal"  },
-        { label: "Ansiedad generalizada",    score: 6, level: "Normal"  },
-      ]
-    };
-
-    // 2) Máximos fijos por subescala
-    const MAX_BY_LABEL = {
-      "Pánico/Agorafobia": 27,
-      "Ansiedad por separación": 18,
-      "Fobia social": 18,
-      "Miedo a lesiones físicas": 15,
-      "Obs.-Compulsivo (OCD)": 18,
-      "Ansiedad generalizada": 18
-    };
-    const TOTAL_MAX = 114;
-
-    // 3) Mapeo de niveles -> clases (colores solicitados)
-    function levelClass(level){
-      const lv = (level || "").toLowerCase();
-      if (lv === "normal")    return "bg-success";
-      if (lv === "elevado")   return "bg-warning text-dark";
-      if (lv === "alto")      return "bg-rose";
-      if (lv === "muy alto")  return "bg-danger";
-      return "bg-secondary";
-    }
-
-    // 4) Colores de barra en ciclo
-    const barColors = ["c1","c2","c3","c4","c5","c6","c7","c8"];
-
-    // 5) Línea de resumen (nombre + nivel)
-    const userSummary = document.getElementById("userSummary");
-    userSummary.textContent = `${data.nombre} de acuerdo con el test tu nivel es ${data.nivel_total}`;
-
-    // 6) Puntaje total (texto, badge y barra proporcional a /114)
-    document.getElementById("totalScore").textContent = `${data.total} / ${TOTAL_MAX}`;
-    const totalBadge = document.getElementById("totalBadge");
-    totalBadge.textContent = data.nivel_total;
-    totalBadge.className = `badge badge-level ${levelClass(data.nivel_total)}`;
-
-    const totalBar = document.getElementById("totalBar");
-    const pctTotal = Math.max(0, Math.min(100, Math.round((data.total / TOTAL_MAX) * 100)));
-    // Animación en el siguiente frame
-    requestAnimationFrame(() => { totalBar.style.width = pctTotal + '%'; });
-
-    // 7) Render de subescalas
-    const list = document.getElementById("subscaleList");
-    data.rows.forEach((r, i) => {
-      const max = MAX_BY_LABEL[r.label] ?? 18;
-      const pct = Math.max(0, Math.min(100, Math.round((r.score / max) * 100)));
-
-      const item = document.createElement("div");
-      item.className = "scas-item";
-
-      // Fila superior: nombre + (score/ max + badge)
-      const top = document.createElement("div");
-      top.className = "scas-top";
-
-      const name = document.createElement("span");
-      name.className = "scas-name";
-      name.textContent = r.label;
-
-      const right = document.createElement("div");
-      right.className = "scas-right";
-
-      const score = document.createElement("span");
-      score.className = "scas-score";
-      score.textContent = `${r.score} / ${max}`;
-
-      const badge = document.createElement("span");
-      badge.className = `badge badge-level ${levelClass(r.level)}`;
-      badge.textContent = r.level;
-
-      right.appendChild(score);
-      right.appendChild(badge);
-      top.appendChild(name);
-      top.appendChild(right);
-
-      // Barra de progreso
-      const progress = document.createElement("div");
-      progress.className = "scas-progress";
-
-      const bar = document.createElement("div");
-      bar.className = `scas-bar ${barColors[i % barColors.length]}`;
-      progress.appendChild(bar);
-
-      item.appendChild(top);
-      item.appendChild(progress);
-      list.appendChild(item);
-
-      // Animar a porcentaje
-      requestAnimationFrame(() => { bar.style.width = pct + "%"; });
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.scas-bar[data-pct]').forEach(el => {
+        const pct = Number(el.dataset.pct || 0);
+        requestAnimationFrame(() => { el.style.width = Math.max(0, Math.min(100, pct)) + '%'; });
+      });
     });
   </script>
 </body>
