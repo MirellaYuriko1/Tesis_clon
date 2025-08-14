@@ -166,8 +166,22 @@ def login():
 
     if row:
         uid = row[0]
-        # pasa el id a /cuestionario vía query string
-        return redirect(f'/cuestionario?uid={uid}')
+
+        # >>> NUEVO: consultar rol y redirigir según sea admin o no
+        cn = get_db()
+        cur = cn.cursor()
+        try:
+            cur.execute("SELECT rol FROM usuario WHERE id_usuario=%s", (uid,))
+            rol_row = cur.fetchone()
+        finally:
+            cur.close()
+            cn.close()
+
+        rol = (rol_row[0] if rol_row and rol_row[0] else '').lower()
+        if rol == 'admin':
+            return redirect('/form_panel')              # admin -> panel
+        else:
+            return redirect(f'/cuestionario?uid={uid}') # estudiante/otros -> cuestionario
 
     # credenciales incorrectas
     return render_template('login.html', error="Correo o contraseña incorrectos.")
