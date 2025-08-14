@@ -179,7 +179,7 @@ def login():
 
         rol = (rol_row[0] if rol_row and rol_row[0] else '').lower()
         if rol == 'admin':
-            return redirect('/form_panel')              # admin -> panel
+            return redirect(f'/form_panel?uid={uid}')              # admin -> panel
         else:
             return redirect(f'/cuestionario?uid={uid}') # estudiante/otros -> cuestionario
 
