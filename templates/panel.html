@@ -8,73 +8,49 @@
     :root{
       --bg:#f6f9fc; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e5e7eb;
       --primary:#2563eb; --primary-2:#1e40af; --shadow:0 12px 28px rgba(2,8,23,.08);
-      --ok:#16a34a; --mid:#d97706; --high:#dc2626;
       --radius:16px; --radius-sm:10px;
     }
     *{box-sizing:border-box}
     html,body{background:var(--bg);color:var(--ink);margin:0;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial}
 
-    /* Navbar */
-    .nav{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:12px 18px;background:#fff;border-bottom:1px solid var(--line);
-      position:sticky;top:0;z-index:20
-    }
+    /* NAV */
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
     .brand{font-weight:800;letter-spacing:.2px}
     .user{position:relative}
-    .user-btn{
-      display:flex;align-items:center;gap:10px;
-      background:#fff;border:1px solid var(--line);border-radius:999px;
-      padding:8px 12px;cursor:pointer;box-shadow:0 2px 8px rgba(2,8,23,.04)
-    }
-    .user-avatar{
-      width:28px;height:28px;display:inline-grid;place-items:center;border-radius:999px;
-      background:#eef2ff;color:#3730a3;font-weight:700
-    }
-    .user-name{font-size:.95rem;color:#0b1220}
+    .user-btn{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer;box-shadow:0 2px 8px rgba(2,8,23,.04)}
+    .user-avatar{width:28px;height:28px;display:inline-grid;place-items:center;border-radius:999px;background:#eef2ff;color:#3730a3;font-weight:700}
+    .user-name{font-size:.95rem}
     .caret{font-size:12px;color:var(--muted)}
-    .menu{
-      position:absolute;right:0;top:48px;background:#fff;border:1px solid var(--line);
-      border-radius:12px;box-shadow:var(--shadow);min-width:180px;display:none;overflow:hidden
-    }
+    .menu{position:absolute;right:0;top:48px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);min-width:180px;display:none;overflow:hidden}
     .menu[data-open="true"]{display:block}
-    .menu a{
-      display:flex;align-items:center;gap:10px;padding:10px 12px;color:#0b1220;
-      text-decoration:none;font-size:.95rem
-    }
+    .menu a{display:flex;align-items:center;gap:10px;padding:10px 12px;color:#0b1220;text-decoration:none;font-size:.95rem}
     .menu a:hover{background:#f8fafc}
 
-    /* Layout */
+    /* LAYOUT */
     .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
     .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
-    .header{
-      display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px
-    }
-    .title{font-size:1.15rem;margin:0}
+
+    /* TOP BAR (title + download) */
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+    .title{font-size:1.1rem;margin:0}
     .pill{background:#eef2ff;color:#3730a3;border-radius:999px;padding:.25rem .6rem;font-size:.85rem}
 
-    /* Actions */
-    .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .search{
-      display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);
-      border-radius:999px;padding:6px 8px
-    }
-    .search input{
-      border:none;outline:none;min-width:220px;font-size:.95rem
-    }
-    .btn{
-      appearance:none;border:none;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer
-    }
+    /* CONTROLS (mostrar / buscar / descargar) */
+    .controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:10px 0}
+    .left-ctrl{display:flex;align-items:center;gap:10px;color:#0b1220}
+    .left-ctrl select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff}
+    .right-ctrl{display:flex;align-items:center;gap:8px}
+    .search{display:flex;align-items:center;gap:8px}
+    .search input{border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:220px}
+    .btn{appearance:none;border:none;border-radius:8px;padding:10px 14px;font-weight:600;cursor:pointer}
     .btn-primary{background:var(--primary);color:#fff}
     .btn-primary:hover{background:var(--primary-2)}
-    .btn-ghost{
-      background:#fff;border:1px solid var(--line);color:#0b1220
-    }
+    .btn-outline{background:#fff;border:1px solid var(--line);color:#0b1220}
 
-    /* Table */
+    /* TABLE */
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}
     table{width:100%;border-collapse:collapse;font-size:.95rem;background:#fff}
-    th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left}
+    th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
     th{font-weight:700;color:#0b1220;background:#f8fafc}
     tr:hover td{background:#f9fbff}
     .muted{color:var(--muted);font-size:.9rem}
@@ -82,8 +58,15 @@
     .lvl.Bajo{background:#ecfdf5;color:#065f46}
     .lvl.Moderado{background:#fff7ed;color:#9a3412}
     .lvl.Alto,.lvl.Severo{background:#fef2f2;color:#991b1b}
+    .btn-sm{padding:6px 10px;border-radius:8px;font-weight:700;font-size:.85rem}
 
-    /* Responsive helpers */
+    /* FOOT (status + pagination) */
+    .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+    .pagination{display:flex;align-items:center;gap:6px}
+    .page{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
+    .page[aria-current="true"]{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .page:disabled{opacity:.5;cursor:not-allowed}
+
     @media (max-width:640px){
       .search input{min-width:140px}
       .title{font-size:1rem}
@@ -91,10 +74,9 @@
   </style>
 </head>
 <body>
+  <!-- NAVBAR -->
   <header class="nav">
     <div class="brand">SCAS·Admin</div>
-
-    <!-- Menú usuario -->
     <div class="user">
       <button class="user-btn" id="userBtn" aria-haspopup="true" aria-expanded="false">
         <span class="user-avatar">{{ (admin_nombre[:1] if admin_nombre else 'A') | upper }}</span>
@@ -103,50 +85,63 @@
       </button>
       <div class="menu" id="userMenu" role="menu" aria-label="Opciones de usuario" data-open="false">
         <a href="/logout" role="menuitem">↩️ Cerrar sesión</a>
+        <a href="/" role="menuitem">🏠 Inicio</a>
       </div>
     </div>
   </header>
 
   <main class="wrap">
     <div class="card">
-      <div class="header">
+      <div class="top">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <h2 class="title">Estudiantes · últimos resultados</h2>
           <span class="pill">{{ rows|length }} registros</span>
         </div>
+        <!-- Descargar (mantiene filtro actual) -->
+        <form id="dlForm" action="/descargar_documento" method="GET">
+          <input type="hidden" name="uid" value="{{ uid }}"/>
+          <input type="hidden" name="q" id="dlQuery" value=""/>
+          <button class="btn btn-primary" type="submit">Descargar Documento</button>
+        </form>
+      </div>
 
-        <div class="actions">
-          <!-- Buscador -->
-          <form class="search" action="/form_panel" method="GET">
-            <input type="hidden" name="uid" value="{{ uid }}"/>
-            <input type="text" name="q" placeholder="Buscar por nombre..." value="{{ q or '' }}" />
-            <button class="btn btn-ghost" type="submit">Buscar</button>
-          </form>
+      <!-- CONTROLES estilo DataTable -->
+      <div class="controls">
+        <div class="left-ctrl">
+          <label for="pageSize">Mostrar</label>
+          <select id="pageSize" aria-label="Mostrar registros">
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <span>registros</span>
+        </div>
 
-          <!-- Descargar Documento -->
-          <form action="/descargar_documento" method="GET">
-            <input type="hidden" name="uid" value="{{ uid }}"/>
-            <input type="hidden" name="q" value="{{ q or '' }}"/>
-            <button class="btn btn-primary" type="submit">Descargar Documento</button>
-          </form>
+        <div class="right-ctrl">
+          <div class="search">
+            <label for="globalSearch" class="muted">Buscar:</label>
+            <input id="globalSearch" type="search" placeholder="Nombre, género, nivel..." />
+          </div>
         </div>
       </div>
 
-      {% if rows and rows|length > 0 %}
+      <!-- TABLA -->
       <div class="table-wrap">
-        <table>
+        <table id="dataTable">
           <thead>
             <tr>
-              <th style="min-width:70px;">ID</th>
-              <th style="min-width:180px;">Nombre</th>
+              <th style="min-width:60px;">#</th>
+              <th style="min-width:200px;">Nombre</th>
               <th>Género</th>
               <th>Edad</th>
-              <th>Puntaje total</th>
+              <th>Puntaje</th>
               <th>Nivel</th>
-              <th style="min-width:160px;">Fecha</th>
+              <th style="min-width:170px;">Fecha</th>
+              <th style="min-width:110px;">Acción</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="tableBody">
             {% for r in rows %}
             <tr>
               <td>{{ r.id_usuario }}</td>
@@ -156,42 +151,126 @@
               <td>{{ r.puntaje_total }}</td>
               <td><span class="lvl {{ r.nivel|default('') }}">{{ r.nivel }}</span></td>
               <td class="muted">{{ r.created_at }}</td>
+              <td>
+                <a class="btn btn-outline btn-sm" target="_blank" href="/resultado?uid={{ r.id_usuario }}">Detalle</a>
+              </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-      {% else %}
-        <p class="muted">No se encontraron resultados con el criterio actual.</p>
-      {% endif %}
+
+      <!-- FOOTER estilo DataTable -->
+      <div class="foot">
+        <div class="muted" id="statusText">Mostrando 0 a 0 de 0 registros</div>
+        <div class="pagination" id="pagination">
+          <button class="page" id="prevBtn">Anterior</button>
+          <div id="pageNums" style="display:flex;gap:6px;"></div>
+          <button class="page" id="nextBtn">Siguiente</button>
+        </div>
+      </div>
     </div>
   </main>
 
   <script>
-    // Toggle del menú de usuario + cerrar al hacer clic fuera
-    const btn = document.getElementById('userBtn');
-    const menu = document.getElementById('userMenu');
-
-    btn.addEventListener('click', (e) => {
+    // ===== Menú usuario =====
+    const userBtn = document.getElementById('userBtn');
+    const userMenu = document.getElementById('userMenu');
+    userBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const isOpen = menu.getAttribute('data-open') === 'true';
-      menu.setAttribute('data-open', !isOpen);
-      btn.setAttribute('aria-expanded', String(!isOpen));
+      const isOpen = userMenu.getAttribute('data-open') === 'true';
+      userMenu.setAttribute('data-open', !isOpen);
+      userBtn.setAttribute('aria-expanded', String(!isOpen));
     });
-
     document.addEventListener('click', (e) => {
-      if (!menu.contains(e.target) && !btn.contains(e.target)) {
-        menu.setAttribute('data-open', 'false');
-        btn.setAttribute('aria-expanded', 'false');
+      if (!userMenu.contains(e.target) && !userBtn.contains(e.target)) {
+        userMenu.setAttribute('data-open', 'false');
+        userBtn.setAttribute('aria-expanded', 'false');
       }
     });
 
-    // Submitear buscador al Enter
-    document.querySelector('.search input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.target.closest('form').submit();
+    // ===== DataTable-like (vanilla) =====
+    const tbody = document.getElementById('tableBody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const pageSizeSel = document.getElementById('pageSize');
+    const searchInput = document.getElementById('globalSearch');
+    const statusText = document.getElementById('statusText');
+    const pag = document.getElementById('pagination');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageNums = document.getElementById('pageNums');
+    const dlForm = document.getElementById('dlForm');
+    const dlQuery = document.getElementById('dlQuery');
+
+    let current = 1;
+    let pageSize = parseInt(pageSizeSel.value, 10);
+    let filtered = rows.slice(); // inicia con todo
+
+    function render() {
+      // paginar
+      const total = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (current > totalPages) current = totalPages;
+      const startIdx = (current - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+
+      // mostrar filas
+      rows.forEach(r => r.style.display = 'none');
+      filtered.slice(startIdx, endIdx).forEach(r => r.style.display = '');
+
+      // status
+      statusText.textContent = total
+        ? `Mostrando registros del ${startIdx + 1} al ${endIdx} de un total de ${total} registros`
+        : 'Mostrando 0 a 0 de 0 registros';
+
+      // botones prev/next
+      prevBtn.disabled = current === 1;
+      nextBtn.disabled = current === totalPages;
+
+      // números de página
+      pageNums.innerHTML = '';
+      const maxPages = 6; // cantidad visible
+      let start = Math.max(1, current - 2);
+      let end = Math.min(totalPages, start + maxPages - 1);
+      if (end - start + 1 < maxPages) start = Math.max(1, end - maxPages + 1);
+
+      for (let p = start; p <= end; p++) {
+        const btn = document.createElement('button');
+        btn.className = 'page';
+        btn.textContent = p;
+        btn.setAttribute('aria-current', String(p === current));
+        btn.addEventListener('click', () => { current = p; render(); });
+        pageNums.appendChild(btn);
       }
+    }
+
+    function applyFilter() {
+      const q = searchInput.value.trim().toLowerCase();
+      filtered = rows.filter(tr => tr.textContent.toLowerCase().includes(q));
+      current = 1;
+      render();
+    }
+
+    // eventos
+    pageSizeSel.addEventListener('change', () => {
+      pageSize = parseInt(pageSizeSel.value, 10);
+      current = 1;
+      render();
     });
+    searchInput.addEventListener('input', applyFilter);
+    prevBtn.addEventListener('click', () => { if (current > 1) { current--; render(); }});
+    nextBtn.addEventListener('click', () => {
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      if (current < totalPages) { current++; render(); }
+    });
+
+    // sincroniza filtro con descarga
+    dlForm.addEventListener('submit', () => {
+      dlQuery.value = searchInput.value.trim();
+    });
+
+    // inicial
+    render();
   </script>
 </body>
 </html>
