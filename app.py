@@ -49,12 +49,11 @@ def resultado():
     cn = get_db()
     cur = cn.cursor(dictionary=True)
     cur.execute("""
-        SELECT c.id_cuestionario, u.id_usuario, u.nombre,
-               c.puntaje_Dim1, c.puntaje_Dim2, c.puntaje_Dim3,
-               c.puntaje_Dim4, c.puntaje_Dim5, c.puntaje_Dim6,
-               c.puntaje_total, c.nivel, c.created_at
-        FROM cuestionario c
-        JOIN usuario u ON u.id_usuario = c.id_usuario        
+        SELECT id_cuestionario, edad, genero,
+               puntaje_Dim1, puntaje_Dim2, puntaje_Dim3,
+               puntaje_Dim4, puntaje_Dim5, puntaje_Dim6,
+               puntaje_total, nivel, created_at
+        FROM cuestionario
         WHERE id_usuario=%s
         ORDER BY created_at DESC
         LIMIT 1
