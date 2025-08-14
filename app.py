@@ -34,8 +34,11 @@ def form_login():
 # Ruta para mostrar el formulario registro
 @app.route('/cuestionario')
 def cuestionario():
-    return render_template("cuestionario.html")
-
+    uid = request.args.get('uid', type=int)
+    if not uid:
+        # si alguien entra directo sin uid, vuelve al login
+        return redirect('/form_login')
+    return render_template('cuestionario.html', uid=uid)
 # Ruta para ir al panel
 @app.route('/form_panel')
 def form_panel():
