@@ -25,7 +25,6 @@
       background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
     }
 
-    /* Contenedor tipo hero (mismo look del index) */
     .hero{ padding-block: clamp(48px, 8vw, 96px); }
     .hero-card{
       max-width: 980px; margin-inline: auto;
@@ -39,39 +38,34 @@
       color: var(--brand-dark); font-size: clamp(26px, 4vw, 40px); margin-bottom: 10px;
       letter-spacing:.3px;
     }
-    .subtitle{ text-align:center; color:var(--muted); margin-bottom: 24px; font-size: .95rem; }
+    .subtitle{ text-align:center; color:var(--muted); margin-bottom: 12px; font-size: .95rem; }
 
-    /* Datos principales */
-    .info-tile{
-      background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px 16px;
+    /* NUEVO: línea centrada con nombre y nivel */
+    .user-summary{
+      text-align:center;
+      font-weight: 700;
+      font-size: clamp(16px, 1.6vw, 18px);
+      color: var(--ink);
+      margin-bottom: 24px;
     }
-    .info-tile .label{ color:#6b7280; font-size:.9rem; }
-    .info-tile .value{ font-weight:600; }
 
     .badge-level{ font-size:.86rem; border-radius:999px; padding:.35rem .6rem; font-weight:700; }
-
-    /* Rosado para “Alto” */
     .bg-rose { background:#fde2f2 !important; color:#9d174d !important; border:1px solid #f9c6e6; }
 
-    /* ===== Barras estáticas tipo “calculando” ===== */
+    /* Barras estáticas */
     .scas-title{ font-size:1.05rem; font-weight:700; color:#0f172a; margin-bottom:10px; }
     .scas-list{ display:grid; gap:14px; }
     .scas-item{
       border:1px solid var(--line); border-radius:14px; background:#fff;
       box-shadow:0 6px 18px rgba(0,0,0,.04); padding:12px 14px;
     }
-    .scas-top{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;
-      flex-wrap: wrap;
-    }
+    .scas-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; flex-wrap: wrap; }
     .scas-name{ font-weight:600; color:#0f172a; }
     .scas-right{ display:flex; align-items:center; gap:10px; }
     .scas-score{ font-size:.9rem; color:#64748b; }
-
     .scas-progress{ height:12px; background:#eef2f7; border-radius:999px; overflow:hidden; }
-    .scas-bar{ height:100%; width:100%; border-radius:999px; } /* estática: llena */
+    .scas-bar{ height:100%; width:100%; border-radius:999px; } /* estática */
 
-    /* Paleta suave por subescala */
     .c1{ background:linear-gradient(90deg,#90c2ff,#5aa4ff); }
     .c2{ background:linear-gradient(90deg,#d9b6ff,#b58cff); }
     .c3{ background:linear-gradient(90deg,#ffc6a1,#ffa86b); }
@@ -81,7 +75,6 @@
     .c7{ background:linear-gradient(90deg,#bcd2ff,#86a9ff); }
     .c8{ background:linear-gradient(90deg,#c9f0a8,#8de06b); }
 
-    /* Color distinto para barra de Total */
     .ctotal{ background: linear-gradient(90deg,#7ee3ff,#22c3e6); }
 
     @media (max-width:576px){
@@ -96,6 +89,11 @@
       <h1>Resultados SCAS</h1>
       <p class="subtitle">Resumen del cuestionario y subescalas</p>
 
+      <!-- NUEVO: nombre y nivel centrados, sin contenedor -->
+      <p class="user-summary">
+        <strong>"{{ nombre }}"</strong> de acuerdo con el test tu nivel es <strong>"{{ nivel_total }}"</strong>
+      </p>
+
       {% if notfound %}
         <div class="alert alert-warning mb-3">
           No se encontró un cuestionario guardado para este usuario.
@@ -103,15 +101,6 @@
         <a href="/cuestionario?uid={{ uid }}" class="btn btn-primary">Ir al cuestionario</a>
 
       {% else %}
-        <!-- Datos principales -->
-        <div class="row g-3 mb-3">
-          <div class="col-md-4">
-            <div class="info-tile">
-              <div class="label">Nombre</div>
-              <div class="value">{{ nombre }}</div>
-            </div>
-          </div>
-        </div>
 
         <!-- Subescalas -->
         <h3 class="scas-title">Subescalas</h3>
@@ -120,24 +109,21 @@
           <div class="scas-item">
             <div class="scas-top">
               <span class="scas-name">{{ r.label }}</span>
-
-              <!-- AQUI: score y badge en la misma línea -->
               <div class="scas-right">
                 <span class="scas-score">{{ r.score }} / 14</span>
                 {% if r.level == 'Muy alto' %}
                   <span class="badge badge-level bg-danger">{{ r.level }}</span>
                 {% elif r.level == 'Alto' %}
-                  <span class="badge badge-level bg-rose">{{ r.level }}</span>     <!-- rosado -->
+                  <span class="badge badge-level bg-rose">{{ r.level }}</span>
                 {% elif r.level == 'Elevado' %}
-                  <span class="badge badge-level bg-warning text-dark">{{ r.level }}</span> <!-- amarillo -->
+                  <span class="badge badge-level bg-warning text-dark">{{ r.level }}</span>
                 {% elif r.level == 'Normal' %}
-                  <span class="badge badge-level bg-success">{{ r.level }}</span>  <!-- verde -->
+                  <span class="badge badge-level bg-success">{{ r.level }}</span>
                 {% else %}
                   <span class="badge badge-level bg-secondary">{{ r.level }}</span>
                 {% endif %}
               </div>
             </div>
-
             <div class="scas-progress">
               <div class="scas-bar {{ loop.cycle('c1','c2','c3','c4','c5','c6','c7','c8') }}"></div>
             </div>
@@ -145,7 +131,7 @@
           {% endfor %}
         </div>
 
-        <!-- Puntaje total (abajo, barra estática, muestra /114 y badge al costado) -->
+        <!-- Puntaje total (abajo, barra estática, /114 y badge al costado) -->
         <h3 class="scas-title mt-4">Puntaje total</h3>
         <div class="scas-item">
           <div class="scas-top">
@@ -173,10 +159,10 @@
         <!-- Acciones -->
         <div class="mt-4 d-flex gap-2">
           <a href="/cuestionario?uid={{ uid }}" class="btn btn-outline-primary">Volver al cuestionario</a>
-          <a href="/" class="btn btn-link">Inicio</a>
         </div>
       {% endif %}
     </section>
   </main>
 </body>
 </html>
+
