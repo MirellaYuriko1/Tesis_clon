@@ -31,6 +31,11 @@ def form_registro():
 def form_login():
     return render_template("login.html")
 
+# Ruta para mostrar el formulario registro
+@app.route('/cuestionario')
+def cuestionario():
+    return render_template("cuestionario.html")
+
 # Ruta para ir al panel
 @app.route('/form_panel')
 def form_panel():
