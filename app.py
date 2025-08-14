@@ -51,7 +51,6 @@ def resultado():
     cur.execute("""
         SELECT 
             u.nombre,
-            c.edad, c.genero,
             c.puntaje_Dim1, c.puntaje_Dim2, c.puntaje_Dim3,
             c.puntaje_Dim4, c.puntaje_Dim5, c.puntaje_Dim6,
             c.puntaje_total, c.nivel, c.created_at
@@ -64,7 +63,6 @@ def resultado():
     row = cur.fetchone()
     cur.close(); cn.close()
 
-    # Si no hay cuestionario aún, pero sí nombre, mostramos aviso
     if not row:
         return render_template("resultado.html", nombre=None, no_data=True)
 
@@ -83,8 +81,6 @@ def resultado():
     return render_template(
         "resultado.html",
         nombre=row["nombre"],
-        edad=row["edad"],
-        genero=row["genero"],
         subdim=subdim,
         total=row["puntaje_total"],
         nivel=row["nivel"],
