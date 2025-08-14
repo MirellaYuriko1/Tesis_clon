@@ -49,23 +49,23 @@ def resultado():
     cn = get_db()
     cur = cn.cursor(dictionary=True)
     cur.execute("""
-        SELECT id_cuestionario, edad, genero,
-               puntaje_Dim1, puntaje_Dim2, puntaje_Dim3,
-               puntaje_Dim4, puntaje_Dim5, puntaje_Dim6,
-               puntaje_total, nivel, created_at
-        FROM cuestionario
-        WHERE id_usuario=%s
-        ORDER BY created_at DESC
+        SELECT c.id_cuestionario, c.edad, c.genero,
+               c.puntaje_Dim1, c.puntaje_Dim2, c.puntaje_Dim3,
+               c.puntaje_Dim4, c.puntaje_Dim5, c.puntaje_Dim6,
+               c.puntaje_total, c.nivel, c.created_at,
+               u.nombre
+        FROM cuestionario c
+        JOIN usuario u ON u.id_usuario = c.id_usuario
+        WHERE c.id_usuario=%s
+        ORDER BY c.created_at DESC
         LIMIT 1
     """, (uid,))
     row = cur.fetchone()
     cur.close(); cn.close()
 
     if not row:
-        # No hay cuestionario para ese usuario
         return render_template('resultado.html', notfound=True, uid=uid)
 
-    # Mapeo para pasar a la función de interpretación
     sumas_dim = {
         "Dim1": row['puntaje_Dim1'],
         "Dim2": row['puntaje_Dim2'],
@@ -79,29 +79,30 @@ def resultado():
         row['genero'], row['edad'], sumas_dim, row['puntaje_total']
     )
 
-    # Construimos filas para la tabla (en el orden que quieras mostrar)
     dims_order = ["Dim1","Dim2","Dim3","Dim4","Dim5","Dim6"]
     rows = []
     for d in dims_order:
-        key = DIM_NOMBRES[d]           # p.ej. "PanicoAgorafobia"
+        key = DIM_NOMBRES[d]
         rows.append({
             "code": key,
-            "label": PRETTY[key],      # p.ej. "Pánico/Agorafobia"
+            "label": PRETTY[key],
             "score": sumas_dim[d],
-            "level": inter_sub.get(key) or "-"   # "-" si no aplica norma
+            "level": inter_sub.get(key) or "-"
         })
 
-    nivel_total = inter_total or row['nivel']    # usa norma si aplica; si no, el que guardaste
+    nivel_total = inter_total or row['nivel']
+
     return render_template(
         'resultado.html',
         notfound=False,
         uid=uid,
+        nombre=row['nombre'],     # <-- enviamos nombre
         edad=row['edad'],
-        genero=row['genero'],
         rows=rows,
         total=row['puntaje_total'],
         nivel_total=nivel_total
     )
+
 # Ruta para que guarde el registro de usuario (GET y POST)
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
