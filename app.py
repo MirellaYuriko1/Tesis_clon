@@ -33,7 +33,49 @@ def form_login():
 # Ruta para ir al panel
 @app.route('/form_panel')
 def form_panel():
-    return render_template("panel.html")
+    uid = request.args.get('uid', type=int)
+    if not uid:
+        return redirect('/form_login')
+
+    cn = get_db()
+    cur = cn.cursor(dictionary=True)
+    try:
+        # 1) Datos del usuario que abrió el panel
+        cur.execute("SELECT nombre, rol FROM usuario WHERE id_usuario=%s", (uid,))
+        admin = cur.fetchone()
+        if not admin:
+            return "Usuario no encontrado.", 404
+
+        if (admin.get('rol') or '').lower() != 'admin':
+            # Si no es admin, reenvía a su cuestionario
+            return redirect(f'/cuestionario?uid={uid}')
+
+        # 2) Último resultado por estudiante (una fila por estudiante)
+        cur.execute("""
+            SELECT u.id_usuario, u.nombre, c.genero, c.edad,
+                   c.puntaje_total, c.nivel, c.created_at
+            FROM usuario u
+            JOIN (
+                SELECT c1.*
+                FROM cuestionario c1
+                JOIN (
+                    SELECT id_usuario, MAX(created_at) AS mx
+                    FROM cuestionario
+                    GROUP BY id_usuario
+                ) ult
+                ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
+            ) c ON c.id_usuario = u.id_usuario
+            WHERE u.rol = 'estudiante'
+            ORDER BY c.created_at DESC
+        """)
+        rows = cur.fetchall()
+    finally:
+        cur.close()
+        cn.close()
+
+    return render_template('panel.html',
+                           admin_nombre=admin['nombre'],
+                           rows=rows)
 
 # /cuestionario ahora exige ?uid=... y lo pasa al template
 @app.route('/cuestionario')
