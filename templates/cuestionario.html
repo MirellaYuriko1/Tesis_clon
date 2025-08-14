@@ -1,251 +1,303 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Cuestionario SCAS-Child</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cuestionario SCAS-Child</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#e0f2ff; --bg2:#90caf9;
+      --ink:#0f172a; --muted:#475569;
+      --brand:#1e88e5; --brand-dark:#1565c0;
+      --line:#e5e7eb; --radius:22px;
+      --qhead-bg:#f6faff; --qhead-border:#e7eef8;
+    }
+
+    html,body{height:100%}
+    body{
+      margin:0; font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink);
+      background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);
+    }
+
+    .wrap{min-height:100%; display:grid; place-items:center; padding:32px 12px;}
+
+    .card-quiz{
+      width:100%;
+      max-width:900px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding:clamp(20px,4vw,40px);
+    }
+
+    .top-progress{margin-bottom:16px;}
+    .title-row{
+      display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:8px;
+    }
+    .title{
+      font-family:'Merriweather',serif; font-weight:700; font-size:clamp(20px,2.6vw,28px); color:#155db5; margin:0;
+    }
+    .progress{height:10px; background:#e6f0fb; border-radius:20px; overflow:hidden;}
+    .progress-bar{background:var(--brand);}
+    .step-indicator{color:var(--muted); font-weight:600; font-size:14px; text-align:right;}
+
+    .qhead{
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+      background:var(--qhead-bg); border:1px solid var(--qhead-border);
+      border-radius:16px; padding:16px 18px; margin:12px 0 14px;
+    }
+    .qhead-text{
+      font-size: clamp(16px, 2.2vw, 20px);
+      font-weight: 700;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+
+    .choices{display:grid; gap:12px; margin-top:8px;}
+    .choice{
+      position:relative; display:flex; align-items:center; gap:12px; border:1.5px solid #e5e7eb;
+      border-radius:14px; padding:14px 16px; background:#fff; cursor:pointer;
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .04s ease;
+    }
+    .choice:hover{border-color:#cbd5e1; background:#fbfdff;}
+    .choice:active{transform:scale(.997);}
+    .letter{
+      width:28px; height:28px; border-radius:7px; display:grid; place-items:center; font-weight:700; font-size:13px;
+      border:1px solid #e2e8f0; color:#334155; background:#f8fafc;
+    }
+    .ctext{flex:1; color:#0f172a; font-weight:600}
+    .mark{
+      width:22px; height:22px; border-radius:50%; border:2px solid #cbd5e1; display:grid; place-items:center;
+      font-size:14px; color:#fff; background:#fff;
+    }
+    .choices input{position:absolute; opacity:0; pointer-events:none;}
+    .choices input:checked + label.choice{
+      border-color: var(--brand); box-shadow:0 0 0 4px rgba(30,136,229,.12);
+      background:#ffffff;
+    }
+    .choices input:checked + label .letter{
+      border-color:#bfdbfe; background:#eaf2ff; color:#1e3a8a;
+    }
+    .choices input:checked + label .mark{
+      background: var(--brand); border-color: var(--brand);
+    }
+    .choices input:checked + label .mark::before{
+      content:"✓"; line-height:1; font-weight:800; font-size:12px;
+    }
+
+    .age-wrap{
+      display:flex; align-items:center; gap:12px; border:1.5px solid #e5e7eb; background:#fff;
+      border-radius:14px; padding:14px 16px; max-width:420px;
+    }
+    .age-wrap input{
+      height:46px; border-radius:10px; border:1px solid #e5e7eb; padding:0 14px; width:140px; font-weight:600;
+    }
+    .hint{color:#64748b; font-size:13px; margin-top:6px;}
+
+    .navs{display:flex; justify-content:space-between; gap:12px; margin-top:22px;}
+    .btn{border-radius:999px; font-weight:600; padding:.65rem 1.2rem;}
+    .btn-prev{background:#eef2f7; border-color:#eef2f7; color:#0f172a;}
+    .btn-prev:hover{background:#e2e8f0; border-color:#e2e8f0;}
+    .btn-next, .btn-submit {
+        background: #eef2f7;
+        border-color: #eef2f7;
+        color: #0f172a;
+    }
+    .btn-next:hover, .btn-submit:hover {
+        background: #e2e8f0;
+        border-color: #e2e8f0;
+    }
+    @media (max-width: 640px){
+      .step-indicator{text-align:left;}
+    }
+  </style>
 </head>
 <body>
-    <h1>Cuestionario SCAS-Child</h1>
-    <form action="/guardar" method="post">
-        <label>Nombre: <input type="text" name="nombre" required></label><br>
-        <label>Edad: <input type="number" name="edad" required></label><br>
-        <label>Género:
-            <select name="genero" required>
-                <option value="Masculino">Masculino</option>
-                <option value="Femenino">Femenino</option>
-            </select>
-        </label><br><br>
-<legend>1. Hay cosas que me preocupan</legend>
-<label><input type="radio" name="p1" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p1" value="1" required> A veces</label><br>
-<label><input type="radio" name="p1" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p1" value="3" required> Siempre</label><br>
+  <main class="wrap">
+    <form id="quizForm" action="/guardar" method="post" class="card-quiz">
 
-<legend>2. Me da miedo la oscuridad</legend>
-<label><input type="radio" name="p2" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p2" value="1" required> A veces</label><br>
-<label><input type="radio" name="p2" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p2" value="3" required> Siempre</label><br>
+      <div class="top-progress">
+        <div class="title-row">
+          <h1 class="title">Cuestionario SCAS-Child</h1>
+        </div>
+        <div class="progress" role="progressbar" aria-label="Progreso">
+          <div id="pbar" class="progress-bar" style="width:0%"></div>
+        </div>
+        <div class="step-indicator mt-1" id="stepLabel">Paso 1 de 40</div>
+      </div>
 
-<legend>3. Cuando tengo un problema noto una sensación extraña en el estómago.</legend>
-<label><input type="radio" name="p3" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p3" value="1" required> A veces</label><br>
-<label><input type="radio" name="p3" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p3" value="3" required> Siempre</label><br>
+      <!-- CABECERA SIN ICONO -->
+      <div id="qHead" class="qhead">
+        <div class="qhead-text" id="qHeadText"></div>
+      </div>
 
-<legend>4. Tengo miedo</legend>
-<label><input type="radio" name="p4" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p4" value="1" required> A veces</label><br>
-<label><input type="radio" name="p4" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p4" value="3" required> Siempre</label><br>
+      <div id="stepContainer"></div>
 
-<legend>5. Tendría miedo si me quedara solo en casa</legend>
-<label><input type="radio" name="p5" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p5" value="1" required> A veces</label><br>
-<label><input type="radio" name="p5" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p5" value="3" required> Siempre</label><br>
-
-<legend>6. Me da miedo hacer un examen</legend>
-<label><input type="radio" name="p6" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p6" value="1" required> A veces</label><br>
-<label><input type="radio" name="p6" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p6" value="3" required> Siempre</label><br>
-
-<legend>7. Me da miedo usar aseos públicos</legend>
-<label><input type="radio" name="p7" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p7" value="1" required> A veces</label><br>
-<label><input type="radio" name="p7" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p7" value="3" required> Siempre</label><br>
-
-<legend>8. Me preocupo cuando estoy lejos de mis padres</legend>
-<label><input type="radio" name="p8" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p8" value="1" required> A veces</label><br>
-<label><input type="radio" name="p8" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p8" value="3" required> Siempre</label><br>
-
-<legend>9. Tengo miedo de hacer el ridículo delante de la gente</legend>
-<label><input type="radio" name="p9" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p9" value="1" required> A veces</label><br>
-<label><input type="radio" name="p9" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p9" value="3" required> Siempre</label><br>
-
-<legend>10. Me preocupa hacer mal el trabajo de la escuela</legend>
-<label><input type="radio" name="p10" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p10" value="1" required> A veces</label><br>
-<label><input type="radio" name="p10" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p10" value="3" required> Siempre</label><br>
-
-<legend>11. Me preocupa que algo malo le suceda a alguien de mi familia</legend>
-<label><input type="radio" name="p11" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p11" value="1" required> A veces</label><br>
-<label><input type="radio" name="p11" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p11" value="3" required> Siempre</label><br>
-
-<legend>12. De repente siento que no puedo respirar sin motivo</legend>
-<label><input type="radio" name="p12" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p12" value="1" required> A veces</label><br>
-<label><input type="radio" name="p12" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p12" value="3" required> Siempre</label><br>
-
-<legend>13. Necesito comprobar varias veces que he hecho bien las cosas</legend>
-<label><input type="radio" name="p13" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p13" value="1" required> A veces</label><br>
-<label><input type="radio" name="p13" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p13" value="3" required> Siempre</label><br>
-
-<legend>14. Me da miedo dormir solo</legend>
-<label><input type="radio" name="p14" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p14" value="1" required> A veces</label><br>
-<label><input type="radio" name="p14" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p14" value="3" required> Siempre</label><br>
-
-<legend>15. Estoy nervioso o tengo miedo por las mañanas antes de ir al colegio</legend>
-<label><input type="radio" name="p15" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p15" value="1" required> A veces</label><br>
-<label><input type="radio" name="p15" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p15" value="3" required> Siempre</label><br>
-
-<legend>16. Me dan miedo los perros</legend>
-<label><input type="radio" name="p16" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p16" value="1" required> A veces</label><br>
-<label><input type="radio" name="p16" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p16" value="3" required> Siempre</label><br>
-
-<legend>17. No puedo dejar de pensar en cosas malas o tontas</legend>
-<label><input type="radio" name="p17" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p17" value="1" required> A veces</label><br>
-<label><input type="radio" name="p17" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p17" value="3" required> Siempre</label><br>
-
-<legend>18. Cuando tengo un problema mi corazón late muy fuerte</legend>
-<label><input type="radio" name="p18" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p18" value="1" required> A veces</label><br>
-<label><input type="radio" name="p18" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p18" value="3" required> Siempre</label><br>
-
-<legend>19. De repente empiezo a temblar sin motivo</legend>
-<label><input type="radio" name="p19" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p19" value="1" required> A veces</label><br>
-<label><input type="radio" name="p19" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p19" value="3" required> Siempre</label><br>
-
-<legend>20. Me preocupa que algo malo pueda pasarme</legend>
-<label><input type="radio" name="p20" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p20" value="1" required> A veces</label><br>
-<label><input type="radio" name="p20" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p20" value="3" required> Siempre</label><br>
-
-<legend>21. Me da miedo ir al médico o al dentista</legend>
-<label><input type="radio" name="p21" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p21" value="1" required> A veces</label><br>
-<label><input type="radio" name="p21" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p21" value="3" required> Siempre</label><br>
-
-<legend>22. Cuando tengo un problema me siento nervioso</legend>
-<label><input type="radio" name="p22" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p22" value="1" required> A veces</label><br>
-<label><input type="radio" name="p22" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p22" value="3" required> Siempre</label><br>
-
-<legend>23. Me dan miedo los lugares altos o los ascensores</legend>
-<label><input type="radio" name="p23" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p23" value="1" required> A veces</label><br>
-<label><input type="radio" name="p23" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p23" value="3" required> Siempre</label><br>
-
-<legend>24. Tengo que pensar en cosas especiales para evitar que pase algo malo</legend>
-<label><input type="radio" name="p24" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p24" value="1" required> A veces</label><br>
-<label><input type="radio" name="p24" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p24" value="3" required> Siempre</label><br>
-
-<legend>25. Me da miedo viajar en coche, autobús o tren</legend>
-<label><input type="radio" name="p25" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p25" value="1" required> A veces</label><br>
-<label><input type="radio" name="p25" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p25" value="3" required> Siempre</label><br>
-
-<legend>26. Me preocupa lo que otras personas piensan de mí</legend>
-<label><input type="radio" name="p26" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p26" value="1" required> A veces</label><br>
-<label><input type="radio" name="p26" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p26" value="3" required> Siempre</label><br>
-
-<legend>27. Me da miedo estar en lugares donde hay mucha gente</legend>
-<label><input type="radio" name="p27" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p27" value="1" required> A veces</label><br>
-<label><input type="radio" name="p27" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p27" value="3" required> Siempre</label><br>
-
-<legend>28. De repente tengo mucho miedo sin motivo</legend>
-<label><input type="radio" name="p28" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p28" value="1" required> A veces</label><br>
-<label><input type="radio" name="p28" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p28" value="3" required> Siempre</label><br>
-
-<legend>29. Me dan miedo los insectos o las arañas</legend>
-<label><input type="radio" name="p29" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p29" value="1" required> A veces</label><br>
-<label><input type="radio" name="p29" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p29" value="3" required> Siempre</label><br>
-
-<legend>30. De repente me siento mareado o creo que me voy a desmayar sin motivo</legend>
-<label><input type="radio" name="p30" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p30" value="1" required> A veces</label><br>
-<label><input type="radio" name="p30" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p30" value="3" required> Siempre</label><br>
-
-<legend>31. Me da miedo tener que hablar delante de mis compañeros de clase</legend>
-<label><input type="radio" name="p31" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p31" value="1" required> A veces</label><br>
-<label><input type="radio" name="p31" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p31" value="3" required> Siempre</label><br>
-
-<legend>32. De repente mi corazón late muy rápido sin motivo</legend>
-<label><input type="radio" name="p32" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p32" value="1" required> A veces</label><br>
-<label><input type="radio" name="p32" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p32" value="3" required> Siempre</label><br>
-
-<legend>33. Me preocupa tener miedo de repente sin que haya nada que temer</legend>
-<label><input type="radio" name="p33" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p33" value="1" required> A veces</label><br>
-<label><input type="radio" name="p33" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p33" value="3" required> Siempre</label><br>
-
-<legend>34. Me da miedo estar en lugares pequeños y cerrados</legend>
-<label><input type="radio" name="p34" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p34" value="1" required> A veces</label><br>
-<label><input type="radio" name="p34" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p34" value="3" required> Siempre</label><br>
-
-<legend>35. Tengo que hacer algunas cosas una y otra vez</legend>
-<label><input type="radio" name="p35" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p35" value="1" required> A veces</label><br>
-<label><input type="radio" name="p35" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p35" value="3" required> Siempre</label><br>
-
-<legend>36. Me molestan pensamientos tontos o malos, o imágenes en mi mente</legend>
-<label><input type="radio" name="p36" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p36" value="1" required> A veces</label><br>
-<label><input type="radio" name="p36" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p36" value="3" required> Siempre</label><br>
-
-<legend>37. Tengo que hacer algunas cosas de una forma determinada para evitar que pasen cosas malas</legend>
-<label><input type="radio" name="p37" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p37" value="1" required> A veces</label><br>
-<label><input type="radio" name="p37" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p37" value="3" required> Siempre</label><br>
-
-<legend>38. Me daría miedo pasar la noche fuera de casa</legend>
-<label><input type="radio" name="p38" value="0" required> Nunca</label><br>
-<label><input type="radio" name="p38" value="1" required> A veces</label><br>
-<label><input type="radio" name="p38" value="2" required> Muchas veces</label><br>
-<label><input type="radio" name="p38" value="3" required> Siempre</label><br>
-
-        <!--Cuando lo presionas, el navegador empaqueta todos los name=value y los manda a /guardar por POST-->
-        <input type="submit" value="Obtener mis resultados">
+      <div class="navs">
+        <button type="button" class="btn btn-prev" id="btnPrev">Anterior</button>
+        <button type="button" class="btn btn-next" id="btnNext">Siguiente</button>
+        <button type="submit" class="btn btn-submit d-none" id="btnSubmit">Obtener mis resultados</button>
+      </div>
     </form>
+  </main>
+
+  <script>
+    const steps = [
+      { type:'age',   text:'Ingresa tu edad' },
+      { type:'gender',text:'¿Cuál es tu identidad de género?' },
+      {type:'q', name:'p1',  text:'1.Hay cosas que me preocupan'},
+      {type:'q', name:'p2',  text:'2.Me da miedo la oscuridad'},
+      {type:'q', name:'p3',  text:'3.Cuando tengo un problema noto una sensación extraña en el estómago.'},
+      {type:'q', name:'p4',  text:'4.Tengo miedo'},
+      {type:'q', name:'p5',  text:'5.Tendría miedo si me quedara solo en casa'},
+      {type:'q', name:'p6',  text:'6.Me da miedo hacer un examen'},
+      {type:'q', name:'p7',  text:'7.Me da miedo usar aseos públicos'},
+      {type:'q', name:'p8',  text:'8.Me preocupo cuando estoy lejos de mis padres'},
+      {type:'q', name:'p9',  text:'9.Tengo miedo de hacer el ridículo delante de la gente'},
+      {type:'q', name:'p10', text:'10.Me preocupa hacer mal el trabajo de la escuela'},
+      {type:'q', name:'p11', text:'11.Me preocupa que algo malo le suceda a alguien de mi familia'},
+      {type:'q', name:'p12', text:'12.De repente siento que no puedo respirar sin motivo'},
+      {type:'q', name:'p13', text:'13.Necesito comprobar varias veces que he hecho bien las cosas'},
+      {type:'q', name:'p14', text:'14.Me da miedo dormir solo'},
+      {type:'q', name:'p15', text:'15.Estoy nervioso o tengo miedo por las mañanas antes de ir al colegio'},
+      {type:'q', name:'p16', text:'16.Me dan miedo los perros'},
+      {type:'q', name:'p17', text:'17.No puedo dejar de pensar en cosas malas o tontas'},
+      {type:'q', name:'p18', text:'18.Cuando tengo un problema mi corazón late muy fuerte'},
+      {type:'q', name:'p19', text:'19.De repente empiezo a temblar sin motivo'},
+      {type:'q', name:'p20', text:'20.Me preocupa que algo malo pueda pasarme'},
+      {type:'q', name:'p21', text:'21.Me da miedo ir al médico o al dentista'},
+      {type:'q', name:'p22', text:'22.Cuando tengo un problema me siento nervioso'},
+      {type:'q', name:'p23', text:'23.Me dan miedo los lugares altos o los ascensores'},
+      {type:'q', name:'p24', text:'24.Tengo que pensar en cosas especiales para evitar que pase algo malo'},
+      {type:'q', name:'p25', text:'25.Me da miedo viajar en coche, autobús o tren'},
+      {type:'q', name:'p26', text:'26.Me preocupa lo que otras personas piensan de mí'},
+      {type:'q', name:'p27', text:'27.Me da miedo estar en lugares donde hay mucha gente'},
+      {type:'q', name:'p28', text:'28.De repente tengo mucho miedo sin motivo'},
+      {type:'q', name:'p29', text:'29.Me dan miedo los insectos o las arañas'},
+      {type:'q', name:'p30', text:'30.De repente me siento mareado o creo que me voy a desmayar sin motivo'},
+      {type:'q', name:'p31', text:'31.Me da miedo tener que hablar delante de mis compañeros de clase'},
+      {type:'q', name:'p32', text:'32.De repente mi corazón late muy rápido sin motivo'},
+      {type:'q', name:'p33', text:'33.Me preocupa tener miedo de repente sin que haya nada que temer'},
+      {type:'q', name:'p34', text:'34.Me da miedo estar en lugares pequeños y cerrados'},
+      {type:'q', name:'p35', text:'35.Tengo que hacer algunas cosas una y otra vez'},
+      {type:'q', name:'p36', text:'36.Me molestan pensamientos tontos o malos, o imágenes en mi mente'},
+      {type:'q', name:'p37', text:'37.Tengo que hacer algunas cosas de una forma determinada para evitar que pasen cosas malas'},
+      {type:'q', name:'p38', text:'38.Me daría miedo pasar la noche fuera de casa'},
+    ];
+
+    const optionScale = [
+      {letter:'A', label:'Nunca', value:'0'},
+      {letter:'B', label:'A veces', value:'1'},
+      {letter:'C', label:'Muchas veces', value:'2'},
+      {letter:'D', label:'Siempre', value:'3'},
+    ];
+
+    const totalSteps = steps.length;
+    let step = 0;
+
+    const form = document.getElementById('quizForm');
+    const stepContainer = document.getElementById('stepContainer');
+    const pbar = document.getElementById('pbar');
+    const stepLabel = document.getElementById('stepLabel');
+    const qHeadText = document.getElementById('qHeadText');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    function render(){
+      const pct = Math.round((step)/(totalSteps-1) * 100);
+      pbar.style.width = pct + '%';
+      stepLabel.textContent = `Paso ${step+1} de ${totalSteps}`;
+
+      btnPrev.disabled = (step === 0);
+      btnNext.classList.toggle('d-none', step === totalSteps-1);
+      btnSubmit.classList.toggle('d-none', step !== totalSteps-1);
+
+      const s = steps[step];
+      qHeadText.textContent = s.text;
+
+      if(s.type === 'age'){
+        stepContainer.innerHTML = `
+          <div class="age-wrap">
+            <input id="edad" name="edad" type="number" min="3" max="18" placeholder="Ej. 12" required>
+          </div>
+        `;
+      } else if(s.type === 'gender'){
+        stepContainer.innerHTML = `
+          <div class="choices">
+            <input id="gen_M" type="radio" name="genero" value="Mujer" required>
+            <label for="gen_M" class="choice">
+              <span class="letter">A</span>
+              <span class="ctext">Mujer</span>
+              <span class="mark"></span>
+            </label>
+
+            <input id="gen_H" type="radio" name="genero" value="Hombre" required>
+            <label for="gen_H" class="choice">
+              <span class="letter">B</span>
+              <span class="ctext">Hombre</span>
+              <span class="mark"></span>
+            </label>
+          </div>
+        `;
+      } else {
+        const group = s.name;
+        let html = `<div class="choices">`;
+        optionScale.forEach((op,i)=>{
+          const id = `${group}_${i}`;
+          html += `
+            <input id="${id}" type="radio" name="${group}" value="${op.value}" required>
+            <label for="${id}" class="choice">
+              <span class="letter">${op.letter}</span>
+              <span class="ctext">${op.label}</span>
+              <span class="mark"></span>
+            </label>
+          `;
+        });
+        html += `</div>`;
+        stepContainer.innerHTML = html;
+      }
+    }
+
+    function canProceed(){
+      const s = steps[step];
+      if(s.type === 'age'){
+        const edad = document.getElementById('edad');
+        if(!edad) return false;
+        const v = Number(edad.value);
+        return Number.isFinite(v) && v >= 3 && v <= 18;
+      }
+      if(s.type === 'gender'){
+        return !!form.querySelector('input[name="genero"]:checked');
+      }
+      if(s.type === 'q'){
+        return !!form.querySelector(`input[name="${s.name}"]:checked`);
+      }
+      return true;
+    }
+
+    function goNext(){
+      if(!canProceed()){
+        const invalid = stepContainer.querySelector('input:invalid') || stepContainer.querySelector('input');
+        if(invalid && invalid.reportValidity) invalid.reportValidity();
+        return;
+      }
+      if(step < totalSteps-1){ step++; render(); }
+    }
+    function goPrev(){ if(step>0){ step--; render(); } }
+
+    document.getElementById('btnNext').addEventListener('click', goNext);
+    document.getElementById('btnPrev').addEventListener('click', goPrev);
+
+    form.addEventListener('submit', (e)=>{
+      if(!canProceed()){ e.preventDefault(); }
+    });
+
+    render();
+  </script>
 </body>
 </html>
-

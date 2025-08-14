@@ -83,7 +83,7 @@
     <section class="login-card">
       <h1 class="login-title">Accede a tu cuenta</h1>
 
-      <form id="loginForm" method="post" action="cuestionario.html" novalidate>
+      <form id="loginForm" method="post" action="/login" novalidate>
         <!-- Email -->
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
@@ -102,6 +102,11 @@
               </svg>
             </button>
           </div>
+
+          <!-- mensaje de error del backend -->
+    {% if error %}
+      <div class="text-danger mt-2" id="loginError">{{ error }}</div>
+    {% endif %}
         </div>
 
         <!-- Botón principal -->

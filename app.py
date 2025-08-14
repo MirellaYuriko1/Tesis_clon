@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 #------------------------------
 
 #Framework web para mostrar el formulario y manejar las respuestas.
-from flask import Flask, render_template, request 
+from flask import Flask, render_template, request, redirect
 #Manipulación de datos 
 import pandas as pd
 #ML
@@ -170,7 +170,6 @@ def form_registro():
 def form_login():
     return render_template("login.html")
 
-
 # Ruta para el cuestionario
 @app.route('/cuestionario')
 def cuestionario():
@@ -208,6 +207,32 @@ def registro():
     finally:
         cur.close()
         cn.close()
+
+# --- Login (GET+POST): funciona en /login y /form_login ---
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html', error=None)
+
+    # POST: validar contra la BD (sin hash, como pediste)
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    cn = get_db()
+    cur = cn.cursor()
+    cur.execute(
+        "SELECT id FROM usuario WHERE email=%s AND contraseña=%s",
+        (email, password)
+    )
+    row = cur.fetchone()
+    cur.close(); cn.close()
+    if row:
+        # credenciales correctas -> ir al cuestionario
+        return redirect('/cuestionario')
+
+    # incorrectas -> volver al login con mensaje
+    return render_template('login.html', error="Correo o contraseña incorrectos.")
+
 
 # === AL DARLE CLICK AL BOTON GUARDAR EL CUESTIONARIO
 @app.route('/guardar', methods=['POST'])
