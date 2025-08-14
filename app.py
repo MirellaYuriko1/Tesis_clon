@@ -30,6 +30,11 @@ def form_registro():
 def form_login():
     return render_template("login.html")
 
+# Ruta para ir al panel
+@app.route('/form_panel')
+def form_panel():
+    return render_template("panel.html")
+
 # /cuestionario ahora exige ?uid=... y lo pasa al template
 @app.route('/cuestionario')
 def cuestionario():
