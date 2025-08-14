@@ -1,5 +1,6 @@
 #Framework web para mostrar el formulario y manejar las respuestas.
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, Response
+from io import BytesIO
 #Manipulación de datos 
 import pandas as pd
 import os
@@ -34,24 +35,32 @@ def form_login():
 @app.route('/form_panel')
 def form_panel():
     uid = request.args.get('uid', type=int)
+    q = (request.args.get('q') or '').strip()
+
     if not uid:
         return redirect('/form_login')
 
     cn = get_db()
     cur = cn.cursor(dictionary=True)
     try:
-        # 1) Datos del usuario que abrió el panel
+        # 1) Info del admin
         cur.execute("SELECT nombre, rol FROM usuario WHERE id_usuario=%s", (uid,))
         admin = cur.fetchone()
         if not admin:
             return "Usuario no encontrado.", 404
 
         if (admin.get('rol') or '').lower() != 'admin':
-            # Si no es admin, reenvía a su cuestionario
+            # Si no es admin, enviar a su cuestionario
             return redirect(f'/cuestionario?uid={uid}')
 
-        # 2) Último resultado por estudiante (una fila por estudiante)
-        cur.execute("""
+        # 2) Último resultado por estudiante, opcionalmente filtrado por nombre
+        where_like = ""
+        params = []
+        if q:
+            where_like = " AND u.nombre LIKE %s "
+            params.append(f"%{q}%")
+
+        sql = f"""
             SELECT u.id_usuario, u.nombre, c.genero, c.edad,
                    c.puntaje_total, c.nivel, c.created_at
             FROM usuario u
@@ -65,26 +74,99 @@ def form_panel():
                 ) ult
                 ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
             ) c ON c.id_usuario = u.id_usuario
-            WHERE u.rol = 'estudiante'
+            WHERE u.rol = 'estudiante' {where_like}
             ORDER BY c.created_at DESC
-        """)
+        """
+        cur.execute(sql, params)
         rows = cur.fetchall()
     finally:
         cur.close()
         cn.close()
 
-    return render_template('panel.html',
-                           admin_nombre=admin['nombre'],
-                           rows=rows)
+    return render_template(
+        'panel.html',
+        admin_nombre=admin['nombre'],
+        rows=rows,
+        uid=uid,
+        q=q
+    )
 
-# /cuestionario ahora exige ?uid=... y lo pasa al template
-@app.route('/cuestionario')
-def cuestionario():
+@app.get('/descargar_documento')
+def descargar_documento():
     uid = request.args.get('uid', type=int)
+    q = (request.args.get('q') or '').strip()
     if not uid:
-        # si no hay uid en la URL, mejor redirige al login
         return redirect('/form_login')
-    return render_template("cuestionario.html", uid=uid)
+
+    cn = get_db()
+    cur = cn.cursor(dictionary=True)
+    try:
+        # validar admin
+        cur.execute("SELECT rol FROM usuario WHERE id_usuario=%s", (uid,))
+        rol_row = cur.fetchone()
+        if not rol_row or (rol_row['rol'] or '').lower() != 'admin':
+            return redirect(f'/cuestionario?uid={uid}')
+
+        # armar consulta con TODAS las columnas de cuestionario (último por estudiante)
+        cols_p = ", ".join([f"c.p{i}" for i in range(1, 39)])
+        sql = f"""
+            SELECT 
+                u.nombre AS Nombre,
+                c.genero AS Genero,
+                c.edad   AS Edad,
+                {cols_p},
+                c.puntaje_Dim1, c.puntaje_Dim2, c.puntaje_Dim3,
+                c.puntaje_Dim4, c.puntaje_Dim5, c.puntaje_Dim6,
+                c.puntaje_total, c.nivel, c.created_at
+            FROM usuario u
+            JOIN (
+                SELECT c1.*
+                FROM cuestionario c1
+                JOIN (
+                    SELECT id_usuario, MAX(created_at) AS mx
+                    FROM cuestionario
+                    GROUP BY id_usuario
+                ) ult
+                ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
+            ) c ON c.id_usuario = u.id_usuario
+            WHERE u.rol='estudiante' { "AND u.nombre LIKE %s" if q else "" }
+            ORDER BY c.created_at DESC
+        """
+        params = [f"%{q}%"] if q else []
+        cur.execute(sql, params)
+        data = cur.fetchall()
+    finally:
+        cur.close()
+        cn.close()
+
+    # Construir DataFrame y ordenar columnas
+    if not data:
+        df = pd.DataFrame(columns=["Nombre","Genero","Edad"])
+    else:
+        df = pd.DataFrame(data)
+
+        # Orden elegante de columnas
+        preguntas = [f"p{i}" for i in range(1, 39)]
+        dims = [f"puntaje_Dim{i}" for i in range(1, 6+1)]
+        front = ["Nombre", "Genero", "Edad"]
+        tail = dims + ["puntaje_total", "nivel", "created_at"]
+        ordered = [c for c in front + preguntas + tail if c in df.columns]
+        df = df[ordered]
+
+    # Exportar Excel en memoria
+    try:
+        buff = BytesIO()
+        with pd.ExcelWriter(buff, engine="openpyxl") as writer:
+            df.to_excel(writer, sheet_name="SCAS", index=False)
+        buff.seek(0)
+        return Response(
+            buff.getvalue(),
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": "attachment; filename=SCAS_Estudiantes.xlsx"}
+        )
+    except Exception as e:
+        return f"Error al generar Excel: {e}", 500
+
 
 # Ruta para Resultado
 @app.get('/resultado')
