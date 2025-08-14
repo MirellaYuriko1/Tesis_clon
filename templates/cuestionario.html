@@ -107,9 +107,23 @@
     @media (max-width: 640px){
       .step-indicator{text-align:left;}
     }
+
+    /* Navbar sencillo */
+    .topbar{background:#fff; border-bottom:1px solid #e9eef5;}
   </style>
 </head>
 <body>
+  <!-- NAVBAR con el nombre del usuario a la derecha -->
+  <nav class="navbar topbar">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-primary" href="/">SCAS</a>
+      <div class="ms-auto">
+        <span class="text-muted me-2">Usuario:</span>
+        <strong>{{ usuario_nombre or 'Invitado' }}</strong>
+      </div>
+    </div>
+  </nav>
+  
   <main class="wrap">
     <form id="quizForm" action="/guardar" method="post" class="card-quiz">
       <!-- id de usuario desde Flask -->

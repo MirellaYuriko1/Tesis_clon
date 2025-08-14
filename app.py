@@ -31,14 +31,24 @@ def form_registro():
 def form_login():
     return render_template("login.html")
 
-# Ruta para mostrar el formulario registro
+# Ruta para mostrar el formulario cuestionario
 @app.route('/cuestionario')
 def cuestionario():
     uid = request.args.get('uid', type=int)
     if not uid:
-        # si alguien entra directo sin uid, vuelve al login
         return redirect('/form_login')
-    return render_template('cuestionario.html', uid=uid)
+
+    # Traer el nombre del usuario para mostrarlo en el navbar
+    cn = get_db()
+    cur = cn.cursor()
+    cur.execute("SELECT nombre FROM usuario WHERE id_usuario=%s", (uid,))
+    row = cur.fetchone()
+    cur.close(); cn.close()
+
+    usuario_nombre = row[0] if row else None
+
+    return render_template('cuestionario.html', uid=uid, usuario_nombre=usuario_nombre)
+
 # Ruta para ir al panel
 @app.route('/form_panel')
 def form_panel():
