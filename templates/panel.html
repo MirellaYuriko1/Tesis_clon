@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Panel | SCAS</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body { background:#f6f9fc; }
+    .navbar { background:#fff; border-bottom:1px solid #e9eef5; }
+    .brand { font-weight:800; letter-spacing:.2px; }
+    .card { border-radius:16px; }
+    .table thead th { font-weight:700; }
+    .table tbody td { vertical-align: middle; }
+    .avatar {
+      width:32px; height:32px; border-radius:50%; background:#e9efff; color:#2743ff;
+      display:grid; place-items:center; font-weight:700;
+    }
+    .search-wrap { max-width: 320px; }
+    .badge-level { font-size:.85rem; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand px-3">
+    <div class="container-fluid">
+      <div class="brand">SCAS · Panel</div>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <span class="text-muted d-none d-sm-inline">Administrador</span>
+        <div class="avatar">{{ admin_name[:1]|upper }}</div>
+        <strong>{{ admin_name }}</strong>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h4 m-0">Estudiantes</h2>
+
+      <!-- Buscador simple en cliente -->
+      <div class="search-wrap">
+        <input id="tableSearch" type="search" class="form-control" placeholder="Buscar por nombre, nivel…">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0" id="studentsTable">
+            <thead class="table-light">
+              <tr>
+                <th style="width:90px;">ID</th>
+                <th>Nombre</th>
+                <th>Género</th>
+                <th>Edad</th>
+                <th class="text-center">Puntaje total</th>
+                <th class="text-center">Nivel</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in rows %}
+              <tr>
+                <td class="text-muted">{{ r.id_usuario }}</td>
+                <td class="fw-semibold">{{ r.nombre }}</td>
+                <td>{{ r.genero }}</td>
+                <td>{{ r.edad }}</td>
+                <td class="text-center fw-semibold">{{ r.puntaje_total }}</td>
+                <td class="text-center">
+                  {% set lvl = (r.nivel or '-') %}
+                  {% if lvl == 'Muy alto' %}
+                    <span class="badge bg-danger badge-level">{{ lvl }}</span>
+                  {% elif lvl == 'Alto' %}
+                    <span class="badge bg-warning text-dark badge-level">{{ lvl }}</span>
+                  {% elif lvl == 'Elevado' %}
+                    <span class="badge bg-info text-dark badge-level">{{ lvl }}</span>
+                  {% elif lvl == 'Normal' %}
+                    <span class="badge bg-success badge-level">{{ lvl }}</span>
+                  {% else %}
+                    <span class="badge bg-secondary badge-level">{{ lvl }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                  No hay registros para estudiantes.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Filtro muy simple por texto (nombre, nivel, etc.)
+    const input = document.getElementById('tableSearch');
+    const table = document.getElementById('studentsTable').getElementsByTagName('tbody')[0];
+
+    input.addEventListener('input', () => {
+      const q = input.value.toLowerCase().trim();
+      for (const row of table.rows) {
+        const txt = row.innerText.toLowerCase();
+        row.style.display = txt.includes(q) ? '' : 'none';
+      }
+    });
+  </script>
+</body>
+</html>
