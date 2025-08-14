@@ -35,11 +35,8 @@
     .title{font-size:1.1rem;margin:0}
     .pill{background:#eef2ff;color:#3730a3;border-radius:999px;padding:.25rem .6rem;font-size:.85rem}
 
-    /* CONTROLS (mostrar / buscar / descargar) */
-    .controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:10px 0}
-    .left-ctrl{display:flex;align-items:center;gap:10px;color:#0b1220}
-    .left-ctrl select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff}
-    .right-ctrl{display:flex;align-items:center;gap:8px}
+    /* CONTROLS (buscar) */
+    .controls{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:10px 0}
     .search{display:flex;align-items:center;gap:8px}
     .search input{border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:220px}
     .btn{appearance:none;border:none;border-radius:8px;padding:10px 14px;font-weight:600;cursor:pointer}
@@ -58,7 +55,6 @@
     .lvl.Bajo{background:#ecfdf5;color:#065f46}
     .lvl.Moderado{background:#fff7ed;color:#9a3412}
     .lvl.Alto,.lvl.Severo{background:#fef2f2;color:#991b1b}
-    .btn-sm{padding:6px 10px;border-radius:8px;font-weight:700;font-size:.85rem}
 
     /* FOOT (status + pagination) */
     .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
@@ -96,7 +92,7 @@
           <h2 class="title">Estudiantes · últimos resultados</h2>
           <span class="pill">{{ rows|length }} registros</span>
         </div>
-        <!-- Descargar (mantiene filtro actual) -->
+        <!-- Descargar (usa el filtro actual del buscador) -->
         <form id="dlForm" action="/descargar_documento" method="GET">
           <input type="hidden" name="uid" value="{{ uid }}"/>
           <input type="hidden" name="q" id="dlQuery" value=""/>
@@ -104,28 +100,15 @@
         </form>
       </div>
 
-      <!-- CONTROLES estilo DataTable -->
+      <!-- BUSCADOR (derecha, estilo DataTable) -->
       <div class="controls">
-        <div class="left-ctrl">
-          <label for="pageSize">Mostrar</label>
-          <select id="pageSize" aria-label="Mostrar registros">
-            <option value="10" selected>10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-          <span>registros</span>
-        </div>
-
-        <div class="right-ctrl">
-          <div class="search">
-            <label for="globalSearch" class="muted">Buscar:</label>
-            <input id="globalSearch" type="search" placeholder="Nombre, género, nivel..." />
-          </div>
+        <div class="search">
+          <label for="globalSearch" class="muted">Buscar:</label>
+          <input id="globalSearch" type="search" placeholder="Nombre, género, nivel..." />
         </div>
       </div>
 
-      <!-- TABLA -->
+      <!-- TABLA (sin columna Detalle) -->
       <div class="table-wrap">
         <table id="dataTable">
           <thead>
@@ -137,7 +120,6 @@
               <th>Puntaje</th>
               <th>Nivel</th>
               <th style="min-width:170px;">Fecha</th>
-              <th style="min-width:110px;">Acción</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -150,16 +132,13 @@
               <td>{{ r.puntaje_total }}</td>
               <td><span class="lvl {{ r.nivel|default('') }}">{{ r.nivel }}</span></td>
               <td class="muted">{{ r.created_at }}</td>
-              <td>
-                <a class="btn btn-outline btn-sm" target="_blank" href="/resultado?uid={{ r.id_usuario }}">Detalle</a>
-              </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
 
-      <!-- FOOTER estilo DataTable -->
+      <!-- FOOTER con paginación de 10 en 10 -->
       <div class="foot">
         <div class="muted" id="statusText">Mostrando 0 a 0 de 0 registros</div>
         <div class="pagination" id="pagination">
@@ -191,10 +170,8 @@
     // ===== DataTable-like (vanilla) =====
     const tbody = document.getElementById('tableBody');
     const rows = Array.from(tbody.querySelectorAll('tr'));
-    const pageSizeSel = document.getElementById('pageSize');
     const searchInput = document.getElementById('globalSearch');
     const statusText = document.getElementById('statusText');
-    const pag = document.getElementById('pagination');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const pageNums = document.getElementById('pageNums');
@@ -202,33 +179,28 @@
     const dlQuery = document.getElementById('dlQuery');
 
     let current = 1;
-    let pageSize = parseInt(pageSizeSel.value, 10);
+    const pageSize = 10; // <- fijo 10 por página
     let filtered = rows.slice(); // inicia con todo
 
     function render() {
-      // paginar
       const total = filtered.length;
       const totalPages = Math.max(1, Math.ceil(total / pageSize));
       if (current > totalPages) current = totalPages;
       const startIdx = (current - 1) * pageSize;
       const endIdx = Math.min(startIdx + pageSize, total);
 
-      // mostrar filas
       rows.forEach(r => r.style.display = 'none');
       filtered.slice(startIdx, endIdx).forEach(r => r.style.display = '');
 
-      // status
       statusText.textContent = total
         ? `Mostrando registros del ${startIdx + 1} al ${endIdx} de un total de ${total} registros`
         : 'Mostrando 0 a 0 de 0 registros';
 
-      // botones prev/next
       prevBtn.disabled = current === 1;
       nextBtn.disabled = current === totalPages;
 
-      // números de página
       pageNums.innerHTML = '';
-      const maxPages = 6; // cantidad visible
+      const maxPages = 6;
       let start = Math.max(1, current - 2);
       let end = Math.min(totalPages, start + maxPages - 1);
       if (end - start + 1 < maxPages) start = Math.max(1, end - maxPages + 1);
@@ -250,12 +222,6 @@
       render();
     }
 
-    // eventos
-    pageSizeSel.addEventListener('change', () => {
-      pageSize = parseInt(pageSizeSel.value, 10);
-      current = 1;
-      render();
-    });
     searchInput.addEventListener('input', applyFilter);
     prevBtn.addEventListener('click', () => { if (current > 1) { current--; render(); }});
     nextBtn.addEventListener('click', () => {
@@ -263,7 +229,7 @@
       if (current < totalPages) { current++; render(); }
     });
 
-    // sincroniza filtro con descarga
+    // sincroniza filtro con descarga (servidor filtra por nombre con LIKE)
     dlForm.addEventListener('submit', () => {
       dlQuery.value = searchInput.value.trim();
     });
