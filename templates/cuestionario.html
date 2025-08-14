@@ -109,18 +109,6 @@
     }
 
     /* === Navbar profesional (sin menú) === */
-    .navbar-glass{
-      background: rgba(255,255,255,.85);
-      backdrop-filter: blur(10px) saturate(160%);
-      -webkit-backdrop-filter: blur(10px) saturate(160%);
-      border-bottom: 1px solid #e9eef5;
-    }
-    @media (prefers-color-scheme: dark){
-      .navbar-glass{
-        background: rgba(17,24,39,.75);
-        border-color:#263244;
-      }
-    }
     .navbar-brand{
       font-weight:800; letter-spacing:.2px; color:var(--ink);
       display:flex; align-items:center; gap:.6rem;
@@ -133,13 +121,10 @@
     }
     .user-chip{
       display:flex; align-items:center; gap:.6rem;
-      background: rgba(255,255,255,.6);
       border:1px solid #e9eef5;
       border-radius:999px; padding:.35rem .6rem .35rem .35rem;
     }
-    @media (prefers-color-scheme: dark){
-      .user-chip{ background: rgba(26,33,46,.55); border-color:#263244; }
-    }
+   
     .avatar{
       width:28px; height:28px; border-radius:50%;
       background: linear-gradient(135deg, var(--brand), var(--brand-dark));
