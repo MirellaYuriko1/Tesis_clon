@@ -40,57 +40,68 @@ def cuestionario():
     return render_template("cuestionario.html", uid=uid)
 
 # Ruta para Resultado
-@app.route('/resultado')
+@app.get('/resultado')
 def resultado():
     uid = request.args.get('uid', type=int)
     if not uid:
-        return "Falta uid", 400
+        return "Falta el parámetro uid.", 400
 
     cn = get_db()
     cur = cn.cursor(dictionary=True)
     cur.execute("""
-        SELECT 
-            u.id_usuario, u.nombre,
-            c.puntaje_Dim1, c.puntaje_Dim2, c.puntaje_Dim3,
-            c.puntaje_Dim4, c.puntaje_Dim5, c.puntaje_Dim6,
-            c.puntaje_total, c.nivel, c.created_at
-        FROM usuario u
-        LEFT JOIN cuestionario c ON c.id_usuario = u.id_usuario
-        WHERE u.id_usuario = %s
-        ORDER BY c.created_at DESC
+        SELECT id_cuestionario, edad, genero,
+               puntaje_Dim1, puntaje_Dim2, puntaje_Dim3,
+               puntaje_Dim4, puntaje_Dim5, puntaje_Dim6,
+               puntaje_total, nivel, created_at
+        FROM cuestionario
+        WHERE id_usuario=%s
+        ORDER BY created_at DESC
         LIMIT 1
     """, (uid,))
     row = cur.fetchone()
     cur.close(); cn.close()
 
     if not row:
-        # Usuario sin registros
-        return render_template("resultado.html", uid=uid, nombre=None, no_data=True)
+        # No hay cuestionario para ese usuario
+        return render_template('resultado.html', notfound=True, uid=uid)
 
-    if row.get("puntaje_total") is None:
-        # Tiene usuario pero sin cuestionario aún
-        return render_template("resultado.html", uid=row["id_usuario"], nombre=row["nombre"], no_data=True)
-
-    subdim = {
-        "Pánico/Agorafobia":         row["puntaje_Dim1"],
-        "Ansiedad por separación":   row["puntaje_Dim2"],
-        "Fobia social":              row["puntaje_Dim3"],
-        "Miedo a lesiones físicas":  row["puntaje_Dim4"],
-        "Obs.-Compulsivo (OCD)":     row["puntaje_Dim5"],
-        "Ansiedad generalizada":     row["puntaje_Dim6"],
+    # Mapeo para pasar a la función de interpretación
+    sumas_dim = {
+        "Dim1": row['puntaje_Dim1'],
+        "Dim2": row['puntaje_Dim2'],
+        "Dim3": row['puntaje_Dim3'],
+        "Dim4": row['puntaje_Dim4'],
+        "Dim5": row['puntaje_Dim5'],
+        "Dim6": row['puntaje_Dim6'],
     }
 
-    return render_template(
-        "resultado.html",
-        uid=row["id_usuario"],              # <- ID disponible para la vista
-        nombre=row["nombre"],               # <- nombre visible
-        subdim=subdim,
-        total=row["puntaje_total"],
-        nivel=row["nivel"],
-        creado=row["created_at"],
-        no_data=False,
+    inter_sub, inter_total = interpreta_normas(
+        row['genero'], row['edad'], sumas_dim, row['puntaje_total']
     )
 
+    # Construimos filas para la tabla (en el orden que quieras mostrar)
+    dims_order = ["Dim1","Dim2","Dim3","Dim4","Dim5","Dim6"]
+    rows = []
+    for d in dims_order:
+        key = DIM_NOMBRES[d]           # p.ej. "PanicoAgorafobia"
+        rows.append({
+            "code": key,
+            "label": PRETTY[key],      # p.ej. "Pánico/Agorafobia"
+            "score": sumas_dim[d],
+            "level": inter_sub.get(key) or "-"   # "-" si no aplica norma
+        })
+
+    nivel_total = inter_total or row['nivel']    # usa norma si aplica; si no, el que guardaste
+    return render_template(
+        'resultado.html',
+        notfound=False,
+        uid=uid,
+        edad=row['edad'],
+        genero=row['genero'],
+        rows=rows,
+        total=row['puntaje_total'],
+        nivel_total=nivel_total
+    )
 # Ruta para que guarde el registro de usuario (GET y POST)
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
