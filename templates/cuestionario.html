@@ -96,21 +96,14 @@
     .age-wrap input{
       height:46px; border-radius:10px; border:1px solid #e5e7eb; padding:0 14px; width:140px; font-weight:600;
     }
-    .hint{color:#64748b; font-size:13px; margin-top:6px;}
 
     .navs{display:flex; justify-content:space-between; gap:12px; margin-top:22px;}
     .btn{border-radius:999px; font-weight:600; padding:.65rem 1.2rem;}
     .btn-prev{background:#eef2f7; border-color:#eef2f7; color:#0f172a;}
     .btn-prev:hover{background:#e2e8f0; border-color:#e2e8f0;}
-    .btn-next, .btn-submit {
-        background: #eef2f7;
-        border-color: #eef2f7;
-        color: #0f172a;
-    }
-    .btn-next:hover, .btn-submit:hover {
-        background: #e2e8f0;
-        border-color: #e2e8f0;
-    }
+    .btn-next, .btn-submit { background: #eef2f7; border-color: #eef2f7; color: #0f172a; }
+    .btn-next:hover, .btn-submit:hover { background: #e2e8f0; border-color: #e2e8f0; }
+
     @media (max-width: 640px){
       .step-indicator{text-align:left;}
     }
@@ -119,6 +112,8 @@
 <body>
   <main class="wrap">
     <form id="quizForm" action="/guardar" method="post" class="card-quiz">
+      <!-- id de usuario desde Flask -->
+      <input type="hidden" name="id_usuario" value="{{ uid }}">
 
       <div class="top-progress">
         <div class="title-row">
@@ -130,7 +125,6 @@
         <div class="step-indicator mt-1" id="stepLabel">Paso 1 de 40</div>
       </div>
 
-      <!-- CABECERA SIN ICONO -->
       <div id="qHead" class="qhead">
         <div class="qhead-text" id="qHeadText"></div>
       </div>
@@ -142,6 +136,9 @@
         <button type="button" class="btn btn-next" id="btnNext">Siguiente</button>
         <button type="submit" class="btn btn-submit d-none" id="btnSubmit">Obtener mis resultados</button>
       </div>
+
+      <!-- aquí agregaremos hidden inputs (edad, genero, p1..p38) vía JS -->
+      <div id="hiddenBox"></div>
     </form>
   </main>
 
@@ -208,6 +205,15 @@
     const btnNext = document.getElementById('btnNext');
     const btnSubmit = document.getElementById('btnSubmit');
 
+    // === crear inputs ocultos para edad, genero y p1..p38 ===
+    (function makeHidden(){
+      const hiddenBox = document.getElementById('hiddenBox');
+      hiddenBox.innerHTML =
+        `<input type="hidden" id="edad_hidden" name="edad">
+         <input type="hidden" id="genero_hidden" name="genero">` +
+        Array.from({length:38}, (_,i)=>`<input type="hidden" id="p${i+1}_hidden" name="p${i+1}">`).join('');
+    })();
+
     function render(){
       const pct = Math.round((step)/(totalSteps-1) * 100);
       pbar.style.width = pct + '%';
@@ -223,20 +229,20 @@
       if(s.type === 'age'){
         stepContainer.innerHTML = `
           <div class="age-wrap">
-            <input id="edad" name="edad" type="number" min="3" max="18" placeholder="Ej. 12" required>
+            <input id="edad" name="edad_tmp" type="number" min="3" max="18" placeholder="Ej. 12" required>
           </div>
         `;
       } else if(s.type === 'gender'){
         stepContainer.innerHTML = `
           <div class="choices">
-            <input id="gen_F" type="radio" name="genero" value="Femenino" required>
+            <input id="gen_F" type="radio" name="genero_tmp" value="Femenino" required>
             <label for="gen_F" class="choice">
               <span class="letter">A</span>
               <span class="ctext">Femenino</span>
               <span class="mark"></span>
             </label>
 
-            <input id="gen_M" type="radio" name="genero" value="Masculino" required>
+            <input id="gen_M" type="radio" name="genero_tmp" value="Masculino" required>
             <label for="gen_M" class="choice">
               <span class="letter">B</span>
               <span class="ctext">Masculino</span>
@@ -250,7 +256,7 @@
         optionScale.forEach((op,i)=>{
           const id = `${group}_${i}`;
           html += `
-            <input id="${id}" type="radio" name="${group}" value="${op.value}" required>
+            <input id="${id}" type="radio" name="${group}_tmp" value="${op.value}" required>
             <label for="${id}" class="choice">
               <span class="letter">${op.letter}</span>
               <span class="ctext">${op.label}</span>
@@ -260,6 +266,44 @@
         });
         html += `</div>`;
         stepContainer.innerHTML = html;
+      }
+
+      // restaurar lo guardado en hidden para este paso
+      restoreCurrentStepSelection();
+    }
+
+    function restoreCurrentStepSelection(){
+      const s = steps[step];
+      if(s.type === 'age'){
+        const saved = document.getElementById('edad_hidden').value;
+        const edad = document.getElementById('edad');
+        if (saved && edad) edad.value = saved;
+      } else if(s.type === 'gender'){
+        const saved = document.getElementById('genero_hidden').value;
+        if (saved){
+          const r = form.querySelector(`input[name="genero_tmp"][value="${saved}"]`);
+          if (r) r.checked = true;
+        }
+      } else if(s.type === 'q'){
+        const saved = document.getElementById(`${s.name}_hidden`).value;
+        if (saved !== ''){
+          const r = form.querySelector(`input[name="${s.name}_tmp"][value="${saved}"]`);
+          if (r) r.checked = true;
+        }
+      }
+    }
+
+    function saveCurrentStep(){
+      const s = steps[step];
+      if(s.type === 'age'){
+        const edad = document.getElementById('edad');
+        if (edad) document.getElementById('edad_hidden').value = edad.value || '';
+      } else if(s.type === 'gender'){
+        const g = form.querySelector('input[name="genero_tmp"]:checked');
+        if (g) document.getElementById('genero_hidden').value = g.value;
+      } else if(s.type === 'q'){
+        const sel = form.querySelector(`input[name="${s.name}_tmp"]:checked`);
+        if (sel) document.getElementById(`${s.name}_hidden`).value = sel.value;
       }
     }
 
@@ -272,10 +316,10 @@
         return Number.isFinite(v) && v >= 3 && v <= 18;
       }
       if(s.type === 'gender'){
-        return !!form.querySelector('input[name="genero"]:checked');
+        return !!form.querySelector('input[name="genero_tmp"]:checked');
       }
       if(s.type === 'q'){
-        return !!form.querySelector(`input[name="${s.name}"]:checked`);
+        return !!form.querySelector(`input[name="${s.name}_tmp"]:checked`);
       }
       return true;
     }
@@ -286,17 +330,37 @@
         if(invalid && invalid.reportValidity) invalid.reportValidity();
         return;
       }
-      if(step < totalSteps-1){ step++; render(); }
+      // guarda lo elegido en este paso
+      saveCurrentStep();
+
+      if(step < totalSteps-1){
+        step++;
+        render();
+      }
     }
-    function goPrev(){ if(step>0){ step--; render(); } }
+
+    function goPrev(){
+      // guarda antes de retroceder
+      saveCurrentStep();
+      if(step>0){
+        step--;
+        render();
+      }
+    }
 
     document.getElementById('btnNext').addEventListener('click', goNext);
     document.getElementById('btnPrev').addEventListener('click', goPrev);
 
     form.addEventListener('submit', (e)=>{
-      if(!canProceed()){ e.preventDefault(); }
+      if(!canProceed()){
+        e.preventDefault();
+        return;
+      }
+      // guarda lo del último paso visible antes de enviar
+      saveCurrentStep();
     });
 
+    // arranque
     render();
   </script>
 </body>

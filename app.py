@@ -30,10 +30,14 @@ def form_registro():
 def form_login():
     return render_template("login.html")
 
-# Ruta para el cuestionario
+# /cuestionario ahora exige ?uid=... y lo pasa al template
 @app.route('/cuestionario')
 def cuestionario():
-    return render_template("cuestionario.html")
+    uid = request.args.get('uid', type=int)
+    if not uid:
+        # si no hay uid en la URL, mejor redirige al login
+        return redirect('/form_login')
+    return render_template("cuestionario.html", uid=uid)
 
 # Ruta para que guarde el registro de usuario (GET y POST)
 @app.route('/registro', methods=['GET', 'POST'])
@@ -68,30 +72,122 @@ def registro():
         cur.close()
         cn.close()
 
-# --- Login (GET+POST): funciona en /login y /form_login ---
+# === Login (GET/POST) ===
+# IMPORTANTE: tu login.html debe postear a /login (action="/login")
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html', error=None)
 
-    # POST: validar contra la BD (sin hash, como pediste)
+    # POST: validar contra BD (sin hash)
     email = request.form.get('email')
     password = request.form.get('password')
 
     cn = get_db()
     cur = cn.cursor()
-    cur.execute(
-        "SELECT id_usuario FROM usuario WHERE email=%s AND contraseña=%s",
-        (email, password)
-    )
-    row = cur.fetchone()
-    cur.close(); cn.close()
-    if row:
-        # credenciales correctas -> ir al cuestionario
-        return redirect('/cuestionario')
+    try:
+        cur.execute(
+            "SELECT id_usuario FROM usuario WHERE email=%s AND contraseña=%s",
+            (email, password)
+        )
+        row = cur.fetchone()
+    finally:
+        cur.close()
+        cn.close()
 
-    # incorrectas -> volver al login con mensaje
+    if row:
+        uid = row[0]
+        # pasa el id a /cuestionario vía query string
+        return redirect(f'/cuestionario?uid={uid}')
+
+    # credenciales incorrectas
     return render_template('login.html', error="Correo o contraseña incorrectos.")
+
+# === Guardar/Actualizar cuestionario ===
+@app.post('/guardar')
+def guardar():
+    try:
+        # Validar que venga id_usuario (oculto en el form)
+        id_usuario_raw = (request.form.get("id_usuario") or "").strip()
+        if not id_usuario_raw.isdigit():
+            return "Falta id_usuario. Vuelve a iniciar sesión.", 400
+        id_usuario = int(id_usuario_raw)
+
+        # Datos demográficos
+        edad = int(request.form.get("edad"))
+        genero = request.form.get("genero")  # "Femenino" / "Masculino"
+
+        # Respuestas p1..p38 (cada una 0..3)
+        respuestas = {f"p{i}": int(request.form.get(f"p{i}", 0)) for i in range(1, 39)}
+
+        # Sumas por dimensión y total
+        sumas = {dim: sum(respuestas[f"p{i}"] for i in items) for dim, items in DIMENSIONES.items()}
+        puntaje_total = sum(respuestas.values())
+
+        # Interpretación por reglas
+        inter_sub, inter_total = interpreta_normas(genero, edad, sumas, puntaje_total)
+        nivel_txt = inter_total or "N/A"
+
+        cn = get_db()
+        cur = cn.cursor()
+
+        # ¿Ya tiene cuestionario? Tomar el más reciente si existiera
+        cur.execute(
+            "SELECT id_cuestionario FROM cuestionario WHERE id_usuario=%s ORDER BY created_at DESC LIMIT 1",
+            (id_usuario,)
+        )
+        row = cur.fetchone()
+
+        if row:
+            # UPDATE sobre el existente
+            id_cuest = row[0]
+            set_cols_p = ", ".join([f"p{i}=%s" for i in range(1, 39)])
+            sql = f"""
+                UPDATE cuestionario
+                SET edad=%s, genero=%s, {set_cols_p},
+                    puntaje_Dim1=%s, puntaje_Dim2=%s, puntaje_Dim3=%s,
+                    puntaje_Dim4=%s, puntaje_Dim5=%s, puntaje_Dim6=%s,
+                    puntaje_total=%s, nivel=%s
+                WHERE id_cuestionario=%s
+            """
+            valores = [
+                edad, genero,
+                *[respuestas[f"p{i}"] for i in range(1, 39)],
+                sumas["Dim1"], sumas["Dim2"], sumas["Dim3"],
+                sumas["Dim4"], sumas["Dim5"], sumas["Dim6"],
+                puntaje_total, nivel_txt,
+                id_cuest
+            ]
+            cur.execute(sql, valores)
+        else:
+            # INSERT nuevo
+            columnas_p = ", ".join([f"p{i}" for i in range(1, 39)])
+            placeholders_p = ", ".join(["%s"] * 38)
+            sql = f"""
+                INSERT INTO cuestionario
+                (id_usuario, edad, genero, {columnas_p},
+                 puntaje_Dim1, puntaje_Dim2, puntaje_Dim3,
+                 puntaje_Dim4, puntaje_Dim5, puntaje_Dim6,
+                 puntaje_total, nivel)
+                VALUES (%s, %s, %s, {placeholders_p}, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            valores = [
+                id_usuario, edad, genero,
+                *[respuestas[f"p{i}"] for i in range(1, 39)],
+                sumas["Dim1"], sumas["Dim2"], sumas["Dim3"],
+                sumas["Dim4"], sumas["Dim5"], sumas["Dim6"],
+                puntaje_total, nivel_txt
+            ]
+            cur.execute(sql, valores)
+
+        cn.commit()
+        cur.close(); cn.close()
+
+        # volver al mismo cuestionario del usuario (puedes cambiarlo a una página de resultados)
+        return redirect(f"/cuestionario?uid={id_usuario}")
+
+    except Exception as e:
+        return f"Error al guardar: {e}", 400
 
 # === 9) Run ===
 if __name__ == "__main__":
