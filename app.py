@@ -50,7 +50,7 @@ def resultado():
     cur = cn.cursor(dictionary=True)
     cur.execute("""
         SELECT 
-            u.nombre,
+            u.id_usuario, u.nombre,
             c.puntaje_Dim1, c.puntaje_Dim2, c.puntaje_Dim3,
             c.puntaje_Dim4, c.puntaje_Dim5, c.puntaje_Dim6,
             c.puntaje_total, c.nivel, c.created_at
@@ -64,30 +64,32 @@ def resultado():
     cur.close(); cn.close()
 
     if not row:
-        return render_template("resultado.html", nombre=None, no_data=True)
+        # Usuario sin registros
+        return render_template("resultado.html", uid=uid, nombre=None, no_data=True)
 
     if row.get("puntaje_total") is None:
-        return render_template("resultado.html", nombre=row["nombre"], no_data=True)
+        # Tiene usuario pero sin cuestionario aún
+        return render_template("resultado.html", uid=row["id_usuario"], nombre=row["nombre"], no_data=True)
 
     subdim = {
-        "Pánico/Agorafobia": row["puntaje_Dim1"],
-        "Ansiedad por separación": row["puntaje_Dim2"],
-        "Fobia social": row["puntaje_Dim3"],
-        "Miedo a lesiones físicas": row["puntaje_Dim4"],
-        "Obs.-Compulsivo (OCD)": row["puntaje_Dim5"],
-        "Ansiedad generalizada": row["puntaje_Dim6"],
+        "Pánico/Agorafobia":         row["puntaje_Dim1"],
+        "Ansiedad por separación":   row["puntaje_Dim2"],
+        "Fobia social":              row["puntaje_Dim3"],
+        "Miedo a lesiones físicas":  row["puntaje_Dim4"],
+        "Obs.-Compulsivo (OCD)":     row["puntaje_Dim5"],
+        "Ansiedad generalizada":     row["puntaje_Dim6"],
     }
 
     return render_template(
         "resultado.html",
-        nombre=row["nombre"],
+        uid=row["id_usuario"],              # <- ID disponible para la vista
+        nombre=row["nombre"],               # <- nombre visible
         subdim=subdim,
         total=row["puntaje_total"],
         nivel=row["nivel"],
         creado=row["created_at"],
         no_data=False,
     )
-
 
 # Ruta para que guarde el registro de usuario (GET y POST)
 @app.route('/registro', methods=['GET', 'POST'])
