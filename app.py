@@ -39,6 +39,11 @@ def cuestionario():
         return redirect('/form_login')
     return render_template("cuestionario.html", uid=uid)
 
+# Ruta para Resultado
+@app.route('/resultado')
+def form_login():
+    return render_template("resultado.html")
+
 # Ruta para que guarde el registro de usuario (GET y POST)
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
@@ -184,7 +189,7 @@ def guardar():
         cur.close(); cn.close()
 
         # volver al mismo cuestionario del usuario (puedes cambiarlo a una página de resultados)
-        return redirect(f"/cuestionario?uid={id_usuario}")
+        return redirect(f"/resultado?uid={id_usuario}")
 
     except Exception as e:
         return f"Error al guardar: {e}", 400
