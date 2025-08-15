@@ -277,9 +277,23 @@ def resultado():
         "Dim6": row['puntaje_Dim6'],
     }
 
+    #===PARA QUE MUESTRE NIVEL Y CONFIANZA PRECISION
     # features p1..p38 para ML
     respuestas = {f"p{i}": row.get(f"p{i}") for i in range(1, 39)} #NUEVO ML#
     pred_ml, proba_ml = ml_predict_from_answers(respuestas) #NUEVO ML#
+    # === Confianza del modelo (según prob. más alta) ===
+    conf_ml = None
+    conf_pct = None
+    if proba_ml:
+        top = max(proba_ml.values())# p.ej. 40.0
+        conf_pct = top
+        if top >= 70:
+            conf_ml = "Alta"
+        elif top >= 50:
+            conf_ml = "Media"
+        else:
+            conf_ml = "Baja"
+    #======================================================
 
     # Etiquetas por norma (para las chapitas de cada subescala)
     inter_sub, inter_total = interpreta_normas(
@@ -308,8 +322,10 @@ def resultado():
         rows=rows_view,
         total=row['puntaje_total'],
         nivel_total=nivel_total,
-        pred_ml=pred_ml, #AGREGADO ML
-        proba_ml=proba_ml #AGREGADO ML
+        pred_ml=pred_ml,   #AGREGADO ML
+        proba_ml=proba_ml, #AGREGADO ML
+        conf_ml=conf_ml,   #AGREGADO ML
+        conf_pct=conf_pct  #AGREGADO ML
     )
 
 # Ruta para que guarde el registro de usuario (GET y POST)

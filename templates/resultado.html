@@ -192,13 +192,14 @@
           </div>
         </div>
 
-                 <!-- ====== Predicción del modelo (ML) ====== -->
+               <!-- ====== Predicción del modelo (ML) ====== -->
 {% if pred_ml %}
   <h3 class="scas-title mt-4">Predicción del modelo (ML)</h3>
   <div class="scas-item">
     <div class="scas-top">
       <span class="scas-name">Clasificación</span>
       <div class="scas-right">
+        {# Badge de la clase predicha #}
         {% set ml = (pred_ml or '')|lower %}
         {% if ml == 'muy alto' %}
           <span class="badge badge-level bg-danger">{{ pred_ml }}</span>
@@ -211,19 +212,37 @@
         {% else %}
           <span class="badge badge-level bg-secondary">{{ pred_ml }}</span>
         {% endif %}
+
+        {# Badge de confianza #}
+        {% if conf_ml %}
+          {% set c = (conf_ml or '')|lower %}
+          {% set conf_class = 'bg-secondary' %}
+          {% if c == 'alta' %}
+            {% set conf_class = 'bg-success' %}
+          {% elif c == 'media' %}
+            {% set conf_class = 'bg-warning text-dark' %}
+          {% endif %}
+          <span class="badge badge-level {{ conf_class }}">
+            Confianza: {{ conf_ml }}{% if conf_pct is not none %} ({{ conf_pct|round(0,'floor') }}%){% endif %}
+          </span>
+        {% endif %}
       </div>
     </div>
 
     {% if proba_ml %}
-      <!-- Probabilidades por clase -->
+      <!-- Probabilidades por clase, en orden fijo -->
       <div class="small text-muted">
-        {% for k, v in proba_ml.items() %}
-          <span class="me-2">{{ k }}: {{ v|round(0, 'floor') }}%</span>
+        {% set orden = ['Normal','Elevado','Alto','Muy alto'] %}
+        {% for k in orden %}
+          {% if proba_ml.get(k) is not none %}
+            <span class="me-2">{{ k }}: {{ proba_ml[k]|round(0, 'floor') }}%</span>
+          {% endif %}
         {% endfor %}
       </div>
     {% endif %}
   </div>
-{% endif %}        
+{% endif %}
+
 
 
 
