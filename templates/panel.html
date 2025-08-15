@@ -76,7 +76,7 @@
     <div class="user">
       <button class="user-btn" id="userBtn" aria-haspopup="true" aria-expanded="false">
         <span class="user-avatar">{{ (admin_nombre[:1] if admin_nombre else 'A') | upper }}</span>
-        <span class="user-name">{{ admin_nombre }}</span>
+        <span class="user-name">Buen día, <strong>{{ admin_nombre }}</strong>
         <span class="caret">▾</span>
       </button>
       <div class="menu" id="userMenu" role="menu" aria-label="Opciones de usuario" data-open="false">
@@ -92,12 +92,7 @@
           <h2 class="title">Estudiantes · últimos resultados</h2>
           <span class="pill">{{ rows|length }} registros</span>
         </div>
-        <!-- Descargar (usa el filtro actual del buscador) -->
-        <form id="dlForm" action="/descargar_documento" method="GET">
-          <input type="hidden" name="uid" value="{{ uid }}"/>
-          <input type="hidden" name="q" id="dlQuery" value=""/>
-          <button class="btn btn-primary" type="submit">Descargar Documento</button>
-        </form>
+        
       </div>
 
       <!-- BUSCADOR (derecha, estilo DataTable) -->
