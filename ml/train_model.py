@@ -2,100 +2,108 @@
 from pathlib import Path
 import pandas as pd
 import joblib
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
-from Scas.configuracion import get_db
 
-# columnas p1..p38
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.pipeline import Pipeline
+
+from Scas.configuracion import get_db  # tu conexión existente (mysql-connector)
+
+# p1..p38
 PREGUNTAS = [f"p{i}" for i in range(1, 39)]
 
+# === Consulta: último cuestionario por alumno + nivel (etiqueta) ===
 SQL_ULTIMO_X_ALUMNO = f"""
-    SELECT c.id_usuario, c.id_cuestionario, c.edad, c.genero,
-           {", ".join("c."+p for p in PREGUNTAS)},
-           r.nivel
-    FROM (
-        SELECT c1.*
-        FROM cuestionario c1
-        JOIN (
-            SELECT id_usuario, MAX(created_at) AS mx
-            FROM cuestionario
-            GROUP BY id_usuario
-        ) ult
-            ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
-    ) c
-    LEFT JOIN resultado r ON r.id_cuestionario = c.id_cuestionario
+SELECT u.id_usuario, c.id_cuestionario, c.edad, c.genero,
+       {", ".join("c."+p for p in PREGUNTAS)},
+       r.nivel
+FROM (
+    SELECT c1.*
+    FROM cuestionario c1
+    JOIN (
+        SELECT id_usuario, MAX(created_at) AS mx
+        FROM cuestionario
+        GROUP BY id_usuario
+    ) ult
+      ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
+) c
+JOIN usuario u        ON u.id_usuario = c.id_usuario
+LEFT JOIN resultado r ON r.id_cuestionario = c.id_cuestionario
 """
-
-def _normaliza_nivel(lbl):
-    if not isinstance(lbl, str): return None
-    return {
-        "normal": "Normal",
-        "elevado": "Elevado",
-        "alto": "Alto",
-        "muy alto": "Muy alto",
-    }.get(lbl.strip().lower())
-
-def fetch_data():
-    print("[ML] Conectando a BD…")
-    cn = get_db()
-    cur = cn.cursor(dictionary=True)
-    cur.execute("SELECT DATABASE() AS db, @@hostname AS host")
-    info = cur.fetchone()
-    print(f"[ML] Conectado a: {info['db']} @ {info['host']}")
-    cur.execute(SQL_ULTIMO_X_ALUMNO)
-    rows = cur.fetchall()
-    cur.close(); cn.close()
-    df = pd.DataFrame(rows)
-    print(f"[ML] Registros leídos: {len(df)}")
-    return df
-
-def build_dataset(df: pd.DataFrame):
-    df = df.copy()
-    df["nivel_norm"] = df["nivel"].apply(_normaliza_nivel)
-    df = df[df["nivel_norm"].notna()].reset_index(drop=True)
-    if df.empty:
-        raise SystemExit("❌ No hay filas con 'nivel' válido en 'resultado'.")
-
-    # asegurar numérico en p1..p38
-    for p in PREGUNTAS:
-        df[p] = pd.to_numeric(df[p], errors="coerce").fillna(0).astype(float)
-
-    X = df[PREGUNTAS]
-    y = df["nivel_norm"]
-
-    print("[ML] Distribución de clases:")
-    print(y.value_counts())
-    if y.nunique() < 2:
-        raise SystemExit("❌ Se requieren ≥2 clases distintas para entrenar.")
-    return X, y
 
 def main():
     print("[ML] Iniciando entrenamiento…")
-    df = fetch_data()
-    if df.empty:
-        print("❌ No hay datos.")
-        return
 
-    X, y = build_dataset(df)
+    # --- Cargar datos desde BD ---
+    print("[ML] Conectando a BD…")
+    cn = get_db()
+    cur = cn.cursor(dictionary=True)
+    cur.execute(SQL_ULTIMO_X_ALUMNO)
+    rows = cur.fetchall()
+    cur.close(); cn.close()
 
-    # si alguna clase tiene muy pocas muestras en test, usa 25%
-    min_class = y.value_counts().min()
-    test_size = 0.25 if min_class < 3 else 0.20
+    df = pd.DataFrame(rows)
+    print(f"[ML] Registros leídos: {len(df)}")
 
+    # Filtrar filas con etiqueta disponible
+    df = df.dropna(subset=["nivel"]).copy()
+
+    # Normalizar etiqueta a 4 clases exactas
+    def norm_label(s: str) -> str:
+        s = (s or "").strip().lower()
+        if "muy" in s:
+            return "Muy alto"
+        if "alto" == s:
+            return "Alto"
+        if "elev" in s:
+            return "Elevado"
+        return "Normal"
+    df["nivel_norm"] = df["nivel"].map(norm_label)
+
+    print("[ML] Distribución de clases:")
+    print(df["nivel_norm"].value_counts().sort_index())
+
+    # --- Features: p1..p38 + edad + genero ---
+    feature_cols_num = PREGUNTAS + ["edad"]         # numéricas
+    feature_cols_cat = ["genero"]                   # categórica
+
+    X = df[feature_cols_num + feature_cols_cat].copy()
+    y = df["nivel_norm"].copy()
+
+    # Preprocesador (one-hot para género)
+    pre = ColumnTransformer(
+        transformers=[
+            ("num", "passthrough", feature_cols_num),
+            ("cat", OneHotEncoder(handle_unknown="ignore"), feature_cols_cat),
+        ]
+    )
+
+    # Modelo
+    model = RandomForestClassifier(
+        n_estimators=300,
+        random_state=42,
+        class_weight="balanced"
+    )
+
+    clf = Pipeline(steps=[("preprocessor", pre), ("model", model)])
+
+    # Split
     Xtr, Xte, ytr, yte = train_test_split(
-        X, y, test_size=test_size, stratify=y, random_state=42
+        X, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    clf = RandomForestClassifier(
-        n_estimators=400, class_weight="balanced", random_state=42
-    )
+    # Entrenar
     clf.fit(Xtr, ytr)
-    ypred = clf.predict(Xte)
 
+    # Evaluar
+    ypred = clf.predict(Xte)
     print("\n=== Reporte (test) ===")
     print(classification_report(yte, ypred))
 
+    # Guardar
     outdir = Path(__file__).parent / "models"
     outdir.mkdir(parents=True, exist_ok=True)
     model_path = outdir / "model_v1.joblib"

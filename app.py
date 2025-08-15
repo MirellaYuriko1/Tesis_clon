@@ -28,23 +28,33 @@ def get_model():
             _model = None
     return _model
 
-def ml_predict_from_answers(respuestas: dict):
+def ml_predict_from_answers(respuestas: dict, edad: int, genero: str):
     """
-    respuestas: dict con claves 'p1'..'p38' (int 0..3)
+    Usa el pipeline entrenado (con edad y genero).
     Retorna (pred_label, proba_dict | None)
     """
     clf = get_model()
     if clf is None:
         return None, None
 
-    X = [[float(respuestas.get(f"p{i}", 0)) for i in range(1, 39)]]
+    # construir un dataframe con EXACTOS nombres de columnas de entrenamiento
+    row = {f"p{i}": float(respuestas.get(f"p{i}", 0)) for i in range(1, 39)}
+    row["edad"] = float(edad)
+    row["genero"] = str(genero or "")
+
+    X = pd.DataFrame([row])  # el Pipeline se encarga del one-hot
+
     pred = clf.predict(X)[0]
 
     proba = None
     if hasattr(clf, "predict_proba"):
         probs = clf.predict_proba(X)[0]
-        clases = list(clf.classes_)
-        proba = {c: round(float(p) * 100, 1) for c, p in zip(clases, probs)}
+        # Obtener clases del modelo dentro del Pipeline
+        classes = getattr(clf, "classes_", None)
+        if classes is None and hasattr(clf, "named_steps"):
+            classes = clf.named_steps["model"].classes_
+        proba = {c: round(float(p) * 100, 1) for c, p in zip(classes, probs)}
+
     return pred, proba
 #========================================================
 
@@ -280,7 +290,7 @@ def resultado():
     #===PARA QUE MUESTRE NIVEL Y CONFIANZA PRECISION
     # features p1..p38 para ML
     respuestas = {f"p{i}": row.get(f"p{i}") for i in range(1, 39)} #NUEVO ML#
-    pred_ml, proba_ml = ml_predict_from_answers(respuestas) #NUEVO ML#
+    pred_ml, proba_ml = ml_predict_from_answers(respuestas, row['edad'], row['genero']) #NUEVO ML#
     # === Confianza del modelo (según prob. más alta) ===
     conf_ml = None
     conf_pct = None
