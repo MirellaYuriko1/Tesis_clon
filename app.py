@@ -1,3 +1,7 @@
+# PARA QUE GUARDE MI ML A MI BASE DE DATOS MYSQL 
+import json  # <--- nuevo
+MODEL_VERSION = "v1"  # <--- nuevo (versiona tu modelo)
+
 #Framework web para mostrar el formulario y manejar las respuestas.
 from flask import Flask, render_template, request, redirect, Response
 from io import BytesIO
@@ -16,6 +20,7 @@ PREGUNTAS = [f"p{i}" for i in range(1, 39)]
 MODEL_PATH = Path(__file__).parent / "ml" / "models" / "model_v1.joblib"
 _model = None
 
+# === HELPERS PARA LA ML
 def get_model():
     """Carga el modelo una sola vez (lazy)."""
     global _model
@@ -56,6 +61,13 @@ def ml_predict_from_answers(respuestas: dict, edad: int, genero: str):
         proba = {c: round(float(p) * 100, 1) for c, p in zip(classes, probs)}
 
     return pred, proba
+
+def _conf_label_from_pct(top_pct: float) -> str:  #PARA LA CONFIANZA PARA QUE SE MUESTRE EN MI MYSQL
+    if top_pct >= 70:
+        return "Alta"
+    if top_pct >= 50:
+        return "Media"
+    return "Baja"
 #========================================================
 
 # importa tu conexión BD y reglas desde el paquete scas
@@ -136,6 +148,10 @@ def form_panel():
                 c.edad,
                 r.puntaje_total,
                 r.nivel,
+                -- ML:
+                pm.pred_label AS ml_label,
+                pm.conf_label AS ml_conf,
+                pm.conf_pct   AS ml_conf_pct,
                 COALESCE(r.created_at, c.created_at) AS created_at
             FROM usuario u
             JOIN (
@@ -148,10 +164,19 @@ def form_panel():
                 ) ult
                   ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
             ) c ON c.id_usuario = u.id_usuario
-            LEFT JOIN resultado r ON r.id_cuestionario = c.id_cuestionario
+            LEFT JOIN resultado r 
+                   ON r.id_cuestionario = c.id_cuestionario
+            LEFT JOIN prediccion_ml pm
+                   ON pm.id_cuestionario = c.id_cuestionario
+                  AND pm.model_version = %s
             WHERE u.rol = 'estudiante' {where_like}
             ORDER BY COALESCE(r.created_at, c.created_at) DESC
         """
+
+        params = [MODEL_VERSION]
+        if q:
+            params.append(f"%{q}%")
+
         cur.execute(sql, params)
         rows = cur.fetchall()
     finally:
@@ -514,6 +539,38 @@ def guardar():
                 sumas["Dim4"], sumas["Dim5"], sumas["Dim6"],
                 puntaje_total, nivel_txt
             ))
+
+        # === ML: calcular y guardar/actualizar predicción del modelo en mi MYSQL===
+        try:
+            # usa tus mismas respuestas + edad + genero
+            pred_ml, proba_ml = ml_predict_from_answers(respuestas, edad, genero)
+
+            if pred_ml is not None:
+                conf_pct = None
+                conf_label = None
+                proba_json = None
+
+                if proba_ml:
+                    conf_pct = float(max(proba_ml.values()))
+                    conf_label = _conf_label_from_pct(conf_pct)
+                    proba_json = json.dumps(proba_ml, ensure_ascii=False)
+
+                # UPSERT: una sola predicción por (id_cuestionario, model_version)
+                cur.execute("""
+                    INSERT INTO prediccion_ml
+                        (id_cuestionario, model_version, pred_label, conf_pct, conf_label, proba_json)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        pred_label = VALUES(pred_label),
+                        conf_pct   = VALUES(conf_pct),
+                        conf_label = VALUES(conf_label),
+                        proba_json = VALUES(proba_json)
+                """, (
+                    id_cuest, MODEL_VERSION, pred_ml, conf_pct, conf_label, proba_json
+                ))
+        except Exception as e:
+            # no rompas el flujo por un error de ML; solo lo logueas
+            print(f"[ML] Error guardando predicción: {e}")
 
         cn.commit()
         cur.close(); cn.close()

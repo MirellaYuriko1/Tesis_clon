@@ -114,6 +114,8 @@
               <th>Edad</th>
               <th>Puntaje</th>
               <th>Nivel</th>
+              <th>ML</th>
+              <th>Conf.</th>
               <th style="min-width:170px;">Fecha</th>
             </tr>
           </thead>
@@ -126,6 +128,29 @@
               <td>{{ r.edad }}</td>
               <td>{{ r.puntaje_total }}</td>
               <td><span class="lvl {{ r.nivel|default('') }}">{{ r.nivel }}</span></td>
+              <td>
+  {% if row.ml_label %}
+    {% set ml = (row.ml_label or '')|lower %}
+    <span class="badge rounded-pill
+      {% if ml == 'muy alto' %} bg-danger
+      {% elif ml == 'alto' %} bg-danger-subtle text-danger
+      {% elif ml == 'elevado' %} bg-warning text-dark
+      {% elif ml == 'normal' %} bg-success
+      {% else %} bg-secondary
+      {% endif %}">
+      {{ row.ml_label }}
+    </span>
+  {% else %} — {% endif %}
+</td>
+
+<td>
+  {% if row.ml_conf %}
+    <span class="badge rounded-pill bg-secondary">
+      {{ row.ml_conf }}{% if row.ml_conf_pct is not none %} ({{ '%.1f'|format(row.ml_conf_pct) }}%){% endif %}
+    </span>
+  {% else %} — {% endif %}
+</td>
+
               <td class="muted">{{ r.created_at }}</td>
             </tr>
             {% endfor %}
