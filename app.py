@@ -243,7 +243,7 @@ def resultado():
 
     cn = get_db()
     cur = cn.cursor(dictionary=True)
-    cur.execute("""
+    cur.execute(f"""
         SELECT 
                c.id_cuestionario, c.edad, c.genero, c.created_at,
                {", ".join([f"c.p{i}" for i in range(1,39)])}, 
@@ -390,6 +390,7 @@ def login():
     # credenciales incorrectas
     return render_template('login.html', error="Correo o contraseña incorrectos.")
 
+#========================================
 # === Guardar/Actualizar cuestionario ===
 @app.post('/guardar')
 def guardar():
