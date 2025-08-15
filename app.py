@@ -180,6 +180,7 @@ def descargar_documento():
 
 
 # Ruta para Resultado
+# Ruta para Resultado
 @app.get('/resultado')
 def resultado():
     uid = request.args.get('uid', type=int)
@@ -189,21 +190,26 @@ def resultado():
     cn = get_db()
     cur = cn.cursor(dictionary=True)
     cur.execute("""
-        SELECT c.id_cuestionario, c.edad, c.genero,
-               c.puntaje_Dim1, c.puntaje_Dim2, c.puntaje_Dim3,
-               c.puntaje_Dim4, c.puntaje_Dim5, c.puntaje_Dim6,
-               c.puntaje_total, c.nivel, c.created_at,
+        SELECT c.id_cuestionario, c.edad, c.genero, c.created_at,
+               r.puntaje_Dim1, r.puntaje_Dim2, r.puntaje_Dim3,
+               r.puntaje_Dim4, r.puntaje_Dim5, r.puntaje_Dim6,
+               r.puntaje_total, r.nivel,
                u.nombre
-        FROM cuestionario c
-        JOIN usuario u ON u.id_usuario = c.id_usuario
-        WHERE c.id_usuario=%s
-        ORDER BY c.created_at DESC
-        LIMIT 1
+        FROM (
+            SELECT *
+            FROM cuestionario
+            WHERE id_usuario=%s
+            ORDER BY created_at DESC
+            LIMIT 1
+        ) c
+        JOIN usuario u        ON u.id_usuario = c.id_usuario
+        LEFT JOIN resultado r ON r.id_cuestionario = c.id_cuestionario
     """, (uid,))
     row = cur.fetchone()
     cur.close(); cn.close()
 
-    if not row:
+    # Si no hay cuestionario o aún no hay fila en 'resultado'
+    if not row or row.get('puntaje_total') is None:
         return render_template('resultado.html', notfound=True, uid=uid)
 
     sumas_dim = {
@@ -215,15 +221,16 @@ def resultado():
         "Dim6": row['puntaje_Dim6'],
     }
 
+    # Etiquetas por norma (para las chapitas de cada subescala)
     inter_sub, inter_total = interpreta_normas(
         row['genero'], row['edad'], sumas_dim, row['puntaje_total']
     )
 
     dims_order = ["Dim1","Dim2","Dim3","Dim4","Dim5","Dim6"]
-    rows = []
+    rows_view = []
     for d in dims_order:
         key = DIM_NOMBRES[d]
-        rows.append({
+        rows_view.append({
             "code": key,
             "label": PRETTY[key],
             "score": sumas_dim[d],
@@ -236,9 +243,9 @@ def resultado():
         'resultado.html',
         notfound=False,
         uid=uid,
-        nombre=row['nombre'],     # <-- enviamos nombre
+        nombre=row['nombre'],
         edad=row['edad'],
-        rows=rows,
+        rows=rows_view,
         total=row['puntaje_total'],
         nivel_total=nivel_total
     )
