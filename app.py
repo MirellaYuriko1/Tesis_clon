@@ -37,16 +37,13 @@ def cuestionario():
     uid = request.args.get('uid', type=int)
     if not uid:
         return redirect('/form_login')
-
     # Traer el nombre del usuario para mostrarlo en el navbar
     cn = get_db()
     cur = cn.cursor()
     cur.execute("SELECT nombre FROM usuario WHERE id_usuario=%s", (uid,))
     row = cur.fetchone()
     cur.close(); cn.close()
-
     usuario_nombre = row[0] if row else None
-
     return render_template('cuestionario.html', uid=uid, usuario_nombre=usuario_nombre)
 
 # Ruta para ir al panel
@@ -54,10 +51,8 @@ def cuestionario():
 def form_panel():
     uid = request.args.get('uid', type=int)
     q = (request.args.get('q') or '').strip()
-
     if not uid:
         return redirect('/form_login')
-
     cn = get_db()
     cur = cn.cursor(dictionary=True)
     try:
@@ -66,18 +61,16 @@ def form_panel():
         admin = cur.fetchone()
         if not admin:
             return "Usuario no encontrado.", 404
-
+        
         if (admin.get('rol') or '').lower() != 'admin':
             # Si no es admin, enviar a su cuestionario
             return redirect(f'/cuestionario?uid={uid}')
-
         # 2) Último resultado por estudiante, opcionalmente filtrado por nombre
         where_like = ""
         params = []
         if q:
             where_like = " AND u.nombre LIKE %s "
             params.append(f"%{q}%")
-
         sql = f"""
             SELECT u.id_usuario, u.nombre, c.genero, c.edad,
                    c.puntaje_total, c.nivel, c.created_at
@@ -370,17 +363,11 @@ def guardar():
             sql = f"""
                 UPDATE cuestionario
                 SET edad=%s, genero=%s, {set_cols_p},
-                    puntaje_Dim1=%s, puntaje_Dim2=%s, puntaje_Dim3=%s,
-                    puntaje_Dim4=%s, puntaje_Dim5=%s, puntaje_Dim6=%s,
-                    puntaje_total=%s, nivel=%s
                 WHERE id_cuestionario=%s
             """
             valores = [
                 edad, genero,
                 *[respuestas[f"p{i}"] for i in range(1, 39)],
-                sumas["Dim1"], sumas["Dim2"], sumas["Dim3"],
-                sumas["Dim4"], sumas["Dim5"], sumas["Dim6"],
-                puntaje_total, nivel_txt,
                 id_cuest
             ]
             cur.execute(sql, valores)
@@ -390,29 +377,58 @@ def guardar():
             placeholders_p = ", ".join(["%s"] * 38)
             sql = f"""
                 INSERT INTO cuestionario
-                (id_usuario, edad, genero, {columnas_p},
-                 puntaje_Dim1, puntaje_Dim2, puntaje_Dim3,
-                 puntaje_Dim4, puntaje_Dim5, puntaje_Dim6,
-                 puntaje_total, nivel)
-                VALUES (%s, %s, %s, {placeholders_p}, %s, %s, %s, %s, %s, %s, %s, %s)
+                (id_usuario, edad, genero, {columnas_p})
+                VALUES (%s, %s, %s, {placeholders_p})
             """
             valores = [
                 id_usuario, edad, genero,
                 *[respuestas[f"p{i}"] for i in range(1, 39)],
+            ]
+            cur.execute(sql, valores)
+            id_cuest = cur.lastrowid
+
+        # 6) INSERT o UPDATE en 'resultado' (como NO hay UNIQUE, lo controlamos por código)
+        cur.execute("SELECT id_resultado FROM resultado WHERE id_cuestionario=%s LIMIT 1", (id_cuest,))
+        row_res = cur.fetchone()
+
+        if row_res:
+            # UPDATE
+            cur.execute("""
+                UPDATE resultado
+                SET puntaje_Dim1=%s, puntaje_Dim2=%s, puntaje_Dim3=%s,
+                    puntaje_Dim4=%s, puntaje_Dim5=%s, puntaje_Dim6=%s,
+                    puntaje_total=%s, nivel=%s
+                WHERE id_cuestionario=%s
+            """, (
+                sumas["Dim1"], sumas["Dim2"], sumas["Dim3"],
+                sumas["Dim4"], sumas["Dim5"], sumas["Dim6"],
+                puntaje_total, nivel_txt,
+                id_cuest
+            ))
+        else:
+            # INSERT
+            cur.execute("""
+                INSERT INTO resultado(
+                  id_cuestionario, puntaje_Dim1, puntaje_Dim2, puntaje_Dim3,
+                  puntaje_Dim4, puntaje_Dim5, puntaje_Dim6, puntaje_total, nivel
+                ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (
+                id_cuest,
                 sumas["Dim1"], sumas["Dim2"], sumas["Dim3"],
                 sumas["Dim4"], sumas["Dim5"], sumas["Dim6"],
                 puntaje_total, nivel_txt
-            ]
-            cur.execute(sql, valores)
+            ))
 
         cn.commit()
         cur.close(); cn.close()
 
-        # volver al mismo cuestionario del usuario (puedes cambiarlo a una página de resultados)
+        # 7) Redirigir al resultado
         return redirect(f"/resultado?uid={id_usuario}")
 
     except Exception as e:
         return f"Error al guardar: {e}", 400
+        
+
 
 # === 9) Run ===
 if __name__ == "__main__":
