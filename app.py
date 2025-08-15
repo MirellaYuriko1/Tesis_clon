@@ -1,9 +1,52 @@
 #Framework web para mostrar el formulario y manejar las respuestas.
 from flask import Flask, render_template, request, redirect, Response
 from io import BytesIO
+
+#==================================================
+#==========INTEGRACION MACHINE LEARNING
 #Manipulación de datos 
 import pandas as pd
 import os
+
+# --- ML: cargar modelo y utilidades ---
+from joblib import load
+from pathlib import Path
+
+PREGUNTAS = [f"p{i}" for i in range(1, 39)]
+MODEL_PATH = Path(__file__).parent / "ml" / "models" / "model_v1.joblib"
+_model = None
+
+def get_model():
+    """Carga el modelo una sola vez (lazy)."""
+    global _model
+    if _model is None:
+        try:
+            _model = load(MODEL_PATH)
+            print(f"[ML] Modelo cargado: {MODEL_PATH}")
+        except Exception as e:
+            print(f"[ML] No se pudo cargar el modelo: {e}")
+            _model = None
+    return _model
+
+def ml_predict_from_answers(respuestas: dict):
+    """
+    respuestas: dict con claves 'p1'..'p38' (int 0..3)
+    Retorna (pred_label, proba_dict | None)
+    """
+    clf = get_model()
+    if clf is None:
+        return None, None
+
+    X = [[float(respuestas.get(f"p{i}", 0)) for i in range(1, 39)]]
+    pred = clf.predict(X)[0]
+
+    proba = None
+    if hasattr(clf, "predict_proba"):
+        probs = clf.predict_proba(X)[0]
+        clases = list(clf.classes_)
+        proba = {c: round(float(p) * 100, 1) for c, p in zip(clases, probs)}
+    return pred, proba
+#========================================================
 
 # importa tu conexión BD y reglas desde el paquete scas
 from Scas.configuracion import get_db
@@ -201,7 +244,9 @@ def resultado():
     cn = get_db()
     cur = cn.cursor(dictionary=True)
     cur.execute("""
-        SELECT c.id_cuestionario, c.edad, c.genero, c.created_at,
+        SELECT 
+               c.id_cuestionario, c.edad, c.genero, c.created_at,
+               {", ".join([f"c.p{i}" for i in range(1,39)])}, 
                r.puntaje_Dim1, r.puntaje_Dim2, r.puntaje_Dim3,
                r.puntaje_Dim4, r.puntaje_Dim5, r.puntaje_Dim6,
                r.puntaje_total, r.nivel,
@@ -232,6 +277,10 @@ def resultado():
         "Dim6": row['puntaje_Dim6'],
     }
 
+    # features p1..p38 para ML
+    respuestas = {f"p{i}": row.get(f"p{i}") for i in range(1, 39)} #NUEVO ML#
+    pred_ml, proba_ml = ml_predict_from_answers(respuestas) #NUEVO ML#
+
     # Etiquetas por norma (para las chapitas de cada subescala)
     inter_sub, inter_total = interpreta_normas(
         row['genero'], row['edad'], sumas_dim, row['puntaje_total']
@@ -258,7 +307,9 @@ def resultado():
         edad=row['edad'],
         rows=rows_view,
         total=row['puntaje_total'],
-        nivel_total=nivel_total
+        nivel_total=nivel_total,
+        pred_ml=pred_ml, #AGREGADO ML
+        proba_ml=proba_ml #AGREGADO ML
     )
 
 # Ruta para que guarde el registro de usuario (GET y POST)
