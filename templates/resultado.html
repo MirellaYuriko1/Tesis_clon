@@ -192,6 +192,41 @@
           </div>
         </div>
 
+                 <!-- ====== Predicción del modelo (ML) ====== -->
+{% if pred_ml %}
+  <h3 class="scas-title mt-4">Predicción del modelo (ML)</h3>
+  <div class="scas-item">
+    <div class="scas-top">
+      <span class="scas-name">Clasificación</span>
+      <div class="scas-right">
+        {% set ml = (pred_ml or '')|lower %}
+        {% if ml == 'muy alto' %}
+          <span class="badge badge-level bg-danger">{{ pred_ml }}</span>
+        {% elif ml == 'alto' %}
+          <span class="badge badge-level bg-rose">{{ pred_ml }}</span>
+        {% elif ml == 'elevado' %}
+          <span class="badge badge-level bg-warning text-dark">{{ pred_ml }}</span>
+        {% elif ml == 'normal' %}
+          <span class="badge badge-level bg-success">{{ pred_ml }}</span>
+        {% else %}
+          <span class="badge badge-level bg-secondary">{{ pred_ml }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if proba_ml %}
+      <!-- Probabilidades por clase -->
+      <div class="small text-muted">
+        {% for k, v in proba_ml.items() %}
+          <span class="me-2">{{ k }}: {{ v|round(0, 'floor') }}%</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}        
+
+
+
         <div class="actions">
           <a href="/cuestionario?uid={{ uid }}" class="btn btn-outline-primary">Volver al cuestionario</a>
         </div>
