@@ -362,7 +362,7 @@ def guardar():
             set_cols_p = ", ".join([f"p{i}=%s" for i in range(1, 39)])
             sql = f"""
                 UPDATE cuestionario
-                SET edad=%s, genero=%s, {set_cols_p},
+                SET edad=%s, genero=%s, {set_cols_p}
                 WHERE id_cuestionario=%s
             """
             valores = [
