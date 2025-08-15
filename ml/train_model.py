@@ -6,8 +6,12 @@ from datetime import datetime
 import pandas as pd
 import joblib
 
-from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, f1_score
+from sklearn.model_selection import (
+    train_test_split, StratifiedKFold, cross_val_score, cross_val_predict
+)
+from sklearn.metrics import (
+    classification_report, confusion_matrix, accuracy_score, f1_score
+)
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
@@ -71,6 +75,7 @@ def main():
     feature_cols_cat = ["genero"]
     X = df[feature_cols_num + feature_cols_cat].copy()
     y = df["nivel_norm"].copy()
+    classes_sorted = sorted(y.unique())
 
     pre = ColumnTransformer(
         transformers=[
@@ -95,6 +100,41 @@ def main():
     print(f"F1_macro CV: mean={cv_f1.mean():.3f}  std={cv_f1.std():.3f}")
     print(f"Accuracy  CV: mean={cv_acc.mean():.3f}  std={cv_acc.std():.3f}")
 
+    # === Subgrupos por GÉNERO (usando predicción de cross-val) ===
+    y_pred_cv = cross_val_predict(clf, X, y, cv=skf)
+
+    df_eval = pd.DataFrame({
+        "genero": df["genero"],
+        "y_true": y.values,
+        "y_pred": y_pred_cv
+    })
+
+    def _group_report(mask):
+        yt = df_eval.loc[mask, "y_true"]
+        yp = df_eval.loc[mask, "y_pred"]
+        if yt.empty:
+            return None
+        rep = classification_report(yt, yp, output_dict=True, zero_division=0)
+        acc_g = accuracy_score(yt, yp)
+        f1m_g = f1_score(yt, yp, average="macro")
+        cm_g = confusion_matrix(yt, yp, labels=classes_sorted).tolist()
+        return {
+            "n": int(len(yt)),
+            "accuracy": float(acc_g),
+            "f1_macro": float(f1m_g),
+            "classification_report": rep,
+            "confusion_matrix": {"labels": classes_sorted, "matrix": cm_g},
+        }
+
+    subgroups_genero = {}
+    for g in df_eval["genero"].dropna().unique():
+        subgroups_genero[g] = _group_report(df_eval["genero"] == g)
+
+    print("\n=== Subgrupos por género (cross-val) ===")
+    for g, m in subgroups_genero.items():
+        if m:
+            print(f"Genero={g}: n={m['n']}, acc={m['accuracy']:.2f}, f1_macro={m['f1_macro']:.2f}")
+
     # 3) Hold-out final (20%)
     Xtr, Xte, ytr, yte = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
@@ -105,7 +145,7 @@ def main():
     print("\n=== Reporte (test hold-out) ===")
     print(classification_report(yte, ypred))
 
-    cm = confusion_matrix(yte, ypred, labels=sorted(y.unique()))
+    cm = confusion_matrix(yte, ypred, labels=classes_sorted)
     acc = accuracy_score(yte, ypred)
     f1m = f1_score(yte, ypred, average="macro")
 
@@ -119,7 +159,7 @@ def main():
         "model_version": MODEL_VERSION,
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "n_registros": int(len(df)),
-        "clases": sorted(y.unique()),
+        "clases": classes_sorted,
         "cv": {
             "n_splits": 5,
             "f1_macro_mean": float(cv_f1.mean()),
@@ -127,12 +167,15 @@ def main():
             "accuracy_mean": float(cv_acc.mean()),
             "accuracy_std": float(cv_acc.std()),
         },
+        "subgroups": {
+            "genero": subgroups_genero
+        },
         "holdout": {
             "accuracy": float(acc),
             "f1_macro": float(f1m),
             "classification_report": classification_report(yte, ypred, output_dict=True),
             "confusion_matrix": cm.tolist(),
-            "labels_order": sorted(y.unique()),
+            "labels_order": classes_sorted,
             "n_test": int(len(yte)),
         },
     }
