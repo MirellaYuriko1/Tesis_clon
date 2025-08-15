@@ -51,8 +51,10 @@ def cuestionario():
 def form_panel():
     uid = request.args.get('uid', type=int)
     q = (request.args.get('q') or '').strip()
+
     if not uid:
         return redirect('/form_login')
+
     cn = get_db()
     cur = cn.cursor(dictionary=True)
     try:
@@ -61,19 +63,27 @@ def form_panel():
         admin = cur.fetchone()
         if not admin:
             return "Usuario no encontrado.", 404
-        
+
         if (admin.get('rol') or '').lower() != 'admin':
             # Si no es admin, enviar a su cuestionario
             return redirect(f'/cuestionario?uid={uid}')
-        # 2) Último resultado por estudiante, opcionalmente filtrado por nombre
+
+        # 2) Último cuestionario por estudiante + su resultado (LEFT JOIN)
         where_like = ""
         params = []
         if q:
             where_like = " AND u.nombre LIKE %s "
             params.append(f"%{q}%")
+
         sql = f"""
-            SELECT u.id_usuario, u.nombre, c.genero, c.edad,
-                   c.puntaje_total, c.nivel, c.created_at
+            SELECT 
+                u.id_usuario,
+                u.nombre,
+                c.genero,
+                c.edad,
+                r.puntaje_total,
+                r.nivel,
+                COALESCE(r.created_at, c.created_at) AS created_at
             FROM usuario u
             JOIN (
                 SELECT c1.*
@@ -83,10 +93,11 @@ def form_panel():
                     FROM cuestionario
                     GROUP BY id_usuario
                 ) ult
-                ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
+                  ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
             ) c ON c.id_usuario = u.id_usuario
+            LEFT JOIN resultado r ON r.id_cuestionario = c.id_cuestionario
             WHERE u.rol = 'estudiante' {where_like}
-            ORDER BY c.created_at DESC
+            ORDER BY COALESCE(r.created_at, c.created_at) DESC
         """
         cur.execute(sql, params)
         rows = cur.fetchall()
@@ -126,9 +137,10 @@ def descargar_documento():
                 c.genero AS Genero,
                 c.edad   AS Edad,
                 {cols_p},
-                c.puntaje_Dim1, c.puntaje_Dim2, c.puntaje_Dim3,
-                c.puntaje_Dim4, c.puntaje_Dim5, c.puntaje_Dim6,
-                c.puntaje_total, c.nivel, c.created_at
+                r.puntaje_Dim1, r.puntaje_Dim2, r.puntaje_Dim3,
+                r.puntaje_Dim4, r.puntaje_Dim5, r.puntaje_Dim6,
+                r.puntaje_total, r.nivel,
+                COALESCE(r.created_at, c.created_at) AS created_at
             FROM usuario u
             JOIN (
                 SELECT c1.*
@@ -138,10 +150,11 @@ def descargar_documento():
                     FROM cuestionario
                     GROUP BY id_usuario
                 ) ult
-                ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
+                  ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
             ) c ON c.id_usuario = u.id_usuario
+            LEFT JOIN resultado r ON r.id_cuestionario = c.id_cuestionario
             WHERE u.rol='estudiante' { "AND u.nombre LIKE %s" if q else "" }
-            ORDER BY c.created_at DESC
+            ORDER BY COALESCE(r.created_at, c.created_at) DESC
         """
         params = [f"%{q}%"] if q else []
         cur.execute(sql, params)
@@ -177,9 +190,7 @@ def descargar_documento():
         )
     except Exception as e:
         return f"Error al generar Excel: {e}", 500
-
-
-# Ruta para Resultado
+    
 # Ruta para Resultado
 @app.get('/resultado')
 def resultado():
