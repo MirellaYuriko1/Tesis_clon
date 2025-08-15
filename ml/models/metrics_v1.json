@@ -1,0 +1,94 @@
+{
+  "model_version": "v1",
+  "timestamp": "2025-08-15T22:00:42.577457Z",
+  "n_registros": 41,
+  "clases": [
+    "Alto",
+    "Elevado",
+    "Muy alto",
+    "Normal"
+  ],
+  "cv": {
+    "n_splits": 5,
+    "f1_macro_mean": 0.7116666666666667,
+    "f1_macro_std": 0.1503329637837291,
+    "accuracy_mean": 0.7277777777777777,
+    "accuracy_std": 0.1487084312702686
+  },
+  "holdout": {
+    "accuracy": 0.5555555555555556,
+    "f1_macro": 0.6,
+    "classification_report": {
+      "Alto": {
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "f1-score": 0.4,
+        "support": 2.0
+      },
+      "Elevado": {
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "f1-score": 0.3333333333333333,
+        "support": 3.0
+      },
+      "Muy alto": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2.0
+      },
+      "Normal": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2.0
+      },
+      "accuracy": 0.5555555555555556,
+      "macro avg": {
+        "precision": 0.6666666666666666,
+        "recall": 0.5833333333333333,
+        "f1-score": 0.6,
+        "support": 9.0
+      },
+      "weighted avg": {
+        "precision": 0.6296296296296295,
+        "recall": 0.5555555555555556,
+        "f1-score": 0.5703703703703703,
+        "support": 9.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        1,
+        1,
+        0,
+        0
+      ],
+      [
+        2,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        1
+      ]
+    ],
+    "labels_order": [
+      "Alto",
+      "Elevado",
+      "Muy alto",
+      "Normal"
+    ],
+    "n_test": 9
+  }
+}
