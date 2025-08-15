@@ -8,7 +8,7 @@
     :root{
       --bg:#f6f9fc; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e5e7eb;
       --primary:#2563eb; --primary-2:#1e40af; --shadow:0 12px 28px rgba(2,8,23,.08);
-      --radius:16px; --radius-sm:10px;
+      --radius:16px;
     }
     *{box-sizing:border-box}
     html,body{background:var(--bg);color:var(--ink);margin:0;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial}
@@ -30,19 +30,15 @@
     .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
     .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
 
-    /* TOP BAR (title + download) */
+    /* TOP */
     .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
     .title{font-size:1.1rem;margin:0}
     .pill{background:#eef2ff;color:#3730a3;border-radius:999px;padding:.25rem .6rem;font-size:.85rem}
 
-    /* CONTROLS (buscar) */
+    /* CONTROLS */
     .controls{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:10px 0}
     .search{display:flex;align-items:center;gap:8px}
     .search input{border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:220px}
-    .btn{appearance:none;border:none;border-radius:8px;padding:10px 14px;font-weight:600;cursor:pointer}
-    .btn-primary{background:var(--primary);color:#fff}
-    .btn-primary:hover{background:var(--primary-2)}
-    .btn-outline{background:#fff;border:1px solid var(--line);color:#0b1220}
 
     /* TABLE */
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}
@@ -51,12 +47,18 @@
     th{font-weight:700;color:#0b1220;background:#f8fafc}
     tr:hover td{background:#f9fbff}
     .muted{color:var(--muted);font-size:.9rem}
-    .lvl{font-weight:700;padding:.2rem .55rem;border-radius:999px;display:inline-block}
-    .lvl.Bajo{background:#ecfdf5;color:#065f46}
-    .lvl.Moderado{background:#fff7ed;color:#9a3412}
-    .lvl.Alto,.lvl.Severo{background:#fef2f2;color:#991b1b}
 
-    /* FOOT (status + pagination) */
+    /* Chips de estado */
+    .lvl{font-weight:700;padding:.2rem .55rem;border-radius:999px;display:inline-block}
+    .lvl-normal{background:#ecfdf5;color:#065f46}
+    .lvl-elevado{background:#fff7ed;color:#9a3412}
+    .lvl-alto{background:#fde2f2;color:#9d174d}
+    .lvl-muy-alto{background:#fee2e2;color:#b91c1c}
+
+    /* Confianza */
+    .conf{font-size:.85rem;background:#e5e7eb;color:#111827;border-radius:999px;padding:.2rem .55rem;display:inline-block}
+
+    /* FOOT */
     .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
     .pagination{display:flex;align-items:center;gap:6px}
     .page{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
@@ -76,7 +78,7 @@
     <div class="user">
       <button class="user-btn" id="userBtn" aria-haspopup="true" aria-expanded="false">
         <span class="user-avatar">{{ (admin_nombre[:1] if admin_nombre else 'A') | upper }}</span>
-        <span class="user-name">Buen día, <strong>{{ admin_nombre }}</strong>
+        <span class="user-name">Buen día, <strong>{{ admin_nombre }}</strong></span>
         <span class="caret">▾</span>
       </button>
       <div class="menu" id="userMenu" role="menu" aria-label="Opciones de usuario" data-open="false">
@@ -92,10 +94,9 @@
           <h2 class="title">Estudiantes · últimos resultados</h2>
           <span class="pill">{{ rows|length }} registros</span>
         </div>
-        
       </div>
 
-      <!-- BUSCADOR (derecha, estilo DataTable) -->
+      <!-- BUSCADOR -->
       <div class="controls">
         <div class="search">
           <label for="globalSearch" class="muted">Buscar:</label>
@@ -103,7 +104,7 @@
         </div>
       </div>
 
-      <!-- TABLA (sin columna Detalle) -->
+      <!-- TABLA -->
       <div class="table-wrap">
         <table id="dataTable">
           <thead>
@@ -127,29 +128,29 @@
               <td>{{ r.genero }}</td>
               <td>{{ r.edad }}</td>
               <td>{{ r.puntaje_total }}</td>
-              <td><span class="lvl {{ r.nivel|default('') }}">{{ r.nivel }}</span></td>
-              <td>
-  {% if row.ml_label %}
-    {% set ml = (row.ml_label or '')|lower %}
-    <span class="badge rounded-pill
-      {% if ml == 'muy alto' %} bg-danger
-      {% elif ml == 'alto' %} bg-danger-subtle text-danger
-      {% elif ml == 'elevado' %} bg-warning text-dark
-      {% elif ml == 'normal' %} bg-success
-      {% else %} bg-secondary
-      {% endif %}">
-      {{ row.ml_label }}
-    </span>
-  {% else %} — {% endif %}
-</td>
 
-<td>
-  {% if row.ml_conf %}
-    <span class="badge rounded-pill bg-secondary">
-      {{ row.ml_conf }}{% if row.ml_conf_pct is not none %} ({{ '%.1f'|format(row.ml_conf_pct) }}%){% endif %}
-    </span>
-  {% else %} — {% endif %}
-</td>
+              <!-- Nivel por reglas -->
+              <td>
+                {% if r.nivel %}
+                  <span class="lvl lvl-{{ (r.nivel|lower|replace(' ', '-')) }}">{{ r.nivel }}</span>
+                {% else %} — {% endif %}
+              </td>
+
+              <!-- Predicción ML -->
+              <td>
+                {% if r.ml_label %}
+                  <span class="lvl lvl-{{ (r.ml_label|lower|replace(' ', '-')) }}">{{ r.ml_label }}</span>
+                {% else %} — {% endif %}
+              </td>
+
+              <!-- Confianza ML -->
+              <td>
+                {% if r.ml_conf %}
+                  <span class="conf">
+                    {{ r.ml_conf }}{% if r.ml_conf_pct is not none %} ({{ '%.1f'|format(r.ml_conf_pct) }}%){% endif %}
+                  </span>
+                {% else %} — {% endif %}
+              </td>
 
               <td class="muted">{{ r.created_at }}</td>
             </tr>
@@ -158,7 +159,7 @@
         </table>
       </div>
 
-      <!-- FOOTER con paginación de 10 en 10 -->
+      <!-- FOOTER con paginación -->
       <div class="foot">
         <div class="muted" id="statusText">Mostrando 0 a 0 de 0 registros</div>
         <div class="pagination" id="pagination">
@@ -195,11 +196,9 @@
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const pageNums = document.getElementById('pageNums');
-    const dlForm = document.getElementById('dlForm');
-    const dlQuery = document.getElementById('dlQuery');
 
     let current = 1;
-    const pageSize = 5; // <- fijo 10 por página
+    const pageSize = 10; // cantidad por página
     let filtered = rows.slice(); // inicia con todo
 
     function render() {
@@ -247,11 +246,6 @@
     nextBtn.addEventListener('click', () => {
       const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
       if (current < totalPages) { current++; render(); }
-    });
-
-    // sincroniza filtro con descarga (servidor filtra por nombre con LIKE)
-    dlForm.addEventListener('submit', () => {
-      dlQuery.value = searchInput.value.trim();
     });
 
     // inicial

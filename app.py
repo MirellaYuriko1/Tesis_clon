@@ -111,31 +111,26 @@ def cuestionario():
     usuario_nombre = row[0] if row else None
     return render_template('cuestionario.html', uid=uid, usuario_nombre=usuario_nombre)
 
-# Ruta para ir al panel
+#RUTA PARA VER EL PANEL DE ADMIN
 @app.route('/form_panel')
 def form_panel():
     uid = request.args.get('uid', type=int)
     q = (request.args.get('q') or '').strip()
-
     if not uid:
         return redirect('/form_login')
 
     cn = get_db()
     cur = cn.cursor(dictionary=True)
     try:
-        # 1) Info del admin
         cur.execute("SELECT nombre, rol FROM usuario WHERE id_usuario=%s", (uid,))
         admin = cur.fetchone()
         if not admin:
             return "Usuario no encontrado.", 404
-
         if (admin.get('rol') or '').lower() != 'admin':
-            # Si no es admin, enviar a su cuestionario
             return redirect(f'/cuestionario?uid={uid}')
 
-        # 2) Último cuestionario por estudiante + su resultado (LEFT JOIN)
         where_like = ""
-        params = []
+        params = [MODEL_VERSION]        # <-- aquí empezamos con la versión del modelo
         if q:
             where_like = " AND u.nombre LIKE %s "
             params.append(f"%{q}%")
@@ -172,24 +167,15 @@ def form_panel():
             WHERE u.rol = 'estudiante' {where_like}
             ORDER BY COALESCE(r.created_at, c.created_at) DESC
         """
-
-        params = [MODEL_VERSION]
-        if q:
-            params.append(f"%{q}%")
-
         cur.execute(sql, params)
         rows = cur.fetchall()
     finally:
-        cur.close()
-        cn.close()
+        cur.close(); cn.close()
 
-    return render_template(
-        'panel.html',
-        admin_nombre=admin['nombre'],
-        rows=rows,
-        uid=uid,
-        q=q
-    )
+    return render_template('panel.html',
+                           admin_nombre=admin['nombre'],
+                           rows=rows, uid=uid, q=q)
+
 
 @app.get('/descargar_documento')
 def descargar_documento():
