@@ -1,6 +1,6 @@
 {
   "model_version": "v1",
-  "timestamp": "2025-08-15T22:00:42.577457Z",
+  "timestamp": "2025-08-15T22:48:41.116385Z",
   "n_registros": 41,
   "clases": [
     "Alto",
@@ -14,6 +14,166 @@
     "f1_macro_std": 0.1503329637837291,
     "accuracy_mean": 0.7277777777777777,
     "accuracy_std": 0.1487084312702686
+  },
+  "subgroups": {
+    "genero": {
+      "Masculino": {
+        "n": 19,
+        "accuracy": 0.7894736842105263,
+        "f1_macro": 0.7777777777777777,
+        "classification_report": {
+          "Alto": {
+            "precision": 0.7,
+            "recall": 0.875,
+            "f1-score": 0.7777777777777777,
+            "support": 8.0
+          },
+          "Elevado": {
+            "precision": 0.5,
+            "recall": 0.25,
+            "f1-score": 0.3333333333333333,
+            "support": 4.0
+          },
+          "Muy alto": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 5.0
+          },
+          "Normal": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 2.0
+          },
+          "accuracy": 0.7894736842105263,
+          "macro avg": {
+            "precision": 0.8,
+            "recall": 0.78125,
+            "f1-score": 0.7777777777777777,
+            "support": 19.0
+          },
+          "weighted avg": {
+            "precision": 0.7684210526315789,
+            "recall": 0.7894736842105263,
+            "f1-score": 0.7660818713450291,
+            "support": 19.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "Alto",
+            "Elevado",
+            "Muy alto",
+            "Normal"
+          ],
+          "matrix": [
+            [
+              7,
+              1,
+              0,
+              0
+            ],
+            [
+              3,
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              5,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              2
+            ]
+          ]
+        }
+      },
+      "Femenino": {
+        "n": 22,
+        "accuracy": 0.6818181818181818,
+        "f1_macro": 0.5418552036199095,
+        "classification_report": {
+          "Alto": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1-score": 0.0,
+            "support": 1.0
+          },
+          "Elevado": {
+            "precision": 0.5,
+            "recall": 0.42857142857142855,
+            "f1-score": 0.4615384615384615,
+            "support": 7.0
+          },
+          "Muy alto": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 6.0
+          },
+          "Normal": {
+            "precision": 0.6666666666666666,
+            "recall": 0.75,
+            "f1-score": 0.7058823529411765,
+            "support": 8.0
+          },
+          "accuracy": 0.6818181818181818,
+          "macro avg": {
+            "precision": 0.5416666666666666,
+            "recall": 0.5446428571428572,
+            "f1-score": 0.5418552036199095,
+            "support": 22.0
+          },
+          "weighted avg": {
+            "precision": 0.6742424242424242,
+            "recall": 0.6818181818181818,
+            "f1-score": 0.6762649115590292,
+            "support": 22.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "Alto",
+            "Elevado",
+            "Muy alto",
+            "Normal"
+          ],
+          "matrix": [
+            [
+              0,
+              1,
+              0,
+              0
+            ],
+            [
+              1,
+              3,
+              0,
+              3
+            ],
+            [
+              0,
+              0,
+              6,
+              0
+            ],
+            [
+              0,
+              2,
+              0,
+              6
+            ]
+          ]
+        }
+      }
+    }
   },
   "holdout": {
     "accuracy": 0.5555555555555556,
