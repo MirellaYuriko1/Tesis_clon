@@ -1,194 +1,67 @@
 {
   "model_version": "v1",
-  "timestamp": "2025-08-15T23:46:53.013837Z",
+  "timestamp": "2025-08-18T03:20:06.823605Z",
   "n_registros": 41,
   "clases": [
+    "Normal",
     "Alto",
     "Elevado",
-    "Muy alto",
-    "Normal"
+    "Muy alto"
   ],
-  "cv": {
-    "n_splits": 5,
-    "f1_macro_mean": 0.7116666666666667,
-    "f1_macro_std": 0.1503329637837291,
-    "accuracy_mean": 0.7277777777777777,
-    "accuracy_std": 0.1487084312702686
-  },
-  "subgroups": {
-    "genero": {
-      "Masculino": {
-        "n": 19,
-        "accuracy": 0.7894736842105263,
-        "f1_macro": 0.7777777777777777,
-        "classification_report": {
-          "Alto": {
-            "precision": 0.7,
-            "recall": 0.875,
-            "f1-score": 0.7777777777777777,
-            "support": 8.0
-          },
-          "Elevado": {
-            "precision": 0.5,
-            "recall": 0.25,
-            "f1-score": 0.3333333333333333,
-            "support": 4.0
-          },
-          "Muy alto": {
-            "precision": 1.0,
-            "recall": 1.0,
-            "f1-score": 1.0,
-            "support": 5.0
-          },
-          "Normal": {
-            "precision": 1.0,
-            "recall": 1.0,
-            "f1-score": 1.0,
-            "support": 2.0
-          },
-          "accuracy": 0.7894736842105263,
-          "macro avg": {
-            "precision": 0.8,
-            "recall": 0.78125,
-            "f1-score": 0.7777777777777777,
-            "support": 19.0
-          },
-          "weighted avg": {
-            "precision": 0.7684210526315789,
-            "recall": 0.7894736842105263,
-            "f1-score": 0.7660818713450291,
-            "support": 19.0
-          }
-        },
-        "confusion_matrix": {
-          "labels": [
-            "Alto",
-            "Elevado",
-            "Muy alto",
-            "Normal"
-          ],
-          "matrix": [
-            [
-              7,
-              1,
-              0,
-              0
-            ],
-            [
-              3,
-              1,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
-              5,
-              0
-            ],
-            [
-              0,
-              0,
-              0,
-              2
-            ]
-          ]
-        }
-      },
-      "Femenino": {
-        "n": 22,
-        "accuracy": 0.6818181818181818,
-        "f1_macro": 0.5418552036199095,
-        "classification_report": {
-          "Alto": {
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1-score": 0.0,
-            "support": 1.0
-          },
-          "Elevado": {
-            "precision": 0.5,
-            "recall": 0.42857142857142855,
-            "f1-score": 0.4615384615384615,
-            "support": 7.0
-          },
-          "Muy alto": {
-            "precision": 1.0,
-            "recall": 1.0,
-            "f1-score": 1.0,
-            "support": 6.0
-          },
-          "Normal": {
-            "precision": 0.6666666666666666,
-            "recall": 0.75,
-            "f1-score": 0.7058823529411765,
-            "support": 8.0
-          },
-          "accuracy": 0.6818181818181818,
-          "macro avg": {
-            "precision": 0.5416666666666666,
-            "recall": 0.5446428571428572,
-            "f1-score": 0.5418552036199095,
-            "support": 22.0
-          },
-          "weighted avg": {
-            "precision": 0.6742424242424242,
-            "recall": 0.6818181818181818,
-            "f1-score": 0.6762649115590292,
-            "support": 22.0
-          }
-        },
-        "confusion_matrix": {
-          "labels": [
-            "Alto",
-            "Elevado",
-            "Muy alto",
-            "Normal"
-          ],
-          "matrix": [
-            [
-              0,
-              1,
-              0,
-              0
-            ],
-            [
-              1,
-              3,
-              0,
-              3
-            ],
-            [
-              0,
-              0,
-              6,
-              0
-            ],
-            [
-              0,
-              2,
-              0,
-              6
-            ]
-          ]
-        }
-      }
+  "model_selected": "extratrees",
+  "compare": {
+    "rf": {
+      "f1_macro_mean": 0.7266666666666667,
+      "f1_macro_std": 0.13095800853708797,
+      "accuracy_mean": 0.7527777777777778,
+      "accuracy_std": 0.11500134191380249,
+      "balanced_accuracy_mean": 0.775,
+      "balanced_accuracy_std": 0.09354143466934853,
+      "n": 41
+    },
+    "extratrees": {
+      "f1_macro_mean": 0.8,
+      "f1_macro_std": 0.12281422284627029,
+      "accuracy_mean": 0.8,
+      "accuracy_std": 0.1274754878398196,
+      "balanced_accuracy_mean": 0.8166666666666667,
+      "balanced_accuracy_std": 0.12527746981977425,
+      "n": 41
+    },
+    "hgb": {
+      "f1_macro_mean": 0.09818181818181818,
+      "f1_macro_std": 0.003636363636363643,
+      "accuracy_mean": 0.24444444444444446,
+      "accuracy_std": 0.011111111111111117,
+      "balanced_accuracy_mean": 0.25,
+      "balanced_accuracy_std": 0.0,
+      "n": 41
+    },
+    "logreg": {
+      "f1_macro_mean": 0.77,
+      "f1_macro_std": 0.18147543451754936,
+      "accuracy_mean": 0.7777777777777778,
+      "accuracy_std": 0.1853008897795324,
+      "balanced_accuracy_mean": 0.8,
+      "balanced_accuracy_std": 0.1695582495781317,
+      "n": 41
     }
   },
   "holdout": {
-    "accuracy": 0.5555555555555556,
-    "f1_macro": 0.6,
+    "accuracy": 0.7777777777777778,
+    "f1_macro": 0.7833333333333333,
+    "balanced_accuracy": 0.7916666666666666,
     "classification_report": {
       "Alto": {
-        "precision": 0.3333333333333333,
-        "recall": 0.5,
-        "f1-score": 0.4,
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.8,
         "support": 2.0
       },
       "Elevado": {
-        "precision": 0.3333333333333333,
-        "recall": 0.3333333333333333,
-        "f1-score": 0.3333333333333333,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.6666666666666666,
         "support": 3.0
       },
       "Muy alto": {
@@ -203,52 +76,212 @@
         "f1-score": 0.6666666666666666,
         "support": 2.0
       },
-      "accuracy": 0.5555555555555556,
+      "accuracy": 0.7777777777777778,
       "macro avg": {
-        "precision": 0.6666666666666666,
-        "recall": 0.5833333333333333,
-        "f1-score": 0.6,
+        "precision": 0.8333333333333333,
+        "recall": 0.7916666666666666,
+        "f1-score": 0.7833333333333333,
         "support": 9.0
       },
       "weighted avg": {
-        "precision": 0.6296296296296295,
-        "recall": 0.5555555555555556,
-        "f1-score": 0.5703703703703703,
+        "precision": 0.8148148148148148,
+        "recall": 0.7777777777777778,
+        "f1-score": 0.7703703703703703,
         "support": 9.0
       }
     },
     "confusion_matrix": [
       [
         1,
-        1,
         0,
+        1,
         0
       ],
       [
-        2,
-        1,
-        0,
-        0
-      ],
-      [
-        0,
         0,
         2,
+        0,
         0
       ],
       [
         0,
         1,
+        2,
+        0
+      ],
+      [
         0,
-        1
+        0,
+        0,
+        2
       ]
     ],
     "labels_order": [
+      "Normal",
       "Alto",
       "Elevado",
-      "Muy alto",
-      "Normal"
+      "Muy alto"
     ],
     "n_test": 9
+  },
+  "subgroups": {
+    "genero": {
+      "Masculino": {
+        "n": 19,
+        "accuracy": 0.8421052631578947,
+        "f1_macro": 0.8487394957983194,
+        "classification_report": {
+          "Alto": {
+            "precision": 0.7777777777777778,
+            "recall": 0.875,
+            "f1-score": 0.823529411764706,
+            "support": 8.0
+          },
+          "Elevado": {
+            "precision": 0.6666666666666666,
+            "recall": 0.5,
+            "f1-score": 0.5714285714285715,
+            "support": 4.0
+          },
+          "Muy alto": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 5.0
+          },
+          "Normal": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 2.0
+          },
+          "accuracy": 0.8421052631578947,
+          "macro avg": {
+            "precision": 0.8611111111111112,
+            "recall": 0.84375,
+            "f1-score": 0.8487394957983194,
+            "support": 19.0
+          },
+          "weighted avg": {
+            "precision": 0.8362573099415205,
+            "recall": 0.8421052631578947,
+            "f1-score": 0.8354710305174702,
+            "support": 19.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "Normal",
+            "Alto",
+            "Elevado",
+            "Muy alto"
+          ],
+          "matrix": [
+            [
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              7,
+              1,
+              0
+            ],
+            [
+              0,
+              2,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              5
+            ]
+          ]
+        }
+      },
+      "Femenino": {
+        "n": 22,
+        "accuracy": 0.7727272727272727,
+        "f1_macro": 0.6041666666666666,
+        "classification_report": {
+          "Alto": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1-score": 0.0,
+            "support": 1.0
+          },
+          "Elevado": {
+            "precision": 0.625,
+            "recall": 0.7142857142857143,
+            "f1-score": 0.6666666666666666,
+            "support": 7.0
+          },
+          "Muy alto": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 6.0
+          },
+          "Normal": {
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1-score": 0.75,
+            "support": 8.0
+          },
+          "accuracy": 0.7727272727272727,
+          "macro avg": {
+            "precision": 0.59375,
+            "recall": 0.6160714285714286,
+            "f1-score": 0.6041666666666666,
+            "support": 22.0
+          },
+          "weighted avg": {
+            "precision": 0.7443181818181818,
+            "recall": 0.7727272727272727,
+            "f1-score": 0.7575757575757575,
+            "support": 22.0
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "Normal",
+            "Alto",
+            "Elevado",
+            "Muy alto"
+          ],
+          "matrix": [
+            [
+              6,
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              5,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              6
+            ]
+          ]
+        }
+      }
+    }
   }
 }
