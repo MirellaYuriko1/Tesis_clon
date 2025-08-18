@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-08-18T21:18:21.673281Z",
+  "n_registros_usados": 41,
+  "levels_order": [
+    "Normal",
+    "Alto",
+    "Elevado",
+    "Muy alto"
+  ],
+  "metrics": {
+    "f1_macro": 0.7207393483709273,
+    "accuracy": 0.7317073170731707,
+    "balanced_accuracy": 0.7353535353535354,
+    "auc_ovr_macro": 0.9231187886933855,
+    "labels_order": [
+      "Normal",
+      "Alto",
+      "Elevado",
+      "Muy alto"
+    ],
+    "confusion_matrix": [
+      [
+        8,
+        0,
+        2,
+        0
+      ],
+      [
+        0,
+        7,
+        2,
+        0
+      ],
+      [
+        3,
+        4,
+        4,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        11
+      ]
+    ]
+  }
+}
