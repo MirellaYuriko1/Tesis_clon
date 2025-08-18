@@ -1,0 +1,6 @@
+Clase,Precision,Recall,F1,Soporte,Accuracy,BalancedAccuracy,AUC_OVR,Brier,n
+Normal,0.75,0.923,0.828,13.0,,,,,
+Alto,0.625,0.556,0.588,9.0,,,,,
+Elevado,0.5,0.286,0.364,7.0,,,,,
+Muy alto,0.846,0.917,0.88,12.0,,,,,
+GLOBAL,0.68,0.67,0.665,,0.732,0.67,0.842,1.261,41.0

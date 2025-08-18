@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-08-18T09:32:56.669901Z",
+  "n_registros_usados": 41,
+  "levels_order": [
+    "Normal",
+    "Alto",
+    "Elevado",
+    "Muy alto"
+  ],
+  "dim_key": "Dim5",
+  "dim_name": "Obs.-Compulsivo (OCD)",
+  "upperbound": {
+    "f1_macro": 0.6152941176470588,
+    "accuracy": 0.8292682926829268,
+    "balanced_accuracy": 0.625,
+    "auc_ovr_macro": 0.8655453943497421,
+    "brier": 1.4407175358958808,
+    "confusion_matrix": [
+      [
+        23,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        3,
+        1,
+        1
+      ],
+      [
+        3,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        8
+      ]
+    ],
+    "n": 41
+  }
+}
