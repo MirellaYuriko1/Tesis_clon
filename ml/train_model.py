@@ -8,22 +8,19 @@ import pandas as pd
 import joblib
 
 from sklearn.model_selection import (
-    train_test_split, StratifiedKFold, cross_val_score, cross_val_predict
+    train_test_split, StratifiedKFold, cross_validate, cross_val_predict
 )
 from sklearn.metrics import (
     classification_report, confusion_matrix,
-    accuracy_score, f1_score, balanced_accuracy_score
+    accuracy_score, f1_score, balanced_accuracy_score,
+    precision_score, recall_score
 )
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.pipeline import Pipeline
-
-from sklearn.ensemble import (
-    RandomForestClassifier,
-    ExtraTreesClassifier,
-    HistGradientBoostingClassifier
-)
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 
 from Scas.configuracion import get_db  # conexión mysql-connector
 
@@ -86,9 +83,10 @@ def main():
     # Limpieza p1..p38 si vienen como bytes
     pcols = [c for c in df.columns if c.startswith("p")]
     if pcols:
-        df[pcols] = df[pcols].applymap(_bytes_to_int)
+        # evita FutureWarning de applymap usando map por columna
+        df[pcols] = df[pcols].apply(lambda col: col.map(_bytes_to_int))
 
-    # Edad a numérico
+    # Edad numérica
     df["edad"] = pd.to_numeric(df.get("edad"), errors="coerce")
     if df["edad"].isna().all():
         df["edad"] = 13
@@ -112,17 +110,18 @@ def main():
     classes_sorted = [c for c in CLASS_ORDER if c in clases_presentes] + \
                      [c for c in clases_presentes if c not in CLASS_ORDER]
 
-    # Preprocesamiento
+    # Preprocesamiento:
+    # Dense para evitar incompatibilidades con SVM/KNN
     pre_tree = ColumnTransformer(
         transformers=[
-            ("num", "passthrough", feature_cols_num),                # árboles no necesitan escalado
-            ("cat", OneHotEncoder(handle_unknown="ignore"), feature_cols_cat),
+            ("num", "passthrough", feature_cols_num),
+            ("cat", OneHotEncoder(handle_unknown="ignore", sparse=False), feature_cols_cat),
         ]
     )
-    pre_linear = ColumnTransformer(
+    pre_scaled = ColumnTransformer(
         transformers=[
-            ("num", StandardScaler(with_mean=False), feature_cols_num),
-            ("cat", OneHotEncoder(handle_unknown="ignore"), feature_cols_cat),
+            ("num", StandardScaler(), feature_cols_num),
+            ("cat", OneHotEncoder(handle_unknown="ignore", sparse=False), feature_cols_cat),
         ]
     )
 
@@ -134,22 +133,19 @@ def main():
                 n_estimators=400, random_state=42, class_weight="balanced"
             ))
         ]),
-        "extratrees": Pipeline(steps=[
-            ("pre", pre_tree),
-            ("model", ExtraTreesClassifier(
-                n_estimators=700, random_state=42, class_weight="balanced", max_features="sqrt"
+        "svm": Pipeline(steps=[
+            ("pre", pre_scaled),
+            ("model", SVC(
+                kernel="rbf", C=2.0, gamma="scale",
+                probability=True,                 # para métricas/umbral futuros
+                class_weight="balanced",
+                random_state=42
             ))
         ]),
-        "hgb": Pipeline(steps=[
-            ("pre", pre_tree),
-            ("model", HistGradientBoostingClassifier(
-                learning_rate=0.1, max_depth=None, max_iter=300, random_state=42
-            ))
-        ]),
-        "logreg": Pipeline(steps=[
-            ("pre", pre_linear),
-            ("model", LogisticRegression(
-                max_iter=2000, multi_class="auto", class_weight="balanced", random_state=42
+        "knn": Pipeline(steps=[
+            ("pre", pre_scaled),
+            ("model", KNeighborsClassifier(
+                n_neighbors=5, weights="distance", metric="minkowski", p=2
             ))
         ]),
     }
@@ -157,26 +153,34 @@ def main():
     # ---------------------- 4) Comparativa CV -------------
     print("\n=== Comparativa (5-fold estratificado) — métrica principal: F1_macro ===")
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+    scoring = {
+        "f1_macro": "f1_macro",
+        "precision_macro": "precision_macro",
+        "recall_macro": "recall_macro",
+        "accuracy": "accuracy",
+        "balanced_accuracy": "balanced_accuracy",
+    }
+
     resultados = {}
     best_name, best_score = None, -1.0
 
     for name, pipe in models.items():
-        cv_f1  = cross_val_score(pipe, X, y, cv=skf, scoring="f1_macro")
-        cv_acc = cross_val_score(pipe, X, y, cv=skf, scoring="accuracy")
-        cv_bal = cross_val_score(pipe, X, y, cv=skf, scoring="balanced_accuracy")
+        cv = cross_validate(pipe, X, y, cv=skf, scoring=scoring, return_train_score=False)
         resultados[name] = {
-            "f1_macro_mean": float(cv_f1.mean()),
-            "f1_macro_std":  float(cv_f1.std()),
-            "accuracy_mean": float(cv_acc.mean()),
-            "accuracy_std":  float(cv_acc.std()),
-            "balanced_accuracy_mean": float(cv_bal.mean()),
-            "balanced_accuracy_std":  float(cv_bal.std()),
+            "f1_macro_mean": float(cv["test_f1_macro"].mean()),
+            "f1_macro_std":  float(cv["test_f1_macro"].std()),
+            "precision_macro_mean": float(cv["test_precision_macro"].mean()),
+            "recall_macro_mean":    float(cv["test_recall_macro"].mean()),
+            "accuracy_mean":        float(cv["test_accuracy"].mean()),
+            "balanced_accuracy_mean": float(cv["test_balanced_accuracy"].mean()),
             "n": int(len(y)),
         }
-        print(f"- {name:10s} F1_macro={cv_f1.mean():.3f}±{cv_f1.std():.3f}  "
-              f"Acc={cv_acc.mean():.3f}  BalAcc={cv_bal.mean():.3f}")
-        if cv_f1.mean() > best_score:
-            best_score, best_name = cv_f1.mean(), name
+        print(f"- {name:5s}  F1_macro={cv['test_f1_macro'].mean():.3f}±{cv['test_f1_macro'].std():.3f}  "
+              f"Prec={cv['test_precision_macro'].mean():.3f}  Rec={cv['test_recall_macro'].mean():.3f}  "
+              f"Acc={cv['test_accuracy'].mean():.3f}  BalAcc={cv['test_balanced_accuracy'].mean():.3f}")
+        if cv["test_f1_macro"].mean() > best_score:
+            best_score, best_name = cv["test_f1_macro"].mean(), name
 
     print(f"\n[ML] Mejor por F1_macro: {best_name}")
 
@@ -188,13 +192,19 @@ def main():
     best_pipe.fit(Xtr, ytr)
     ypred = best_pipe.predict(Xte)
 
-    print("\n=== Reporte (test hold-out) ===")
-    print(classification_report(yte, ypred))
-
-    cm  = confusion_matrix(yte, ypred, labels=classes_sorted)
+    # Métricas globales
     acc = accuracy_score(yte, ypred)
-    f1m = f1_score(yte, ypred, average="macro")
     bal = balanced_accuracy_score(yte, ypred)
+    f1m = f1_score(yte, ypred, average="macro")
+    prec_m = precision_score(yte, ypred, average="macro", zero_division=0)
+    rec_m  = recall_score(yte, ypred, average="macro", zero_division=0)
+
+    # Reporte por clase y matriz de confusión
+    rep = classification_report(yte, ypred, output_dict=True, zero_division=0)
+    cm  = confusion_matrix(yte, ypred, labels=classes_sorted)
+
+    print("\n=== Reporte (test hold-out) ===")
+    print(classification_report(yte, ypred, zero_division=0))
 
     # --------- 6) Subgrupos (GÉNERO) con OOF -------------
     y_pred_cv = cross_val_predict(best_pipe, X, y, cv=skf)
@@ -210,16 +220,14 @@ def main():
         yp = df_eval.loc[mask, "y_pred"]
         if yt.empty:
             return None
-        rep  = classification_report(yt, yp, output_dict=True, zero_division=0)
-        accg = accuracy_score(yt, yp)
-        f1g  = f1_score(yt, yp, average="macro")
-        cmg  = confusion_matrix(yt, yp, labels=classes_sorted).tolist()
+        repg = classification_report(yt, yp, output_dict=True, zero_division=0)
         return {
             "n": int(len(yt)),
-            "accuracy": float(accg),
-            "f1_macro": float(f1g),
-            "classification_report": rep,
-            "confusion_matrix": {"labels": classes_sorted, "matrix": cmg},
+            "accuracy": float(accuracy_score(yt, yp)),
+            "balanced_accuracy": float(balanced_accuracy_score(yt, yp)),
+            "f1_macro": float(f1_score(yt, yp, average="macro")),
+            "classification_report": repg,
+            "confusion_matrix": {"labels": classes_sorted, "matrix": confusion_matrix(yt, yp, labels=classes_sorted).tolist()},
         }
 
     subgroups_genero = {}
@@ -229,7 +237,7 @@ def main():
     print("\n=== Subgrupos por género (cross-val OOF) ===")
     for g, m in subgroups_genero.items():
         if m:
-            print(f"Genero={g}: n={m['n']}, acc={m['accuracy']:.2f}, f1_macro={m['f1_macro']:.2f}")
+            print(f"Genero={g}: n={m['n']}, acc={m['accuracy']:.2f}, balAcc={m['balanced_accuracy']:.2f}, f1_macro={m['f1_macro']:.2f}")
 
     # ---------------------- 7) Guardar --------------------
     outdir = Path(__file__).parent / "models"
@@ -243,13 +251,15 @@ def main():
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "n_registros": int(len(df)),
         "clases": classes_sorted,
-        "model_selected": best_name,
-        "compare": resultados,
+        "model_selected": best_name,   # 'rf', 'svm' o 'knn'
+        "compare": resultados,         # métricas CV de los 3 modelos
         "holdout": {
             "accuracy": float(acc),
-            "f1_macro": float(f1m),
             "balanced_accuracy": float(bal),
-            "classification_report": classification_report(yte, ypred, output_dict=True),
+            "precision_macro": float(prec_m),
+            "recall_macro": float(rec_m),
+            "f1_macro": float(f1m),
+            "classification_report": rep,
             "confusion_matrix": cm.tolist(),
             "labels_order": classes_sorted,
             "n_test": int(len(yte)),
