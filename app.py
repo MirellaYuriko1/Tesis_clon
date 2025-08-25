@@ -573,4 +573,11 @@ def guardar():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))   # Render define PORT; 5000 de fallback local
     debug = os.getenv("FLASK_DEBUG", "0") == "1"
-    app.run(host="0.0.0.0", port=port, debug=debug)
+    # Si usamos el puerto por defecto (5000), asumimos entorno local → 127.0.0.1
+    # Si usamos un puerto inyectado (Render), exponemos en todas las interfaces → 0.0.0.0
+    host = "127.0.0.1" if port == 5000 else "0.0.0.0"
+
+    # Permite override manual con FLASK_HOST si quieres forzarlo
+    host = os.getenv("FLASK_HOST", host)
+
+    app.run(host=host, port=port, debug=debug)
