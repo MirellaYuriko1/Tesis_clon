@@ -124,14 +124,13 @@
       border:1px solid #e9eef5;
       border-radius:999px; padding:.35rem .6rem .35rem .35rem;
     }
-   
     .avatar{
       width:28px; height:28px; border-radius:50%;
       background: linear-gradient(135deg, var(--brand), var(--brand-dark));
       color:#fff; font-weight:700; font-size:.85rem; display:grid; place-items:center;
     }
     .user-label{ color:#64748b; font-size:.75rem; line-height:1; }
-    .user-name{ color:var(--ink); font-weight:600; line-height:1; }
+    .user-name{ color:#0f172a; font-weight:600; line-height:1; }
   </style>
 </head>
 <body>
@@ -399,6 +398,19 @@
     document.getElementById('btnNext').addEventListener('click', goNext);
     document.getElementById('btnPrev').addEventListener('click', goPrev);
 
+    // === NUEVO: auto-avanzar al elegir una opción (radios de género y preguntas) ===
+    stepContainer.addEventListener('change', (e) => {
+      const el = e.target;
+      if (el.matches('input[type="radio"]')) {
+        // guardar selección actual antes de avanzar
+        saveCurrentStep();
+        // breve pausa para que se perciba el check visual
+        setTimeout(() => {
+          goNext(); // respeta límites; en el último paso no hace nada
+        }, 60);
+      }
+    });
+
     form.addEventListener('submit', (e)=>{
       if(!canProceed()){
         e.preventDefault();
@@ -413,3 +425,4 @@
   </script>
 </body>
 </html>
+
