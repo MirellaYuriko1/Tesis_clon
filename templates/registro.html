@@ -121,6 +121,8 @@
               </svg>
             </button>
           </div>
+          <!-- NUEVO: error visible para reglas de longitud -->
+          <div id="passwordError" class="field-error" aria-live="polite"></div>
         </div>
 
         <!-- Confirmar contraseña -->
@@ -198,6 +200,7 @@
 
       const nombreError = document.getElementById('nombreError');
       const apellidoError = document.getElementById('apellidoError');
+      const passwordError = document.getElementById('passwordError'); // NUEVO
       const confirmError = document.getElementById('confirmError');
 
       function validateNombre(){
@@ -258,10 +261,26 @@
         return ok;
       }
 
+      // ACTUALIZADO: reglas de longitud 3..6 SOLO en JS
       function validatePassword(){
-        const ok = password.value.trim().length > 0;
+        const val = password.value;
+
+        let msg = "";
+        if (val.length === 0){
+          msg = "Este campo es obligatorio.";
+        } else if (val.length < 3 || val.length > 6){
+          msg = "La contraseña debe tener entre 3 y 6 caracteres.";
+        }
+
+        const ok = msg === "";
         password.classList.toggle('is-valid', ok);
-        password.classList.toggle('is-invalid', !ok && password.value.length > 0);
+        password.classList.toggle('is-invalid', !ok);
+        passwordError.textContent = msg;
+        passwordError.classList.toggle('show', !ok);
+
+        // Si cambia la contraseña, revalida la confirmación por si dejó de coincidir
+        if (confirm.value.length > 0) { validateConfirm(); }
+
         return ok;
       }
 
