@@ -393,15 +393,15 @@ def login():
         return render_template('login.html', error=None)
 
     # POST: validar contra BD (sin hash)
-    email = request.form.get('email')
+    nombre = request.form.get('nombre')
     password = request.form.get('password')
 
     cn = get_db()
     cur = cn.cursor()
     try:
         cur.execute(
-            "SELECT id_usuario FROM usuario WHERE email=%s AND contraseña=%s",
-            (email, password)
+            "SELECT id_usuario FROM usuario WHERE nombre=%s AND contraseña=%s",
+            (nombre, password)
         )
         row = cur.fetchone()
     finally:
