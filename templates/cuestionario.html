@@ -99,11 +99,24 @@
     }
 
     .age-wrap{
-      display:flex; align-items:center; gap:12px; border:1.5px solid #e5e7eb; background:#fff;
-      border-radius:14px; padding:14px 16px; max-width:420px;
+      display:flex; 
+      align-items:center; 
+      gap:12px; 
+      border:1.5px solid #e5e7eb; 
+      background:#fff;
+      border-radius:14px; 
+      padding:14px 16px; 
+      width:100%;          /* ocupa todo el ancho disponible */
+      max-width:100%;      /* elimina el límite de 420px */
+      box-sizing:border-box; /* asegura que padding/borde no se salgan */
     }
     .age-wrap input{
-      height:46px; border-radius:10px; border:1px solid #e5e7eb; padding:0 14px; width:140px; font-weight:600;
+      height:46px; 
+      border-radius:10px; 
+      border:1px solid #e5e7eb; 
+      padding:0 14px; 
+      width:140px; 
+      font-weight:600;
     }
 
     .navs{display:flex; justify-content:space-between; gap:12px; margin-top:22px}
@@ -384,7 +397,7 @@
         const edad = document.getElementById('edad');
         if(!edad) return false;
         const v = Number(edad.value);
-        return Number.isFinite(v) && v >= 3 && v <= 18;
+        return Number.isFinite(v) && v >= 12 && v <= 16;
       }
       if(s.type === 'gender'){
         return !!form.querySelector('input[name="genero_tmp"]:checked');
