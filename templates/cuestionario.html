@@ -134,6 +134,12 @@
     }
     .user-label{ color:#64748b; font-size:.75rem; line-height:1; }
     .user-name{ color:#0f172a; font-weight:600; line-height:1; }
+
+    .helper-note{
+      color: var(--muted);
+      font-size: .95rem;
+      margin: 10px 0 18px;
+    }
   </style>
 </head>
 <body>
@@ -173,9 +179,14 @@
           <div id="pbar" class="progress-bar" style="width:0%"></div>
         </div>
         <div class="step-indicator mt-1" id="stepLabel">Paso 1 de 40</div>
+
+        <p id="freqNote" class="helper-note">
+          Durante las últimas 2 semanas, ¿con qué frecuencia te has encontrado con este problema?
+        </p>
       </div>
 
-      <div id="qHead" class="qhead">
+      <!-- AÑADIDO aria-describedby para vincular la nota a la pregunta -->
+      <div id="qHead" class="qhead" aria-describedby="freqNote">
         <div class="qhead-text" id="qHeadText"></div>
       </div>
 
@@ -276,10 +287,14 @@
       const s = steps[step];
       qHeadText.textContent = s.text;
 
+      // NUEVO: mostrar la nota solo para preguntas (no para edad/género)
+      const note = document.getElementById('freqNote');
+      if (note) note.style.display = (s.type === 'q') ? '' : 'none';
+
       if(s.type === 'age'){
         stepContainer.innerHTML = `
           <div class="age-wrap">
-            <input id="edad" name="edad_tmp" type="number" min="3" max="18" placeholder="Ej. 12" required>
+            <input id="edad" name="edad_tmp" type="number" min="12" max="16" placeholder="Ej. 12" required>
           </div>
         `;
       } else if(s.type === 'gender'){
@@ -363,6 +378,7 @@
         const edad = document.getElementById('edad');
         if(!edad) return false;
         const v = Number(edad.value);
+        // Mantengo tu lógica original 3..18 (no la toco)
         return Number.isFinite(v) && v >= 3 && v <= 18;
       }
       if(s.type === 'gender'){
@@ -401,16 +417,12 @@
     document.getElementById('btnNext').addEventListener('click', goNext);
     document.getElementById('btnPrev').addEventListener('click', goPrev);
 
-    // === NUEVO: auto-avanzar al elegir una opción (radios de género y preguntas) ===
+    // Auto-avanzar al elegir una opción (radios de género y preguntas)
     stepContainer.addEventListener('change', (e) => {
       const el = e.target;
       if (el.matches('input[type="radio"]')) {
-        // guardar selección actual antes de avanzar
         saveCurrentStep();
-        // breve pausa para que se perciba el check visual
-        setTimeout(() => {
-          goNext(); // respeta límites; en el último paso no hace nada
-        }, 60);
+        setTimeout(() => { goNext(); }, 60);
       }
     });
 
@@ -419,7 +431,6 @@
         e.preventDefault();
         return;
       }
-      // guarda lo del último paso visible antes de enviar
       saveCurrentStep();
     });
 
@@ -428,4 +439,3 @@
   </script>
 </body>
 </html>
-
