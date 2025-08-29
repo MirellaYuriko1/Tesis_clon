@@ -93,12 +93,15 @@
         <div class="row g-3 mb-3">
           <div class="col-md-6">
             <label for="nombre" class="form-label">Nombre de usuario</label>
-            <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Tu usuario" required maxlength="50" />
+            <input id="nombre" name="nombre" type="text" class="form-control"
+                   placeholder="Tu usuario" required maxlength="50" />
             <div id="nombreError" class="field-error" aria-live="polite"></div>
           </div>
           <div class="col-md-6">
             <label for="apellido" class="form-label">Apellido</label>
-            <input id="apellido" name="apellido" type="text" class="form-control" placeholder="Tu apellido" />
+            <input id="apellido" name="apellido" type="text" class="form-control"
+                   placeholder="Tu apellido" required maxlength="50" />
+            <div id="apellidoError" class="field-error" aria-live="polite"></div>
           </div>
         </div>
 
@@ -119,7 +122,17 @@
         <!-- Confirmar contraseña -->
         <div class="mb-2">
           <label for="confirm_password" class="form-label">Confirmar contraseña</label>
-          <input id="confirm_password" name="confirm_password" type="password" class="form-control" placeholder="Repite la contraseña" required />
+          <div class="input-group">
+            <input id="confirm_password" name="confirm_password" type="password"
+                   class="form-control" placeholder="Repite la contraseña" required />
+            <button type="button" class="pw-toggle" aria-label="Mostrar/Ocultar contraseña" onclick="toggleConfirmPw()">
+              <svg id="eye2" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
           <div id="confirmError" class="field-error" aria-live="polite"></div>
         </div>
 
@@ -163,15 +176,24 @@
       input.type = isHidden ? 'text' : 'password';
       eye.setAttribute('stroke', isHidden ? '#111' : 'currentColor');
     }
+    function toggleConfirmPw(){
+      const input = document.getElementById('confirm_password');
+      const eye = document.getElementById('eye2');
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      eye.setAttribute('stroke', isHidden ? '#111' : 'currentColor');
+    }
 
     (function(){
       const form = document.getElementById('registerForm');
       const nombre = document.getElementById('nombre');
+      const apellido = document.getElementById('apellido');
       const password = document.getElementById('password');
       const confirm  = document.getElementById('confirm_password');
       const submitBtn = document.getElementById('submitBtn');
 
       const nombreError = document.getElementById('nombreError');
+      const apellidoError = document.getElementById('apellidoError');
       const confirmError = document.getElementById('confirmError');
 
       function validateNombre(){
@@ -203,6 +225,35 @@
         return ok;
       }
 
+      function validateApellido(){
+        const valor = apellido.value;
+        if (valor.length === 0){
+          apellido.classList.remove('is-valid','is-invalid');
+          apellidoError.textContent = "";
+          apellidoError.classList.remove('show');
+          return false;
+        }
+        let msg = "";
+        if (/^\s/.test(valor)){
+          msg = "No debe iniciar con espacio.";
+        } else if (valor.trim().length > 50){
+          msg = "Máximo 50 caracteres.";
+        } else if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/.test(valor)){
+          msg = "Solo se permiten letras y espacios (sin números).";
+        }
+        const ok = msg === "";
+        apellido.classList.toggle('is-valid', ok);
+        apellido.classList.toggle('is-invalid', !ok);
+        if (!ok){
+          apellidoError.textContent = msg;
+          apellidoError.classList.add('show');
+        } else {
+          apellidoError.textContent = "";
+          apellidoError.classList.remove('show');
+        }
+        return ok;
+      }
+
       function validatePassword(){
         const ok = password.value.trim().length > 0;
         password.classList.toggle('is-valid', ok);
@@ -226,15 +277,16 @@
       }
 
       function updateSubmit(){
-        submitBtn.disabled = !(validateNombre() && validatePassword() && validateConfirm());
+        submitBtn.disabled = !(validateNombre() && validateApellido() && validatePassword() && validateConfirm());
       }
 
       nombre.addEventListener('input', updateSubmit);
+      apellido.addEventListener('input', updateSubmit);
       password.addEventListener('input', updateSubmit);
       confirm.addEventListener('input', updateSubmit);
 
       form.addEventListener('submit', (e)=>{
-        if(!(validateNombre() && validatePassword() && validateConfirm())){
+        if(!(validateNombre() && validateApellido() && validatePassword() && validateConfirm())){
           e.preventDefault();
         }
       });
