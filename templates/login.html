@@ -22,10 +22,13 @@
       --ok:#22c55e; --err:#ef4444;
     }
 
-    html,body{height:100%}
+    /* Arreglo del fondo para evitar la franja inferior */
+    html, body { min-height: 100%; }
     body{
       margin:0; font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink);
+      min-height: 100vh;
       background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);
+      background-repeat:no-repeat;
     }
 
     .login-wrap{min-height:100%; display:grid; place-items:center; padding:40px 16px;}
@@ -34,11 +37,7 @@
       box-shadow:var(--shadow); padding:clamp(24px,4vw,48px); border:1px solid var(--line);
     }
     .login-title{
-      font-family:'Merriweather',serif; 
-      font-weight:700; 
-      text-align:center; 
-      font-size:24px; 
-      margin-bottom:24px;
+      font-family:'Merriweather',serif; font-weight:700; text-align:center; font-size:24px; margin-bottom:24px;
     }
 
     label{font-weight:600; color:#111827;}
@@ -49,7 +48,6 @@
     }
     .form-control:focus{border-color:var(--primary); box-shadow:var(--focus);}
 
-    /* Estados visuales (verde/rojo + icono) */
     .form-control.is-valid{
       border-color:var(--ok); box-shadow:0 0 0 3px rgba(34,197,94,.18);
       background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%2322c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>');
@@ -75,6 +73,8 @@
     .login-footer{ text-align:center; color:var(--muted); margin-top:16px; }
     .login-footer a{ color:var(--primary); text-decoration:none; font-weight:600; }
     .login-footer a:hover{ color:var(--primary-hover); text-decoration:underline; }
+    .field-error{ font-size:12px; color:var(--err); margin-top:6px; display:none; }
+    .field-error.show{ display:block; }
   </style>
 </head>
 <body>
@@ -84,15 +84,16 @@
       <h1 class="login-title">Accede a tu cuenta</h1>
 
       <form id="loginForm" method="post" action="/login" novalidate>
-        <!-- Email -->
+        <!-- Usuario -->
         <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input id="email" name="email" type="email" class="form-control" placeholder="Correo electrónico" required>
+          <label for="nombre" class="form-label">Nombre de usuario</label>
+          <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Tu usuario" required maxlength="50">
+          <div id="usuarioError" class="field-error" aria-live="polite"></div>
         </div>
 
         <!-- Password + toggle -->
         <div class="mb-2">
-          <label for="password" class="form-label">Password</label>
+          <label for="password" class="form-label">Contraseña</label>
           <div class="input-group">
             <input id="password" name="password" type="password" class="form-control" placeholder="Contraseña" required>
             <button type="button" class="pw-toggle" aria-label="Mostrar/Ocultar contraseña" onclick="togglePw()">
@@ -115,7 +116,7 @@
         </div>
 
         <p class="login-footer">
-          ¿Aún no tienes una cuenta? <a href="form_registro">Empieza aquí</a>
+          ¿Aún no tienes una cuenta? <a href="/form_registro">Empieza aquí</a>
         </p>
       </form>
     </section>
@@ -131,36 +132,53 @@
       eye.setAttribute('stroke', isHidden ? '#111' : 'currentColor');
     }
 
-    // Validación mínima: email válido y contraseña NO vacía
+    // Validación: usuario (letras y espacios, máx 50, sin espacio inicial) y contraseña no vacía
     (function(){
       const form = document.getElementById('loginForm');
-      const email = document.getElementById('email');
+      const usuario = document.getElementById('nombre');
       const password = document.getElementById('password');
       const submitBtn = document.getElementById('submitBtn');
+      const usuarioError = document.getElementById('usuarioError');
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-
-      function validateEmail(){
-        const ok = emailRegex.test(email.value.trim());
-        email.classList.toggle('is-valid', ok);
-        email.classList.toggle('is-invalid', !ok && email.value.length > 0);
+      function validateUsuario(){
+        const v = usuario.value;
+        if (v.length === 0){
+          usuario.classList.remove('is-valid','is-invalid');
+          usuarioError.textContent = ""; usuarioError.classList.remove('show');
+          return false;
+        }
+        let msg = "";
+        if (/^\s/.test(v)){
+          msg = "No debe iniciar con espacio.";
+        } else if (v.trim().length > 50){
+          msg = "Máximo 50 caracteres.";
+        } else if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/.test(v)){
+          msg = "Solo se permiten letras y espacios (sin números).";
+        }
+        const ok = msg === "";
+        usuario.classList.toggle('is-valid', ok);
+        usuario.classList.toggle('is-invalid', !ok);
+        if (!ok){ usuarioError.textContent = msg; usuarioError.classList.add('show'); }
+        else { usuarioError.textContent = ""; usuarioError.classList.remove('show'); }
         return ok;
       }
+
       function validatePassword(){
-        const ok = password.value.trim().length > 0; // sin restricciones de longitud
+        const ok = password.value.trim().length > 0;
         password.classList.toggle('is-valid', ok);
         password.classList.toggle('is-invalid', !ok && password.value.length > 0);
         return ok;
       }
+
       function updateSubmit(){
-        submitBtn.disabled = !(validateEmail() && validatePassword());
+        submitBtn.disabled = !(validateUsuario() && validatePassword());
       }
 
-      email.addEventListener('input', updateSubmit);
+      usuario.addEventListener('input', updateSubmit);
       password.addEventListener('input', updateSubmit);
 
       form.addEventListener('submit', (e)=>{
-        if(!(validateEmail() && validatePassword())){
+        if(!(validateUsuario() && validatePassword())){
           e.preventDefault();
         }
       });
@@ -171,3 +189,4 @@
   </script>
 </body>
 </html>
+
