@@ -89,21 +89,21 @@
       {% endif %}
 
       <form id="registerForm" method="post" action="/registro" novalidate>
-        <!-- Nombre -->
-        <div class="mb-3">
-          <label for="nombre" class="form-label">Nombre</label>
-          <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Tu nombre" required />
-          <div id="nombreError" class="field-error" aria-live="polite"></div>
+        <!-- Nombre de usuario + Apellido -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="nombre" class="form-label">Nombre de usuario</label>
+            <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Tu usuario" required />
+            <div id="nombreError" class="field-error" aria-live="polite"></div>
+          </div>
+          <div class="col-md-6">
+            <label for="apellido" class="form-label">Apellido</label>
+            <input id="apellido" name="apellido" type="text" class="form-control" placeholder="Tu apellido" />
+          </div>
         </div>
 
-        <!-- Email -->
+        <!-- Contraseña -->
         <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input id="email" name="email" type="email" class="form-control" placeholder="Correo electrónico" required />
-        </div>
-
-        <!-- Password -->
-        <div class="mb-2">
           <label for="password" class="form-label">Contraseña</label>
           <div class="input-group">
             <input id="password" name="password" type="password" class="form-control" placeholder="Contraseña" required />
@@ -114,6 +114,13 @@
               </svg>
             </button>
           </div>
+        </div>
+
+        <!-- Confirmar contraseña -->
+        <div class="mb-2">
+          <label for="confirm_password" class="form-label">Confirmar contraseña</label>
+          <input id="confirm_password" name="confirm_password" type="password" class="form-control" placeholder="Repite la contraseña" required />
+          <div id="confirmError" class="field-error" aria-live="polite"></div>
         </div>
 
         <!-- Botón -->
@@ -160,13 +167,13 @@
     (function(){
       const form = document.getElementById('registerForm');
       const nombre = document.getElementById('nombre');
-      const email = document.getElementById('email');
       const password = document.getElementById('password');
+      const confirm  = document.getElementById('confirm_password');
       const submitBtn = document.getElementById('submitBtn');
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-
       const nombreError = document.getElementById('nombreError');
+      const confirmError = document.getElementById('confirmError');
+
       function validateNombre(){
         const valor = nombre.value;
         if (valor.length === 0){
@@ -194,36 +201,44 @@
         return ok;
       }
 
-      function validateEmail(){
-        const ok = emailRegex.test(email.value.trim());
-        email.classList.toggle('is-valid', ok);
-        email.classList.toggle('is-invalid', !ok && email.value.length > 0);
-        return ok;
-      }
       function validatePassword(){
         const ok = password.value.trim().length > 0;
         password.classList.toggle('is-valid', ok);
         password.classList.toggle('is-invalid', !ok && password.value.length > 0);
         return ok;
       }
+
+      function validateConfirm(){
+        const filled = confirm.value.length > 0;
+        const same = confirm.value === password.value && password.value.length > 0;
+        confirm.classList.toggle('is-valid', same);
+        confirm.classList.toggle('is-invalid', filled && !same);
+        if (filled && !same){
+          confirmError.textContent = "Las contraseñas no coinciden.";
+          confirmError.classList.add('show');
+        } else {
+          confirmError.textContent = "";
+          confirmError.classList.remove('show');
+        }
+        return same;
+      }
+
       function updateSubmit(){
-        submitBtn.disabled = !(validateNombre() && validateEmail() && validatePassword());
+        submitBtn.disabled = !(validateNombre() && validatePassword() && validateConfirm());
       }
 
       nombre.addEventListener('input', updateSubmit);
-      email.addEventListener('input', updateSubmit);
       password.addEventListener('input', updateSubmit);
+      confirm.addEventListener('input', updateSubmit);
 
       form.addEventListener('submit', (e)=>{
-        if(!(validateNombre() && validateEmail() && validatePassword())){
+        if(!(validateNombre() && validatePassword() && validateConfirm())){
           e.preventDefault();
         }
       });
 
       updateSubmit();
     })();
-
-    
   </script>
 
   {% if exito %}
@@ -231,8 +246,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       const modal = new bootstrap.Modal(document.getElementById('okModal'));
       modal.show();
-    document.getElementById('goLogin').addEventListener('click', () => {
-      window.location.href = '/form_login';
+      document.getElementById('goLogin').addEventListener('click', () => {
+        window.location.href = '/form_login';
       });
     });
   </script>
