@@ -428,7 +428,7 @@ def login():
             return redirect(f'/cuestionario?uid={uid}') # estudiante/otros -> cuestionario
 
     # credenciales incorrectas
-    return render_template('login.html', error="Correo o contraseña incorrectos.")
+    return render_template('login.html', error="Nombre de usuario o contraseña incorrectos.")
 
 #========================================
 # === Guardar/Actualizar cuestionario ===
