@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cuestionario</title>
+  <title>Cuestionario SCAS-Child</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
 
     html, body { min-height: 100%; }
     body{
-      margin:0; 
+      margin:0;
       font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink);
       min-height: 100vh;
       background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);
@@ -37,27 +37,33 @@
       padding:clamp(20px,4vw,40px);
     }
 
-    .top-progress{margin-bottom:16px;}
+    .top-progress{margin-bottom:12px;}
     .progress{height:10px; background:#e6f0fb; border-radius:20px; overflow:hidden;}
     .progress-bar{background:var(--brand);}
     .step-indicator{color:var(--muted); font-weight:600; font-size:14px; text-align:right;}
 
+    /* --- Helper banner (franja informativa arriba de la pregunta) --- */
+    .helper-banner{
+      display:flex; align-items:flex-start; gap:10px;
+      background:#eaf4ff; border:1px solid #d6e9ff; color:#445b72;
+      border-radius:12px; padding:10px 12px; margin:12px 0 14px;
+      font-size:.95rem;
+    }
+    .helper-icon{
+      flex:0 0 auto; width:18px; height:18px; margin-top:2px;
+      color:var(--brand);
+    }
+
     .qhead{
       display:flex; align-items:center; justify-content:space-between; gap:16px;
       background:var(--qhead-bg); border:1px solid var(--qhead-border);
-      border-radius:16px; padding:16px 18px; margin:12px 0 10px;
+      border-radius:16px; padding:16px 18px; margin:0 0 14px;
     }
     .qhead-text{
       font-size: clamp(16px, 2.2vw, 20px);
       font-weight: 700;
       line-height: 1.5;
       color: var(--ink);
-    }
-
-    .helper-note{
-      color: var(--muted);
-      font-size: .95rem;
-      margin: 4px 0 18px; /* un poco más pegado a la pregunta */
     }
 
     .choices{display:grid; gap:12px; margin-top:8px;}
@@ -111,7 +117,7 @@
       .step-indicator{text-align:left;}
     }
 
-    /* === Navbar profesional (sin menú) === */
+    /* === Navbar compacto === */
     .navbar-brand{
       font-weight:800; letter-spacing:.2px; color:var(--ink);
       display:flex; align-items:center; gap:.6rem;
@@ -144,6 +150,7 @@
         <span class="brand-badge">S</span>
         <span>SCAS</span>
       </a>
+
       <div class="ms-auto">
         <div class="user-chip">
           <div class="avatar">{{ (usuario_nombre[0] if usuario_nombre else 'I')|upper }}</div>
@@ -156,9 +163,10 @@
       </div>
     </div>
   </nav>
-  
+
   <main class="wrap">
     <form id="quizForm" action="/guardar" method="post" class="card-quiz">
+      <!-- id de usuario desde Flask -->
       <input type="hidden" name="id_usuario" value="{{ uid }}">
 
       <div class="top-progress">
@@ -168,14 +176,25 @@
         <div class="step-indicator mt-1" id="stepLabel">Paso 1 de 40</div>
       </div>
 
-      <div id="qHead" class="qhead" aria-describedby="freqNote">
-        <div class="qhead-text" id="qHeadText"></div>
+      <!-- Helper banner (se muestra solo en pasos de pregunta) -->
+      <div id="freqBanner" class="helper-banner d-none">
+        <svg class="helper-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <circle cx="12" cy="16" r="1.2"></circle>
+        </svg>
+        <div>
+          <strong>Instrucciones:</strong>
+          Por favor responde indicando con qué frecuencia has experimentado este problema
+          las últimas 4 semanas (<em>incluyendo hoy</em>).
+        </div>
       </div>
 
-      <!-- NOTA: ahora debajo de la pregunta -->
-      <p id="freqNote" class="helper-note">
-        Por favor responde indicando con qué frecuencia has experimentado este problema las últimas 4 semanas (incluyendo hoy)
-      </p>
+      <!-- Encabezado de la pregunta -->
+      <div id="qHead" class="qhead">
+        <div class="qhead-text" id="qHeadText"></div>
+      </div>
 
       <div id="stepContainer"></div>
 
@@ -185,6 +204,7 @@
         <button type="submit" class="btn btn-submit d-none" id="btnSubmit">Obtener mis resultados</button>
       </div>
 
+      <!-- aquí agregaremos hidden inputs (edad, genero, p1..p38) vía JS -->
       <div id="hiddenBox"></div>
     </form>
   </main>
@@ -248,10 +268,12 @@
     const pbar = document.getElementById('pbar');
     const stepLabel = document.getElementById('stepLabel');
     const qHeadText = document.getElementById('qHeadText');
+    const freqBanner = document.getElementById('freqBanner');
     const btnPrev = document.getElementById('btnPrev');
     const btnNext = document.getElementById('btnNext');
     const btnSubmit = document.getElementById('btnSubmit');
 
+    // === crear inputs ocultos para edad, genero y p1..p38 ===
     (function makeHidden(){
       const hiddenBox = document.getElementById('hiddenBox');
       hiddenBox.innerHTML =
@@ -272,9 +294,8 @@
       const s = steps[step];
       qHeadText.textContent = s.text;
 
-      // Mostrar la nota SOLO en pasos de pregunta
-      const note = document.getElementById('freqNote');
-      if (note) note.style.display = (s.type === 'q') ? '' : 'none';
+      // Mostrar / ocultar la franja informativa solo en preguntas
+      freqBanner.classList.toggle('d-none', s.type !== 'q');
 
       if(s.type === 'age'){
         stepContainer.innerHTML = `
@@ -318,6 +339,7 @@
         stepContainer.innerHTML = html;
       }
 
+      // restaurar lo guardado en hidden para este paso
       restoreCurrentStepSelection();
     }
 
@@ -379,7 +401,9 @@
         if(invalid && invalid.reportValidity) invalid.reportValidity();
         return;
       }
+      // guarda lo elegido en este paso
       saveCurrentStep();
+
       if(step < totalSteps-1){
         step++;
         render();
@@ -387,6 +411,7 @@
     }
 
     function goPrev(){
+      // guarda antes de retroceder
       saveCurrentStep();
       if(step>0){
         step--;
@@ -397,7 +422,7 @@
     document.getElementById('btnNext').addEventListener('click', goNext);
     document.getElementById('btnPrev').addEventListener('click', goPrev);
 
-    // Auto-avanzar al elegir una opción
+    // Auto-avanzar al elegir opción (género y preguntas)
     stepContainer.addEventListener('change', (e) => {
       const el = e.target;
       if (el.matches('input[type="radio"]')) {
@@ -414,6 +439,7 @@
       saveCurrentStep();
     });
 
+    // arranque
     render();
   </script>
 </body>
