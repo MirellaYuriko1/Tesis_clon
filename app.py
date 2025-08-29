@@ -360,16 +360,17 @@ def registro():
 
     # POST: datos desde el formulario
     nombre   = request.form.get("nombre")
-    email    = request.form.get("email")
+    apellido = request.form.get("apellido")
     password = request.form.get("password")  # (sin hash, como pediste)
+   
 
     cn = get_db()
     cur = cn.cursor()
 
     try:
         cur.execute(
-            "INSERT INTO usuario (nombre, email, contraseña) VALUES (%s, %s, %s)",
-            (nombre, email, password)
+            "INSERT INTO usuario (nombre, apellido, contraseña) VALUES (%s, %s, %s)",
+            (nombre, apellido, password)
         )
         cn.commit()
         # <- volvemos a la MISMA vista con la bandera exito=True
