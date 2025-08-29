@@ -93,7 +93,7 @@
         <div class="row g-3 mb-3">
           <div class="col-md-6">
             <label for="nombre" class="form-label">Nombre de usuario</label>
-            <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Tu usuario" required />
+            <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Tu usuario" required maxlength="50" />
             <div id="nombreError" class="field-error" aria-live="polite"></div>
           </div>
           <div class="col-md-6">
@@ -185,6 +185,8 @@
         let msg = "";
         if (/^\s/.test(valor)){
           msg = "No debe iniciar con espacio.";
+        } else if (valor.trim().length > 50){
+          msg = "Máximo 50 caracteres.";
         } else if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/.test(valor)){
           msg = "Solo se permiten letras y espacios (sin números).";
         }
