@@ -392,6 +392,83 @@ def registro():
         cur.close()
         cn.close()
 
+# === Editar perfil (reusa registro.html en modo edición) ===
+@app.route('/perfil', methods=['GET', 'POST'])
+def perfil():
+    if request.method == 'GET':
+        uid = request.args.get('uid', type=int)
+        if not uid:
+            return redirect('/form_login')
+
+        cn = get_db()
+        cur = cn.cursor()
+        try:
+            cur.execute("SELECT nombre, apellido FROM usuario WHERE id_usuario=%s", (uid,))
+            row = cur.fetchone()
+        finally:
+            cur.close(); cn.close()
+
+        nombre   = row[0] if row else ''
+        apellido = row[1] if row and len(row) > 1 else ''
+
+        # usamos registro.html en modo edición
+        return render_template(
+            "registro.html",
+            exito=False, error=None,
+            modo="editar",      # <--- bandera para la vista
+            uid=uid,
+            nombre=nombre,
+            apellido=apellido
+        )
+
+    # POST -> guardar cambios
+    uid = request.form.get('uid', type=int)
+    if not uid:
+        return redirect('/form_login')
+
+    nombre    = (request.form.get('nombre') or '').strip()
+    apellido  = (request.form.get('apellido') or '').strip()
+    password  = (request.form.get('password') or '').strip()
+    password2 = (request.form.get('password2') or '').strip()
+
+    if password or password2:
+        if password != password2:
+            return render_template(
+                "registro.html",
+                modo="editar", uid=uid,
+                nombre=nombre, apellido=apellido,
+                exito=False, error="Las contraseñas no coinciden."
+            )
+
+    cn = get_db()
+    cur = cn.cursor()
+    try:
+        if password:
+            cur.execute(
+                "UPDATE usuario SET nombre=%s, apellido=%s, contraseña=%s WHERE id_usuario=%s",
+                (nombre, apellido, password, uid)
+            )
+        else:
+            cur.execute(
+                "UPDATE usuario SET nombre=%s, apellido=%s WHERE id_usuario=%s",
+                (nombre, apellido, uid)
+            )
+        cn.commit()
+    except Exception as e:
+        cn.rollback()
+        return render_template(
+            "registro.html",
+            modo="editar", uid=uid,
+            nombre=nombre, apellido=apellido,
+            exito=False, error=str(e)
+        )
+    finally:
+        cur.close(); cn.close()
+
+    # volver al cuestionario
+    return redirect(f"/cuestionario?uid={uid}")
+
+
 # === Login (GET/POST) ===
 # IMPORTANTE: tu login.html debe postear a /login (action="/login")
 @app.route('/login', methods=['GET', 'POST'])
