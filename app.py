@@ -107,7 +107,7 @@ def cuestionario():
     # Traer el nombre del usuario para mostrarlo en el navbar
     cn = get_db()
     cur = cn.cursor()
-    cur.execute("SELECT nombre FROM usuario WHERE id_usuario=%s", (uid,))
+    cur.execute("SELECT nombre,apellido FROM usuario WHERE id_usuario=%s", (uid,))
     row = cur.fetchone()
     cur.close(); cn.close()
 
