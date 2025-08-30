@@ -3,7 +3,7 @@ import json  # <--- nuevo
 MODEL_VERSION = "v1"  # <--- nuevo (versiona tu modelo)
 
 #Framework web para mostrar el formulario y manejar las respuestas.
-from flask import Flask, render_template, request, redirect, Response
+from flask import Flask, render_template, request, redirect, Response, jsonify
 from io import BytesIO
 
 #==================================================
@@ -97,6 +97,7 @@ def form_registro():
 @app.route('/form_login')
 def form_login():
     return render_template("login.html")
+
 
 # Ruta para mostrar el formulario cuestionario
 @app.route('/cuestionario')
@@ -393,6 +394,7 @@ def registro():
         cn.close()
 
 # === Editar perfil (reusa registro.html en modo edición) ===
+# === Editar perfil (reusa registro.html en modo edición, sin JSON) ===
 @app.route('/perfil', methods=['GET', 'POST'])
 def perfil():
     if request.method == 'GET':
@@ -411,14 +413,15 @@ def perfil():
         nombre   = row[0] if row else ''
         apellido = row[1] if row and len(row) > 1 else ''
 
-        # usamos registro.html en modo edición
+        # Renderizamos registro.html en modo edición, precargando datos
         return render_template(
             "registro.html",
-            exito=False, error=None,
-            modo="editar",      # <--- bandera para la vista
+            modo="editar",
             uid=uid,
             nombre=nombre,
-            apellido=apellido
+            apellido=apellido,
+            exito=False,
+            error=None
         )
 
     # POST -> guardar cambios
@@ -429,17 +432,35 @@ def perfil():
     nombre    = (request.form.get('nombre') or '').strip()
     apellido  = (request.form.get('apellido') or '').strip()
     password  = (request.form.get('password') or '').strip()
-    password2 = (request.form.get('password2') or '').strip()
+    # acepta confirm_password (de tu HTML) o password2
+    password2 = (request.form.get('confirm_password') or request.form.get('password2') or '').strip()
 
-    if password or password2:
-        if password != password2:
-            return render_template(
-                "registro.html",
-                modo="editar", uid=uid,
-                nombre=nombre, apellido=apellido,
-                exito=False, error="Las contraseñas no coinciden."
-            )
+    # Validaciones básicas
+    if not nombre or not apellido:
+        return render_template(
+            "registro.html",
+            modo="editar", uid=uid,
+            nombre=nombre, apellido=apellido,
+            exito=False, error="Nombre y apellido son obligatorios."
+        )
 
+    if (password or password2) and password != password2:
+        return render_template(
+            "registro.html",
+            modo="editar", uid=uid,
+            nombre=nombre, apellido=apellido,
+            exito=False, error="Las contraseñas no coinciden."
+        )
+
+    if password and not (3 <= len(password) <= 6):
+        return render_template(
+            "registro.html",
+            modo="editar", uid=uid,
+            nombre=nombre, apellido=apellido,
+            exito=False, error="La contraseña debe tener entre 3 y 6 caracteres."
+        )
+
+    # Guardar en BD
     cn = get_db()
     cur = cn.cursor()
     try:
@@ -465,9 +486,8 @@ def perfil():
     finally:
         cur.close(); cn.close()
 
-    # volver al cuestionario
+    # Volver al cuestionario (con el mismo uid)
     return redirect(f"/cuestionario?uid={uid}")
-
 
 # === Login (GET/POST) ===
 # IMPORTANTE: tu login.html debe postear a /login (action="/login")
