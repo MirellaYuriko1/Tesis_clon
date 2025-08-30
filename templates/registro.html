@@ -20,11 +20,13 @@
       --focus:0 0 0 3px rgba(30,136,229,.28);
       --ok:#22c55e; --err:#ef4444;
     }
-    html, body { height: 100%; margin: 0; }
+    html, body { height: 100%;}
     body{
+      margin:0;
       font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; 
       color:var(--ink);
       background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);
+      min-height: 100vh;
       background-repeat:no-repeat;
     }
     .login-wrap{ height:100%; display:grid; place-items:center; padding:40px 16px; }

@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 # PARA QUE GUARDE MI ML A MI BASE DE DATOS MYSQL 
 import json  # <--- nuevo
 MODEL_VERSION = "v1"  # <--- nuevo (versiona tu modelo)
@@ -186,85 +188,6 @@ def form_panel():
                            admin_nombre=admin['nombre'],
                            rows=rows, uid=uid, q=q)
 
-
-@app.get('/descargar_documento')
-def descargar_documento():
-    uid = request.args.get('uid', type=int)
-    q = (request.args.get('q') or '').strip()
-    if not uid:
-        return redirect('/form_login')
-
-    cn = get_db()
-    cur = cn.cursor(dictionary=True)
-    try:
-        # validar admin
-        cur.execute("SELECT rol FROM usuario WHERE id_usuario=%s", (uid,))
-        rol_row = cur.fetchone()
-        if not rol_row or (rol_row['rol'] or '').lower() != 'admin':
-            return redirect(f'/cuestionario?uid={uid}')
-
-        # armar consulta con TODAS las columnas de cuestionario (último por estudiante)
-        cols_p = ", ".join([f"c.p{i}" for i in range(1, 39)])
-        sql = f"""
-            SELECT 
-                u.nombre AS Nombre,
-                c.genero AS Genero,
-                c.edad   AS Edad,
-                {cols_p},
-                r.puntaje_Dim1, r.puntaje_Dim2, r.puntaje_Dim3,
-                r.puntaje_Dim4, r.puntaje_Dim5, r.puntaje_Dim6,
-                r.puntaje_total, r.nivel,
-                COALESCE(r.created_at, c.created_at) AS created_at
-            FROM usuario u
-            JOIN (
-                SELECT c1.*
-                FROM cuestionario c1
-                JOIN (
-                    SELECT id_usuario, MAX(created_at) AS mx
-                    FROM cuestionario
-                    GROUP BY id_usuario
-                ) ult
-                  ON ult.id_usuario = c1.id_usuario AND ult.mx = c1.created_at
-            ) c ON c.id_usuario = u.id_usuario
-            LEFT JOIN resultado r ON r.id_cuestionario = c.id_cuestionario
-            WHERE u.rol='estudiante' { "AND u.nombre LIKE %s" if q else "" }
-            ORDER BY COALESCE(r.created_at, c.created_at) DESC
-        """
-        params = [f"%{q}%"] if q else []
-        cur.execute(sql, params)
-        data = cur.fetchall()
-    finally:
-        cur.close()
-        cn.close()
-
-    # Construir DataFrame y ordenar columnas
-    if not data:
-        df = pd.DataFrame(columns=["Nombre","Genero","Edad"])
-    else:
-        df = pd.DataFrame(data)
-
-        # Orden elegante de columnas
-        preguntas = [f"p{i}" for i in range(1, 39)]
-        dims = [f"puntaje_Dim{i}" for i in range(1, 6+1)]
-        front = ["Nombre", "Genero", "Edad"]
-        tail = dims + ["puntaje_total", "nivel", "created_at"]
-        ordered = [c for c in front + preguntas + tail if c in df.columns]
-        df = df[ordered]
-
-    # Exportar Excel en memoria
-    try:
-        buff = BytesIO()
-        with pd.ExcelWriter(buff, engine="openpyxl") as writer:
-            df.to_excel(writer, sheet_name="SCAS", index=False)
-        buff.seek(0)
-        return Response(
-            buff.getvalue(),
-            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers={"Content-Disposition": "attachment; filename=SCAS_Estudiantes.xlsx"}
-        )
-    except Exception as e:
-        return f"Error al generar Excel: {e}", 500
-    
 # Ruta para Resultado
 @app.get('/resultado')
 def resultado():
@@ -363,38 +286,30 @@ def resultado():
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'GET':
-        # muestra la vista normal
-        return render_template("registro.html", exito=False, error=None)
+        return render_template("registro.html")  # sin exito/error por Jinja
 
-    # POST: datos desde el formulario
     nombre   = request.form.get("nombre")
     apellido = request.form.get("apellido")
-    password = request.form.get("password")  # (sin hash, como pediste)
-   
+    password = request.form.get("password")
 
-    cn = get_db()
-    cur = cn.cursor()
-
+    cn = get_db(); cur = cn.cursor()
     try:
         cur.execute(
             "INSERT INTO usuario (nombre, apellido, contraseña) VALUES (%s, %s, %s)",
             (nombre, apellido, password)
         )
         cn.commit()
-        # <- volvemos a la MISMA vista con la bandera exito=True
-        return render_template("registro.html", exito=True, error=None)
-
+        # 👉 redirige con querystring para que el front muestre el modal
+        return redirect("/form_registro?exito=1")
     except Exception as e:
         cn.rollback()
-        # podrías mapear errores (p.ej. email duplicado) a un mensaje más lindo
-        return render_template("registro.html", exito=False, error=str(e))
-
+        # 👉 redirige con error en querystring
+        from urllib.parse import quote_plus
+        return redirect(f"/form_registro?error={quote_plus(str(e))}")
     finally:
-        cur.close()
-        cn.close()
+        cur.close(); cn.close()
 
 # === Editar perfil (reusa registro.html en modo edición) ===
-# === Editar perfil (reusa registro.html en modo edición, sin JSON) ===
 @app.route('/perfil', methods=['GET', 'POST'])
 def perfil():
     if request.method == 'GET':
@@ -402,8 +317,7 @@ def perfil():
         if not uid:
             return redirect('/form_login')
 
-        cn = get_db()
-        cur = cn.cursor()
+        cn = get_db(); cur = cn.cursor()
         try:
             cur.execute("SELECT nombre, apellido FROM usuario WHERE id_usuario=%s", (uid,))
             row = cur.fetchone()
@@ -413,18 +327,13 @@ def perfil():
         nombre   = row[0] if row else ''
         apellido = row[1] if row and len(row) > 1 else ''
 
-        # Renderizamos registro.html en modo edición, precargando datos
-        return render_template(
-            "registro.html",
-            modo="editar",
-            uid=uid,
-            nombre=nombre,
-            apellido=apellido,
-            exito=False,
-            error=None
+        # 👉 Redirige al mismo formulario pero en modo edición
+        return redirect(
+            f"/form_registro?mode=editar&uid={uid}"
+            f"&nombre={quote_plus(nombre)}&apellido={quote_plus(apellido)}"
         )
 
-    # POST -> guardar cambios
+    # POST -> guardar cambios (igual que ya lo tienes)
     uid = request.form.get('uid', type=int)
     if not uid:
         return redirect('/form_login')
@@ -432,37 +341,16 @@ def perfil():
     nombre    = (request.form.get('nombre') or '').strip()
     apellido  = (request.form.get('apellido') or '').strip()
     password  = (request.form.get('password') or '').strip()
-    # acepta confirm_password (de tu HTML) o password2
     password2 = (request.form.get('confirm_password') or request.form.get('password2') or '').strip()
 
-    # Validaciones básicas
     if not nombre or not apellido:
-        return render_template(
-            "registro.html",
-            modo="editar", uid=uid,
-            nombre=nombre, apellido=apellido,
-            exito=False, error="Nombre y apellido son obligatorios."
-        )
-
+        return redirect(f"/form_registro?mode=editar&uid={uid}&nombre={quote_plus(nombre)}&apellido={quote_plus(apellido)}&error=Nombre%20y%20apellido%20son%20obligatorios")
     if (password or password2) and password != password2:
-        return render_template(
-            "registro.html",
-            modo="editar", uid=uid,
-            nombre=nombre, apellido=apellido,
-            exito=False, error="Las contraseñas no coinciden."
-        )
-
+        return redirect(f"/form_registro?mode=editar&uid={uid}&nombre={quote_plus(nombre)}&apellido={quote_plus(apellido)}&error=Las%20contrase%C3%B1as%20no%20coinciden")
     if password and not (3 <= len(password) <= 6):
-        return render_template(
-            "registro.html",
-            modo="editar", uid=uid,
-            nombre=nombre, apellido=apellido,
-            exito=False, error="La contraseña debe tener entre 3 y 6 caracteres."
-        )
+        return redirect(f"/form_registro?mode=editar&uid={uid}&nombre={quote_plus(nombre)}&apellido={quote_plus(apellido)}&error=La%20contrase%C3%B1a%20debe%20tener%20entre%203%20y%206%20caracteres")
 
-    # Guardar en BD
-    cn = get_db()
-    cur = cn.cursor()
+    cn = get_db(); cur = cn.cursor()
     try:
         if password:
             cur.execute(
@@ -475,18 +363,9 @@ def perfil():
                 (nombre, apellido, uid)
             )
         cn.commit()
-    except Exception as e:
-        cn.rollback()
-        return render_template(
-            "registro.html",
-            modo="editar", uid=uid,
-            nombre=nombre, apellido=apellido,
-            exito=False, error=str(e)
-        )
     finally:
         cur.close(); cn.close()
 
-    # Volver al cuestionario (con el mismo uid)
     return redirect(f"/cuestionario?uid={uid}")
 
 # === Login (GET/POST) ===
