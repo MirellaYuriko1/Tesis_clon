@@ -193,6 +193,12 @@
   </style>
 </head>
 <body>
+
+  {# ===== Nombre completo para el menú (NO cambia tu chip) ===== #}
+  {% set _nombre = usuario_nombre|default('', true) %}
+  {% set _apellido = usuario_apellido|default('', true) %}
+  {% set nombre_completo = (_nombre ~ ' ' ~ _apellido)|trim %}
+
   <!-- NAVBAR -->
   <nav class="navbar navbar-glass sticky-top">
     <div class="container-xxl">
@@ -214,9 +220,13 @@
         <!-- Menú de usuario -->
         <div id="userMenu" class="user-menu" role="menu" hidden>
           <div class="um-header">
-            <div class="um-avatar">{{ (usuario_nombre[0] if usuario_nombre else 'I')|upper }}</div>
+            <div class="um-avatar">
+              {{ ((nombre_completo|default('', true))[:1] or (usuario_nombre|default('', true))[:1] or 'I')|upper }}
+            </div>
             <div>
-              <div class="um-name">{{ usuario_nombre or 'Invitado' }}</div>
+              <div class="um-name">
+                {{ (nombre_completo|default('', true)) or (usuario_nombre|default('Invitado', true)) }}
+              </div>
               <div class="um-sub">Cuenta</div>
             </div>
           </div>
@@ -225,13 +235,6 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
-              </svg>
-              Mi perfil
-            </a></li>
-
-            <li><a class="um-item" href="/perfil/editar" role="menuitem">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>
               </svg>
               Editar perfil
             </a></li>
@@ -566,6 +569,7 @@
   </script>
 </body>
 </html>
+
 
 
 
