@@ -566,6 +566,86 @@
 
     // arranque PARA INICIAR
     render();
+
+    // === MEMORIA LOCAL: recuerda paso y respuestas (por usuario) ===
+(function(){
+  const uid = document.querySelector('input[name="id_usuario"]')?.value || 'anon';
+  const KEY = `scas:${uid}:progreso`;
+
+  function persist(){
+    // Asegura que el paso actual esté volcado a los hidden antes de guardar
+    saveCurrentStep();
+
+    const data = {
+      step,
+      edad: document.getElementById('edad_hidden')?.value ?? '',
+      genero: document.getElementById('genero_hidden')?.value ?? '',
+      answers: {}
+    };
+    for (let i = 1; i <= 38; i++){
+      const v = document.getElementById(`p${i}_hidden`)?.value;
+      data.answers[`p${i}`] = (v ?? '');
+    }
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {}
+  }
+
+  function restore(){
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return;
+    try {
+      const st = JSON.parse(raw);
+
+      // Rellenar hidden con lo guardado
+      if (st.edad != null)   document.getElementById('edad_hidden').value   = String(st.edad);
+      if (st.genero != null) document.getElementById('genero_hidden').value = String(st.genero);
+      if (st.answers){
+        for (let i=1; i<=38; i++){
+          const val = st.answers[`p${i}`];
+          if (val != null) document.getElementById(`p${i}_hidden`).value = String(val);
+        }
+      }
+
+      // Volver al paso donde se quedó
+      if (Number.isInteger(st.step) && st.step >= 0 && st.step < steps.length){
+        step = st.step;
+      }
+      // Re-render para que se marque lo restaurado en el paso visible
+      render();
+    } catch {}
+  }
+
+  function clearMem(){ localStorage.removeItem(KEY); }
+
+  // Restaurar al entrar
+  restore();
+
+  // Guardar cuando cambian edad/género/preguntas
+  document.addEventListener('change', (e)=>{
+    const nm = e.target.name || '';
+    if (nm === 'edad_tmp' || nm === 'genero_tmp' || /_tmp$/.test(nm)) {
+      persist();
+    }
+  });
+
+  // Guardar también al navegar entre pasos
+  document.getElementById('btnNext')?.addEventListener('click', persist);
+  document.getElementById('btnPrev')?.addEventListener('click', persist);
+
+  // Guardar si el usuario se va (por si abre Editar perfil)
+  window.addEventListener('beforeunload', persist);
+
+  // Guardar explícitamente al pulsar "Editar perfil"
+  document.querySelector('a[href^="/perfil"]')?.addEventListener('click', ()=>{
+    persist();
+  });
+
+  // Limpiar memoria al enviar el formulario definitivo
+  form.addEventListener('submit', clearMem);
+
+  // (Opcional) utilidades en consola:
+  window._scasProgress = { persist, restore, clearMem };
+})();
+
   </script>
 </body>
 </html>
