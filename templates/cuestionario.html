@@ -190,6 +190,27 @@
     .um-item svg{ width:18px; height:18px; color:#64748b; }
     .um-danger{ color:#b42318; }
     .um-danger:hover{ background:#fff1f0; }
+
+    /* Navbar blanca tipo "chip" */
+.navbar-glass{
+  background:#ffffff;                /* fondo blanco sólido */
+  border-bottom:1px solid #e9eef5;   /* misma línea suave del chip */
+  box-shadow:0 8px 20px rgba(15,23,42,.06); /* sombrita sutil */
+  position: sticky; top:0; z-index: 1020;   /* asegurar que quede arriba */
+}
+
+/* (opcional) compacta un poco el alto de la barra */
+.navbar-glass .container-xxl{
+  padding-top:.5rem;
+  padding-bottom:.5rem;
+}
+
+/* Colores de textos/links en la navbar, por si Bootstrap cambia algo */
+.navbar-glass .navbar-brand,
+.navbar-glass .navbar-brand:focus,
+.navbar-glass .navbar-brand:hover{
+  color: var(--ink);
+}
   </style>
 </head>
 <body>
