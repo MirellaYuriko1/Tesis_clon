@@ -22,17 +22,23 @@
       --ok:#22c55e; --err:#ef4444;
     }
 
-    html,body{min-height: 100%;}
+    /* Centrado consistente a pantalla completa */
+    html, body { height: 100%; margin: 0; }
+
     body{
-      margin:0; 
       font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; 
       color:var(--ink);
-      min-height: 100vh; /* clave */
       background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);
-      background-repeat: no-repeat;
+      background-repeat:no-repeat;
     }
 
-    .login-wrap{min-height:100%; display:grid; place-items:center; padding:40px 16px;}
+    .login-wrap{
+      height:100%;
+      display:grid; 
+      place-items:center; 
+      padding:40px 16px;
+    }
+
     .login-card{
       width:100%; max-width:620px; background:var(--card-bg); border-radius:var(--radius);
       box-shadow:var(--shadow); padding:clamp(24px,4vw,48px); border:1px solid var(--line);
@@ -121,7 +127,6 @@
               </svg>
             </button>
           </div>
-          <!-- NUEVO: error visible para reglas de longitud -->
           <div id="passwordError" class="field-error" aria-live="polite"></div>
         </div>
 
@@ -200,7 +205,7 @@
 
       const nombreError = document.getElementById('nombreError');
       const apellidoError = document.getElementById('apellidoError');
-      const passwordError = document.getElementById('passwordError'); // NUEVO
+      const passwordError = document.getElementById('passwordError');
       const confirmError = document.getElementById('confirmError');
 
       function validateNombre(){
@@ -261,7 +266,7 @@
         return ok;
       }
 
-      // ACTUALIZADO: reglas de longitud 3..6 SOLO en JS
+      // Reglas de longitud 3..6 SOLO en JS
       function validatePassword(){
         const val = password.value;
 
@@ -278,7 +283,6 @@
         passwordError.textContent = msg;
         passwordError.classList.toggle('show', !ok);
 
-        // Si cambia la contraseña, revalida la confirmación por si dejó de coincidir
         if (confirm.value.length > 0) { validateConfirm(); }
 
         return ok;
