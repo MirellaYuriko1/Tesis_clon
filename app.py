@@ -110,8 +110,15 @@ def cuestionario():
     cur.execute("SELECT nombre FROM usuario WHERE id_usuario=%s", (uid,))
     row = cur.fetchone()
     cur.close(); cn.close()
+
     usuario_nombre = row[0] if row else None
-    return render_template('cuestionario.html', uid=uid, usuario_nombre=usuario_nombre)
+    usuario_apellido = row[1] if row else None
+
+    return render_template(
+        'cuestionario.html', 
+        uid=uid, 
+        usuario_nombre=usuario_nombre,
+        usuario_apellido=usuario_apellido)
 
 #RUTA PARA VER EL PANEL DE ADMIN
 @app.route('/form_panel')
