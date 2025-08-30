@@ -1,125 +1,76 @@
-<!-- templates/registro.html -->
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Crea tu cuenta</title>
+  <title id="pageTitle">Crea tu cuenta</title>
 
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- Fuentes -->
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <style>
-    :root{
-      --bg1:#e0f2ff; --bg2:#90caf9;
-      --card-bg:#ffffff; --ink:#1f2937; --muted:#6b7280;
-      --primary:#1e88e5; --primary-hover:#1565c0;
-      --line:#e9eef6; --radius:28px; --radius-sm:12px;
-      --shadow:0 14px 40px rgba(2,21,46,.10);
-      --focus:0 0 0 3px rgba(30,136,229,.28);
-      --ok:#22c55e; --err:#ef4444;
-    }
-
-    /* Centrado consistente a pantalla completa */
+    :root{ --bg1:#e0f2ff; --bg2:#90caf9; --card-bg:#ffffff; --ink:#1f2937; --muted:#6b7280;
+           --primary:#1e88e5; --primary-hover:#1565c0; --line:#e9eef6; --radius:28px; --radius-sm:12px;
+           --shadow:0 14px 40px rgba(2,21,46,.10); --focus:0 0 0 3px rgba(30,136,229,.28);
+           --ok:#22c55e; --err:#ef4444; }
     html, body { height: 100%; margin: 0; }
-
-    body{
-      font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; 
-      color:var(--ink);
-      background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);
-      background-repeat:no-repeat;
-    }
-
-    .login-wrap{
-      height:100%;
-      display:grid; 
-      place-items:center; 
-      padding:40px 16px;
-    }
-
-    .login-card{
-      width:100%; max-width:620px; background:var(--card-bg); border-radius:var(--radius);
-      box-shadow:var(--shadow); padding:clamp(24px,4vw,48px); border:1px solid var(--line);
-    }
-    .login-title{
-      font-family:'Merriweather', serif; font-weight:700; text-align:center; font-size:24px; margin-bottom:24px;
-    }
-
+    body{ font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink);
+          background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%); background-repeat:no-repeat; }
+    .wrap{ height:100%; display:grid; place-items:center; padding:40px 16px; }
+    .card{ width:100%; max-width:620px; background:var(--card-bg); border-radius:var(--radius);
+           box-shadow:var(--shadow); padding:clamp(24px,4vw,48px); border:1px solid var(--line); }
+    .title{ font-family:'Merriweather', serif; font-weight:700; text-align:center; font-size:24px; margin-bottom:24px; }
     label{font-weight:600; color:#111827;}
-    .form-control{
-      height:48px; border-radius:var(--radius-sm); border:1px solid #e5e7eb;
-      transition:border-color .2s ease, box-shadow .2s ease, background-position .2s ease;
-      background-repeat:no-repeat; background-position: right 12px center; background-size:18px;
-    }
+    .form-control{ height:48px; border-radius:var(--radius-sm); border:1px solid #e5e7eb;
+                   transition:border-color .2s, box-shadow .2s, background-position .2s;
+                   background-repeat:no-repeat; background-position:right 12px center; background-size:18px; }
     .form-control:focus{border-color:var(--primary); box-shadow:var(--focus);}
-
-    .form-control.is-valid{
-      border-color:var(--ok); box-shadow:0 0 0 3px rgba(34,197,94,.18);
-      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%2322c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>');
-    }
-    .form-control.is-invalid{
-      border-color:var(--err); box-shadow:0 0 0 3px rgba(239,68,68,.18);
-      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1.2"/></svg>');
-    }
-
-    .pw-toggle{
-      border:1px solid #e5e7eb; border-left:none; background:#fff;
-      border-radius:0 var(--radius-sm) var(--radius-sm) 0; padding:0 14px;
-    }
-
-    .btn-primary{
-      background:var(--primary); border-color:var(--primary); height:52px; font-weight:600; border-radius:999px;
-      transition:background-color .2s ease, border-color .2s ease, box-shadow .25s ease, transform .1s ease;
-    }
+    .form-control.is-valid{ border-color:var(--ok); box-shadow:0 0 0 3px rgba(34,197,94,.18);
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%2322c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'); }
+    .form-control.is-invalid{ border-color:var(--err); box-shadow:0 0 0 3px rgba(239,68,68,.18);
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1.2"/></svg>'); }
+    .pw-toggle{ border:1px solid #e5e7eb; border-left:none; background:#fff; border-radius:0 var(--radius-sm) var(--radius-sm) 0; padding:0 14px; }
+    .btn-primary{ background:var(--primary); border-color:var(--primary); height:52px; font-weight:600; border-radius:999px;
+                  transition:background-color .2s, border-color .2s, box-shadow .25s, transform .1s; }
     .btn-primary:hover{ background:var(--primary-hover); border-color:var(--primary-hover); box-shadow:0 10px 22px rgba(21,101,192,.25); }
     .btn-primary:active{ transform:translateY(1px); }
     .btn-primary:disabled{ background:#bcd7f6; border-color:#bcd7f6; cursor:not-allowed; box-shadow:none; }
-
-    .login-footer{ text-align:center; color:var(--muted); margin-top:16px; }
-    .login-footer a{ color:var(--primary); text-decoration:none; font-weight:600; }
-    .login-footer a:hover{ color:var(--primary-hover); text-decoration:underline; }
-
+    .footer{ text-align:center; color:var(--muted); margin-top:16px; }
+    .footer a{ color:var(--primary); text-decoration:none; font-weight:600; }
+    .footer a:hover{ color:var(--primary-hover); text-decoration:underline; }
     .field-error{ font-size:12px; color:var(--err); margin-top:6px; display:none; }
     .field-error.show{ display:block; }
   </style>
 </head>
 <body>
+  <main class="wrap">
+    <section class="card">
+      <h1 class="title" id="viewTitle">Crea tu cuenta</h1>
 
-  <main class="login-wrap">
-    <section class="login-card">
-      <h1 class="login-title">Crea tu cuenta</h1>
+      <form id="userForm" method="post" action="/registro" novalidate>
+        <!-- en edición, JS rellena este hidden con el uid -->
+        <input type="hidden" id="uid" name="uid" />
 
-      <!-- Alert de error (si el backend envía 'error') -->
-      {% if error %}
-      <div class="alert alert-danger" role="alert">
-        {{ error }}
-      </div>
-      {% endif %}
-
-      <form id="registerForm" method="post" action="/registro" novalidate>
-        <!-- Nombre de usuario + Apellido -->
         <div class="row g-3 mb-3">
           <div class="col-md-6">
             <label for="nombre" class="form-label">Nombre</label>
             <input id="nombre" name="nombre" type="text" class="form-control"
-                   placeholder="Tu nombre" required maxlength="50" />
+                   placeholder="Tu nombre" maxlength="50" required />
             <div id="nombreError" class="field-error" aria-live="polite"></div>
           </div>
           <div class="col-md-6">
             <label for="apellido" class="form-label">Apellido</label>
             <input id="apellido" name="apellido" type="text" class="form-control"
-                   placeholder="Tu apellido" required maxlength="50" />
+                   placeholder="Tu apellido" maxlength="50" required />
             <div id="apellidoError" class="field-error" aria-live="polite"></div>
           </div>
         </div>
 
-        <!-- Contraseña -->
         <div class="mb-3">
-          <label for="password" class="form-label">Contraseña</label>
+          <label for="password" class="form-label" id="pwLabel">Contraseña</label>
           <div class="input-group">
-            <input id="password" name="password" type="password" class="form-control" placeholder="Contraseña" required />
+            <input id="password" name="password" type="password" class="form-control"
+                   placeholder="Contraseña" />
             <button type="button" class="pw-toggle" aria-label="Mostrar/Ocultar contraseña" onclick="togglePw()">
               <svg id="eye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
@@ -130,15 +81,13 @@
           <div id="passwordError" class="field-error" aria-live="polite"></div>
         </div>
 
-        <!-- Confirmar contraseña -->
         <div class="mb-2">
-          <label for="confirm_password" class="form-label">Confirmar contraseña</label>
+          <label for="password2" class="form-label" id="pw2Label">Confirmar contraseña</label>
           <div class="input-group">
-            <input id="confirm_password" name="confirm_password" type="password"
-                   class="form-control" placeholder="Repite la contraseña" required />
+            <input id="password2" name="password2" type="password" class="form-control"
+                   placeholder="Repite la contraseña" />
             <button type="button" class="pw-toggle" aria-label="Mostrar/Ocultar contraseña" onclick="toggleConfirmPw()">
-              <svg id="eye2" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg id="eye2" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
@@ -147,192 +96,178 @@
           <div id="confirmError" class="field-error" aria-live="polite"></div>
         </div>
 
-        <!-- Botón -->
         <div class="d-grid mt-5">
           <button id="submitBtn" class="btn btn-primary" type="submit" disabled>Registrarme</button>
         </div>
 
-        <p class="login-footer">
+        <p class="footer" id="loginHint">
           ¿Ya tienes una cuenta? <a href="/form_login">Inicia sesión</a>
         </p>
       </form>
     </section>
   </main>
 
-  <!-- Modal de registro exitoso -->
-  <div class="modal fade" id="okModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" style="border-radius:16px">
-        <div class="modal-body text-center p-4">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="#22c55e" stroke-width="2"></circle>
-            <path d="M8 12l2.5 2.5L16 9" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-          <h5 class="mt-3 mb-1">¡Registro exitoso!</h5>
-          <p class="text-muted mb-4">Tu cuenta se creó correctamente.</p>
-          <button id="goLogin" class="btn btn-primary px-4">Aceptar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bootstrap JS (para el modal) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // -------- helpers ----------
+    function qs(name){
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
     function togglePw(){
       const input = document.getElementById('password');
       const eye = document.getElementById('eye');
-      const isHidden = input.type === 'password';
-      input.type = isHidden ? 'text' : 'password';
-      eye.setAttribute('stroke', isHidden ? '#111' : 'currentColor');
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      eye.setAttribute('stroke', show ? '#111' : 'currentColor');
     }
     function toggleConfirmPw(){
-      const input = document.getElementById('confirm_password');
+      const input = document.getElementById('password2');
       const eye = document.getElementById('eye2');
-      const isHidden = input.type === 'password';
-      input.type = isHidden ? 'text' : 'password';
-      eye.setAttribute('stroke', isHidden ? '#111' : 'currentColor');
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      eye.setAttribute('stroke', show ? '#111' : 'currentColor');
     }
 
-    (function(){
-      const form = document.getElementById('registerForm');
-      const nombre = document.getElementById('nombre');
-      const apellido = document.getElementById('apellido');
-      const password = document.getElementById('password');
-      const confirm  = document.getElementById('confirm_password');
-      const submitBtn = document.getElementById('submitBtn');
+    // -------- validaciones ----------
+    const nombre = document.getElementById('nombre');
+    const apellido = document.getElementById('apellido');
+    const password = document.getElementById('password');
+    const password2 = document.getElementById('password2');
+    const submitBtn = document.getElementById('submitBtn');
 
-      const nombreError = document.getElementById('nombreError');
-      const apellidoError = document.getElementById('apellidoError');
-      const passwordError = document.getElementById('passwordError');
-      const confirmError = document.getElementById('confirmError');
+    const nombreError = document.getElementById('nombreError');
+    const apellidoError = document.getElementById('apellidoError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmError = document.getElementById('confirmError');
 
-      function validateNombre(){
-        const valor = nombre.value;
-        if (valor.length === 0){
-          nombre.classList.remove('is-valid','is-invalid');
-          nombreError.textContent = "";
-          nombreError.classList.remove('show');
-          return false;
+    function validateNombre(){
+      const v = nombre.value;
+      if (v.length === 0){ nombre.classList.remove('is-valid','is-invalid'); nombreError.textContent=""; nombreError.classList.remove('show'); return false; }
+      let msg = "";
+      if (/^\s/.test(v)) msg = "No debe iniciar con espacio.";
+      else if (v.trim().length > 50) msg = "Máximo 50 caracteres.";
+      else if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/.test(v)) msg = "Solo letras y espacios.";
+      const ok = msg === "";
+      nombre.classList.toggle('is-valid', ok); nombre.classList.toggle('is-invalid', !ok);
+      nombreError.textContent = msg; nombreError.classList.toggle('show', !ok);
+      return ok;
+    }
+    function validateApellido(){
+      const v = apellido.value;
+      if (v.length === 0){ apellido.classList.remove('is-valid','is-invalid'); apellidoError.textContent=""; apellidoError.classList.remove('show'); return false; }
+      let msg = "";
+      if (/^\s/.test(v)) msg = "No debe iniciar con espacio.";
+      else if (v.trim().length > 50) msg = "Máximo 50 caracteres.";
+      else if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/.test(v)) msg = "Solo letras y espacios.";
+      const ok = msg === "";
+      apellido.classList.toggle('is-valid', ok); apellido.classList.toggle('is-invalid', !ok);
+      apellidoError.textContent = msg; apellidoError.classList.toggle('show', !ok);
+      return ok;
+    }
+
+    // Para registro: PW obligatoria (3..6). Para edición: opcional (si se escribe, 3..6)
+    function inRange(pw){ return pw.length >= 3 && pw.length <= 6; }
+    function validatePassword(mode){
+      const val = password.value;
+      let ok = true, msg = "";
+      if (mode === 'create'){
+        if (!inRange(val)){ ok = false; msg = "La contraseña debe tener entre 3 y 6 caracteres."; }
+      }else{
+        if (val.length > 0 && !inRange(val)){ ok = false; msg = "Si la cambias, usa 3 a 6 caracteres."; }
+      }
+      password.classList.toggle('is-valid', ok && (val.length>0 || mode==='edit'));
+      password.classList.toggle('is-invalid', !ok);
+      passwordError.textContent = msg; passwordError.classList.toggle('show', !ok);
+      return ok;
+    }
+    function validateConfirm(mode){
+      let ok = true, msg = "";
+      if (mode === 'create'){
+        ok = password2.value === password.value && password.value.length>0;
+        if (!ok) msg = "Las contraseñas no coinciden.";
+      }else{
+        if (password.value.length===0 && password2.value.length===0){ ok = true; }
+        else{
+          ok = password2.value === password.value && password.value.length>0;
+          if (!ok) msg = "Las contraseñas no coinciden.";
         }
-        let msg = "";
-        if (/^\s/.test(valor)){
-          msg = "No debe iniciar con espacio.";
-        } else if (valor.trim().length > 50){
-          msg = "Máximo 50 caracteres.";
-        } else if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/.test(valor)){
-          msg = "Solo se permiten letras y espacios (sin números).";
+      }
+      password2.classList.toggle('is-valid', ok && password2.value.length>0);
+      password2.classList.toggle('is-invalid', !ok);
+      confirmError.textContent = msg; confirmError.classList.toggle('show', !ok);
+      return ok;
+    }
+
+    function hookValidation(mode){
+      function update(){
+        const baseOk = validateNombre() && validateApellido();
+        const pwOk   = validatePassword(mode) && validateConfirm(mode);
+        submitBtn.disabled = !(baseOk && pwOk);
+      }
+      nombre.addEventListener('input', update);
+      apellido.addEventListener('input', update);
+      password.addEventListener('input', ()=>{ validatePassword(mode); validateConfirm(mode); update(); });
+      password2.addEventListener('input', ()=>{ validateConfirm(mode); update(); });
+      update();
+    }
+
+    // -------- inicialización UI (sin Jinja) ----------
+    (function init(){
+      const mode = (qs('mode') || 'create').toLowerCase();   // 'create' | 'edit'
+      const uid  = qs('uid');
+      const form = document.getElementById('userForm');
+
+      if (mode === 'edit'){
+        // textos
+        document.getElementById('pageTitle').textContent = 'Editar perfil';
+        document.getElementById('viewTitle').textContent = 'Editar tu perfil';
+        document.getElementById('pwLabel').textContent = 'Contraseña (opcional)';
+        document.getElementById('pw2Label').textContent = 'Confirmar contraseña (opcional)';
+        document.getElementById('loginHint').style.display = 'none';
+        submitBtn.textContent = 'Guardar cambios';
+
+        // action + uid
+        form.action = '/perfil';
+        document.getElementById('uid').value = uid || '';
+
+        // traer datos para precargar
+        if (uid){
+          fetch('/api/usuario?uid=' + encodeURIComponent(uid))
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => {
+              if (data && data.ok){
+                nombre.value = data.nombre || '';
+                apellido.value = data.apellido || '';
+              }
+            })
+            .catch(()=> {
+              // si falla, seguimos, pero sin prefill
+              console.warn('No se pudo precargar el usuario');
+            });
         }
-        const ok = msg === "";
-        nombre.classList.toggle('is-valid', ok);
-        nombre.classList.toggle('is-invalid', !ok);
-        if (!ok){
-          nombreError.textContent = msg;
-          nombreError.classList.add('show');
-        } else {
-          nombreError.textContent = "";
-          nombreError.classList.remove('show');
-        }
-        return ok;
+        hookValidation('edit');
+      }else{
+        // registro
+        form.action = '/registro';
+        document.getElementById('pageTitle').textContent = 'Crea tu cuenta';
+        document.getElementById('viewTitle').textContent = 'Crea tu cuenta';
+        password.placeholder = 'Contraseña';
+        password2.placeholder = 'Repite la contraseña';
+        submitBtn.textContent = 'Registrarme';
+        hookValidation('create');
       }
 
-      function validateApellido(){
-        const valor = apellido.value;
-        if (valor.length === 0){
-          apellido.classList.remove('is-valid','is-invalid');
-          apellidoError.textContent = "";
-          apellidoError.classList.remove('show');
-          return false;
-        }
-        let msg = "";
-        if (/^\s/.test(valor)){
-          msg = "No debe iniciar con espacio.";
-        } else if (valor.trim().length > 50){
-          msg = "Máximo 50 caracteres.";
-        } else if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/.test(valor)){
-          msg = "Solo se permiten letras y espacios (sin números).";
-        }
-        const ok = msg === "";
-        apellido.classList.toggle('is-valid', ok);
-        apellido.classList.toggle('is-invalid', !ok);
-        if (!ok){
-          apellidoError.textContent = msg;
-          apellidoError.classList.add('show');
-        } else {
-          apellidoError.textContent = "";
-          apellidoError.classList.remove('show');
-        }
-        return ok;
-      }
-
-      // Reglas de longitud 3..6 SOLO en JS
-      function validatePassword(){
-        const val = password.value;
-
-        let msg = "";
-        if (val.length === 0){
-          msg = "Este campo es obligatorio.";
-        } else if (val.length < 3 || val.length > 6){
-          msg = "La contraseña debe tener entre 3 y 6 caracteres.";
-        }
-
-        const ok = msg === "";
-        password.classList.toggle('is-valid', ok);
-        password.classList.toggle('is-invalid', !ok);
-        passwordError.textContent = msg;
-        passwordError.classList.toggle('show', !ok);
-
-        if (confirm.value.length > 0) { validateConfirm(); }
-
-        return ok;
-      }
-
-      function validateConfirm(){
-        const filled = confirm.value.length > 0;
-        const same = confirm.value === password.value && password.value.length > 0;
-        confirm.classList.toggle('is-valid', same);
-        confirm.classList.toggle('is-invalid', filled && !same);
-        if (filled && !same){
-          confirmError.textContent = "Las contraseñas no coinciden.";
-          confirmError.classList.add('show');
-        } else {
-          confirmError.textContent = "";
-          confirmError.classList.remove('show');
-        }
-        return same;
-      }
-
-      function updateSubmit(){
-        submitBtn.disabled = !(validateNombre() && validateApellido() && validatePassword() && validateConfirm());
-      }
-
-      nombre.addEventListener('input', updateSubmit);
-      apellido.addEventListener('input', updateSubmit);
-      password.addEventListener('input', updateSubmit);
-      confirm.addEventListener('input', updateSubmit);
-
+      // validación on submit (defensiva)
       form.addEventListener('submit', (e)=>{
-        if(!(validateNombre() && validateApellido() && validatePassword() && validateConfirm())){
-          e.preventDefault();
-        }
+        const current = (qs('mode') || 'create').toLowerCase();
+        const ok = (validateNombre() && validateApellido() &&
+                   validatePassword(current === 'edit' ? 'edit' : 'create') &&
+                   validateConfirm(current === 'edit' ? 'edit' : 'create'));
+        if (!ok) e.preventDefault();
       });
-
-      updateSubmit();
     })();
   </script>
-
-  {% if exito %}
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const modal = new bootstrap.Modal(document.getElementById('okModal'));
-      modal.show();
-      document.getElementById('goLogin').addEventListener('click', () => {
-        window.location.href = '/form_login';
-      });
-    });
-  </script>
-  {% endif %}
-
 </body>
 </html>
