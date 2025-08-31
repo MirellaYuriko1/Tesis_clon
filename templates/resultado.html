@@ -1,4 +1,5 @@
 <!doctype html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
@@ -66,6 +67,9 @@
       border-radius:12px; padding:8px 12px;
       margin: 0 auto 8px auto;
     }
+    /* NUEVO: centrado del bloque ML */
+    .ml-wrap{ display:flex; justify-content:center; }
+
     .badge-level{ font-size:.86rem; border-radius:999px; padding:.35rem .6rem; font-weight:700; }
     .badge-ml{ background:#eef2ff; color:#3730a3; border:1px solid #c7d2fe; } /* chip ML */
     .bg-rose { background:#fde2f2 !important; color:#9d174d !important; border:1px solid #f9c6e6; }
@@ -147,44 +151,46 @@
         </p>
 
         {% if pred_ml or conf_ml %}
-          <div class="ml-card" role="group" aria-label="Resultado del modelo de Machine Learning">
-            <!-- Chip de origen ML -->
-            <span class="badge badge-level badge-ml">🤖 Modelo (ML)</span>
+          <div class="ml-wrap">
+            <div class="ml-card" role="group" aria-label="Resultado del modelo de Machine Learning">
+              <!-- Chip de origen ML -->
+              <span class="badge badge-level badge-ml">🤖 Modelo (ML)</span>
 
-            <!-- Chip de NIVEL (usa ML; si faltara, cae a nivel_total) -->
-            {% set nivel_chip = pred_ml if pred_ml else nivel_total %}
-            {% set nl = (nivel_chip or '')|lower %}
-            {% if nl == 'muy alto' %}
-              <span class="badge badge-level bg-danger">{{ nivel_chip }}</span>
-            {% elif nl == 'alto' %}
-              <span class="badge badge-level bg-rose">{{ nivel_chip }}</span>
-            {% elif nl == 'elevado' %}
-              <span class="badge badge-level bg-warning text-dark">{{ nivel_chip }}</span>
-            {% elif nl == 'normal' %}
-              <span class="badge badge-level bg-success">{{ nivel_chip }}</span>
-            {% else %}
-              <span class="badge badge-level bg-secondary">{{ nivel_chip }}</span>
-            {% endif %}
-
-            <!-- Chip de CONFIANZA (con %) -->
-            {% if conf_ml %}
-              {% set c = (conf_ml or '')|lower %}
-              {% set conf_class = 'bg-secondary' %}
-              {% if c == 'alta' %}
-                {% set conf_class = 'bg-success' %}
-              {% elif c == 'media' %}
-                {% set conf_class = 'bg-warning text-dark' %}
+              <!-- Chip de NIVEL (usa ML; si faltara, cae a nivel_total) -->
+              {% set nivel_chip = pred_ml if pred_ml else nivel_total %}
+              {% set nl = (nivel_chip or '')|lower %}
+              {% if nl == 'muy alto' %}
+                <span class="badge badge-level bg-danger">{{ nivel_chip }}</span>
+              {% elif nl == 'alto' %}
+                <span class="badge badge-level bg-rose">{{ nivel_chip }}</span>
+              {% elif nl == 'elevado' %}
+                <span class="badge badge-level bg-warning text-dark">{{ nivel_chip }}</span>
+              {% elif nl == 'normal' %}
+                <span class="badge badge-level bg-success">{{ nivel_chip }}</span>
+              {% else %}
+                <span class="badge badge-level bg-secondary">{{ nivel_chip }}</span>
               {% endif %}
-              <span class="badge badge-level {{ conf_class }}">
-                Confianza: {{ conf_ml }}{% if conf_pct is not none %} ({{ conf_pct|round(0,'floor') }}%){% endif %}
-              </span>
-            {% endif %}
 
-            <!-- Tooltip explicativo -->
-            <span class="hint" tabindex="0" aria-label="Predicción generada por un modelo de Machine Learning con tus respuestas del cuestionario.">
-              i
-              <span class="tip">Predicción generada por un modelo de Machine Learning con tus respuestas del cuestionario.</span>
-            </span>
+              <!-- Chip de CONFIANZA (con %) -->
+              {% if conf_ml %}
+                {% set c = (conf_ml or '')|lower %}
+                {% set conf_class = 'bg-secondary' %}
+                {% if c == 'alta' %}
+                  {% set conf_class = 'bg-success' %}
+                {% elif c == 'media' %}
+                  {% set conf_class = 'bg-warning text-dark' %}
+                {% endif %}
+                <span class="badge badge-level {{ conf_class }}">
+                  Confianza: {{ conf_ml }}{% if conf_pct is not none %} ({{ conf_pct|round(0,'floor') }}%){% endif %}
+                </span>
+              {% endif %}
+
+              <!-- Tooltip explicativo -->
+              <span class="hint" tabindex="0" aria-label="Predicción generada por un modelo de Machine Learning con tus respuestas del cuestionario.">
+                i
+                <span class="tip">Predicción generada por un modelo de Machine Learning con tus respuestas del cuestionario.</span>
+              </span>
+            </div>
           </div>
           <p class="ml-note">Estimado por el modelo (no es un diagnóstico).</p>
         {% endif %}
@@ -305,4 +311,3 @@
   </script>
 </body>
 </html>
-
