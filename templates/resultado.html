@@ -55,17 +55,31 @@
     .user-summary{
       text-align:center; font-weight:700;
       font-size: clamp(16px,1.6vw,18px);
-      color: var(--ink); margin-bottom: 12px;
-    }
-    /* NUEVO: fila de chips ML bajo el encabezado */
-    .ml-inline{
-      display:flex; justify-content:center; gap:8px;
-      flex-wrap:wrap; margin-bottom:18px;
+      color: var(--ink); margin-bottom: 10px;
     }
 
+    /* Bloque ML visible y diferenciado */
+    .ml-card{
+      display:inline-flex; align-items:center; gap:8px; justify-content:center;
+      border:1px dashed #c7d2fe;             /* indigo-200 */
+      background:#f8fafc;                     /* slate-50 */
+      border-radius:12px; padding:8px 12px;
+      margin: 0 auto 8px auto;
+    }
     .badge-level{ font-size:.86rem; border-radius:999px; padding:.35rem .6rem; font-weight:700; }
-    /* Rosado para "Alto" */
+    .badge-ml{ background:#eef2ff; color:#3730a3; border:1px solid #c7d2fe; } /* chip ML */
     .bg-rose { background:#fde2f2 !important; color:#9d174d !important; border:1px solid #f9c6e6; }
+
+    .ml-note{ text-align:center; color:var(--muted); font-size:.82rem; margin-bottom: 14px; }
+
+    /* Tooltip ligero sin JS */
+    .hint{ position:relative; display:inline-flex; align-items:center; justify-content:center;
+           width:20px; height:20px; border-radius:50%; border:1px solid #cbd5e1; color:#475569;
+           cursor:help; background:#fff; font-size:.8rem; line-height:1; }
+    .hint .tip{ display:none; position:absolute; top:130%; left:50%; transform:translateX(-50%);
+                min-width: 240px; background:#111827; color:#fff; padding:8px 10px;
+                border-radius:8px; font-size:.75rem; z-index:10; box-shadow:0 10px 30px rgba(0,0,0,.15); }
+    .hint:hover .tip, .hint:focus .tip{ display:block; }
 
     /* Barras */
     .scas-title{ font-size:1.05rem; font-weight:700; color:#0f172a; margin-bottom:10px; }
@@ -101,6 +115,7 @@
 
     /* Total */
     .ctotal{ background: linear-gradient(90deg,#7ee3ff,#22c3e6); }
+    .bg-soft{ background:#eef2f7; color:#334155; border:1px solid #e5e7eb; }
 
     /* Botones abajo (opcional) */
     .actions{ margin-top: 16px; display:flex; gap:8px; }
@@ -132,8 +147,11 @@
         </p>
 
         {% if pred_ml or conf_ml %}
-          <div class="ml-inline">
-            {# Chip de NIVEL (usa ML; si faltara, cae a nivel_total) #}
+          <div class="ml-card" role="group" aria-label="Resultado del modelo de Machine Learning">
+            <!-- Chip de origen ML -->
+            <span class="badge badge-level badge-ml">🤖 Modelo (ML)</span>
+
+            <!-- Chip de NIVEL (usa ML; si faltara, cae a nivel_total) -->
             {% set nivel_chip = pred_ml if pred_ml else nivel_total %}
             {% set nl = (nivel_chip or '')|lower %}
             {% if nl == 'muy alto' %}
@@ -148,7 +166,7 @@
               <span class="badge badge-level bg-secondary">{{ nivel_chip }}</span>
             {% endif %}
 
-            {# Chip de CONFIANZA (con %) #}
+            <!-- Chip de CONFIANZA (con %) -->
             {% if conf_ml %}
               {% set c = (conf_ml or '')|lower %}
               {% set conf_class = 'bg-secondary' %}
@@ -161,7 +179,14 @@
                 Confianza: {{ conf_ml }}{% if conf_pct is not none %} ({{ conf_pct|round(0,'floor') }}%){% endif %}
               </span>
             {% endif %}
+
+            <!-- Tooltip explicativo -->
+            <span class="hint" tabindex="0" aria-label="Predicción generada por un modelo de Machine Learning con tus respuestas del cuestionario.">
+              i
+              <span class="tip">Predicción generada por un modelo de Machine Learning con tus respuestas del cuestionario.</span>
+            </span>
           </div>
+          <p class="ml-note">Estimado por el modelo (no es un diagnóstico).</p>
         {% endif %}
 
         <!-- ====== Subescalas ====== -->
@@ -212,8 +237,9 @@
           <div class="scas-top">
             <span class="scas-name">Total</span>
             <div class="scas-right">
+              <span class="badge badge-level bg-soft">Cuestionario</span>
               <span class="scas-score">{{ total }} / 114 pts.</span>
-              {# Se elimina la etiqueta de nivel aquí a petición #}
+              {# Sin etiqueta de nivel aquí #}
             </div>
           </div>
           <div class="scas-progress">
@@ -221,10 +247,9 @@
           </div>
         </div>
 
-        {# Control para no duplicar la info de ML abajo #}
+        {# Mantener oculta la tarjeta ML inferior para evitar duplicado #}
         {% set show_ml_card = False %}
 
-        <!-- ====== Predicción del modelo (ML) ====== -->
         {% if pred_ml and show_ml_card %}
           <h3 class="scas-title mt-4">Predicción del modelo (ML)</h3>
           <div class="scas-item">
@@ -258,8 +283,7 @@
                 {% endif %}
               </div>
             </div>
-
-            {# Se eliminan porcentajes por clase para no abrumar #}
+            {# sin probabilidades por clase #}
           </div>
         {% endif %}
 
