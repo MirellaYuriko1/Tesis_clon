@@ -55,7 +55,12 @@
     .user-summary{
       text-align:center; font-weight:700;
       font-size: clamp(16px,1.6vw,18px);
-      color: var(--ink); margin-bottom: 24px;
+      color: var(--ink); margin-bottom: 12px;
+    }
+    /* NUEVO: fila de chips ML bajo el encabezado */
+    .ml-inline{
+      display:flex; justify-content:center; gap:8px;
+      flex-wrap:wrap; margin-bottom:18px;
     }
 
     .badge-level{ font-size:.86rem; border-radius:999px; padding:.35rem .6rem; font-weight:700; }
@@ -123,8 +128,41 @@
 
         <!-- Frase centrada -->
         <p class="user-summary">
-          <strong>{{ nombre }}</strong> tu nivel de ansiedad es <strong>{{ nivel_total }}</strong>
+          <strong>{{ nombre }}</strong> tu nivel de ansiedad es:
         </p>
+
+        {% if pred_ml or conf_ml %}
+          <div class="ml-inline">
+            {# Chip de NIVEL (usa ML; si faltara, cae a nivel_total) #}
+            {% set nivel_chip = pred_ml if pred_ml else nivel_total %}
+            {% set nl = (nivel_chip or '')|lower %}
+            {% if nl == 'muy alto' %}
+              <span class="badge badge-level bg-danger">{{ nivel_chip }}</span>
+            {% elif nl == 'alto' %}
+              <span class="badge badge-level bg-rose">{{ nivel_chip }}</span>
+            {% elif nl == 'elevado' %}
+              <span class="badge badge-level bg-warning text-dark">{{ nivel_chip }}</span>
+            {% elif nl == 'normal' %}
+              <span class="badge badge-level bg-success">{{ nivel_chip }}</span>
+            {% else %}
+              <span class="badge badge-level bg-secondary">{{ nivel_chip }}</span>
+            {% endif %}
+
+            {# Chip de CONFIANZA (con %) #}
+            {% if conf_ml %}
+              {% set c = (conf_ml or '')|lower %}
+              {% set conf_class = 'bg-secondary' %}
+              {% if c == 'alta' %}
+                {% set conf_class = 'bg-success' %}
+              {% elif c == 'media' %}
+                {% set conf_class = 'bg-warning text-dark' %}
+              {% endif %}
+              <span class="badge badge-level {{ conf_class }}">
+                Confianza: {{ conf_ml }}{% if conf_pct is not none %} ({{ conf_pct|round(0,'floor') }}%){% endif %}
+              </span>
+            {% endif %}
+          </div>
+        {% endif %}
 
         <!-- ====== Subescalas ====== -->
         {% set MAX_BY_LABEL = {
@@ -175,18 +213,7 @@
             <span class="scas-name">Total</span>
             <div class="scas-right">
               <span class="scas-score">{{ total }} / 114 pts.</span>
-              {% set nt = (nivel_total or '')|lower %}
-              {% if nt == 'muy alto' %}
-                <span class="badge badge-level bg-danger">{{ nivel_total }}</span>
-              {% elif nt == 'alto' %}
-                <span class="badge badge-level bg-rose">{{ nivel_total }}</span>
-              {% elif nt == 'elevado' %}
-                <span class="badge badge-level bg-warning text-dark">{{ nivel_total }}</span>
-              {% elif nt == 'normal' %}
-                <span class="badge badge-level bg-success">{{ nivel_total }}</span>
-              {% else %}
-                <span class="badge badge-level bg-secondary">{{ nivel_total }}</span>
-              {% endif %}
+              {# Se elimina la etiqueta de nivel aquí a petición #}
             </div>
           </div>
           <div class="scas-progress">
@@ -194,56 +221,47 @@
           </div>
         </div>
 
-               <!-- ====== Predicción del modelo (ML) ====== -->
-{% if pred_ml %}
-  <h3 class="scas-title mt-4">Predicción del modelo (ML)</h3>
-  <div class="scas-item">
-    <div class="scas-top">
-      <span class="scas-name">Clasificación</span>
-      <div class="scas-right">
-        {# Badge de la clase predicha #}
-        {% set ml = (pred_ml or '')|lower %}
-        {% if ml == 'muy alto' %}
-          <span class="badge badge-level bg-danger">{{ pred_ml }}</span>
-        {% elif ml == 'alto' %}
-          <span class="badge badge-level bg-rose">{{ pred_ml }}</span>
-        {% elif ml == 'elevado' %}
-          <span class="badge badge-level bg-warning text-dark">{{ pred_ml }}</span>
-        {% elif ml == 'normal' %}
-          <span class="badge badge-level bg-success">{{ pred_ml }}</span>
-        {% else %}
-          <span class="badge badge-level bg-secondary">{{ pred_ml }}</span>
-        {% endif %}
+        {# Control para no duplicar la info de ML abajo #}
+        {% set show_ml_card = False %}
 
-        {# Badge de confianza #}
-        {% if conf_ml %}
-          {% set c = (conf_ml or '')|lower %}
-          {% set conf_class = 'bg-secondary' %}
-          {% if c == 'alta' %}
-            {% set conf_class = 'bg-success' %}
-          {% elif c == 'media' %}
-            {% set conf_class = 'bg-warning text-dark' %}
-          {% endif %}
-          <span class="badge badge-level {{ conf_class }}">
-            Confianza: {{ conf_ml }}{% if conf_pct is not none %} ({{ conf_pct|round(0,'floor') }}%){% endif %}
-          </span>
-        {% endif %}
-      </div>
-    </div>
+        <!-- ====== Predicción del modelo (ML) ====== -->
+        {% if pred_ml and show_ml_card %}
+          <h3 class="scas-title mt-4">Predicción del modelo (ML)</h3>
+          <div class="scas-item">
+            <div class="scas-top">
+              <span class="scas-name">Clasificación</span>
+              <div class="scas-right">
+                {% set ml = (pred_ml or '')|lower %}
+                {% if ml == 'muy alto' %}
+                  <span class="badge badge-level bg-danger">{{ pred_ml }}</span>
+                {% elif ml == 'alto' %}
+                  <span class="badge badge-level bg-rose">{{ pred_ml }}</span>
+                {% elif ml == 'elevado' %}
+                  <span class="badge badge-level bg-warning text-dark">{{ pred_ml }}</span>
+                {% elif ml == 'normal' %}
+                  <span class="badge badge-level bg-success">{{ pred_ml }}</span>
+                {% else %}
+                  <span class="badge badge-level bg-secondary">{{ pred_ml }}</span>
+                {% endif %}
 
-    {% if proba_ml %}
-      <!-- Probabilidades por clase, en orden fijo -->
-      <div class="small text-muted">
-        {% set orden = ['Normal','Elevado','Alto','Muy alto'] %}
-        {% for k in orden %}
-          {% if proba_ml.get(k) is not none %}
-            <span class="me-2">{{ k }}: {{ proba_ml[k]|round(0, 'floor') }}%</span>
-          {% endif %}
-        {% endfor %}
-      </div>
-    {% endif %}
-  </div>
-{% endif %}
+                {% if conf_ml %}
+                  {% set c = (conf_ml or '')|lower %}
+                  {% set conf_class = 'bg-secondary' %}
+                  {% if c == 'alta' %}
+                    {% set conf_class = 'bg-success' %}
+                  {% elif c == 'media' %}
+                    {% set conf_class = 'bg-warning text-dark' %}
+                  {% endif %}
+                  <span class="badge badge-level {{ conf_class }}">
+                    Confianza: {{ conf_ml }}{% if conf_pct is not none %} ({{ conf_pct|round(0,'floor') }}%){% endif %}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+
+            {# Se eliminan porcentajes por clase para no abrumar #}
+          </div>
+        {% endif %}
 
         <div class="actions d-flex justify-content-center">
           <a href="/" class="btn btn-danger">Cerrar Sesión</a>
@@ -263,3 +281,4 @@
   </script>
 </body>
 </html>
+
