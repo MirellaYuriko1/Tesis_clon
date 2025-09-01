@@ -491,7 +491,7 @@
         const edad = document.getElementById('edad');
         if(!edad) return false;
         const v = Number(edad.value);
-        return Number.isFinite(v) && v >= 12 && v <= 16;
+        return Number.isFinite(v) && v >= 12 && v <= 15;
       }
       if(s.type === 'gender'){
         return !!form.querySelector('input[name="genero_tmp"]:checked');
