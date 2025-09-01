@@ -6,7 +6,7 @@ import os, mysql.connector
 
 #----------------------------------------------
 # 1) Cargar variables del .env
-load_dotenv(dotenv_path=Path(__file__).resolve().parents[1] / ".env", override=True)
+load_dotenv() #lee tu archivo .env y carga esas variables en la memoria del sistema.
 
 # 2) Función de conexión a MySQL
 def get_db():
