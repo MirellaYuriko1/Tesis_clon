@@ -1,7 +1,7 @@
 {
   "model_version": "v1",
-  "timestamp": "2025-08-18T06:22:48.545451Z",
-  "n_registros": 41,
+  "timestamp": "2025-09-07T23:43:54.233674Z",
+  "n_registros": 102,
   "clases": [
     "Alto",
     "Elevado",
@@ -10,54 +10,54 @@
   ],
   "cv": {
     "n_splits": 5,
-    "f1_macro_mean": 0.7116666666666667,
-    "f1_macro_std": 0.1503329637837291,
-    "accuracy_mean": 0.7277777777777777,
-    "accuracy_std": 0.1487084312702686
+    "f1_macro_mean": 0.5117657712657712,
+    "f1_macro_std": 0.15770618837362305,
+    "accuracy_mean": 0.6757142857142858,
+    "accuracy_std": 0.07496635677773116
   },
   "subgroups": {
     "genero": {
-      "Masculino": {
-        "n": 19,
-        "accuracy": 0.7894736842105263,
-        "f1_macro": 0.7777777777777777,
+      "Femenino": {
+        "n": 60,
+        "accuracy": 0.6833333333333333,
+        "f1_macro": 0.5645223082448718,
         "classification_report": {
           "Alto": {
-            "precision": 0.7,
-            "recall": 0.875,
-            "f1-score": 0.7777777777777777,
-            "support": 8.0
+            "precision": 0.25,
+            "recall": 0.2222222222222222,
+            "f1-score": 0.23529411764705882,
+            "support": 9.0
           },
           "Elevado": {
-            "precision": 0.5,
-            "recall": 0.25,
-            "f1-score": 0.3333333333333333,
-            "support": 4.0
+            "precision": 0.45454545454545453,
+            "recall": 0.35714285714285715,
+            "f1-score": 0.4,
+            "support": 14.0
           },
           "Muy alto": {
             "precision": 1.0,
-            "recall": 1.0,
-            "f1-score": 1.0,
-            "support": 5.0
+            "recall": 0.5714285714285714,
+            "f1-score": 0.7272727272727273,
+            "support": 7.0
           },
           "Normal": {
-            "precision": 1.0,
+            "precision": 0.8108108108108109,
             "recall": 1.0,
-            "f1-score": 1.0,
-            "support": 2.0
+            "f1-score": 0.8955223880597014,
+            "support": 30.0
           },
-          "accuracy": 0.7894736842105263,
+          "accuracy": 0.6833333333333333,
           "macro avg": {
-            "precision": 0.8,
-            "recall": 0.78125,
-            "f1-score": 0.7777777777777777,
-            "support": 19.0
+            "precision": 0.6288390663390664,
+            "recall": 0.5376984126984127,
+            "f1-score": 0.5645223082448718,
+            "support": 60.0
           },
           "weighted avg": {
-            "precision": 0.7684210526315789,
-            "recall": 0.7894736842105263,
-            "f1-score": 0.7660818713450291,
-            "support": 19.0
+            "precision": 0.6656326781326781,
+            "recall": 0.6833333333333333,
+            "f1-score": 0.6612371298587277,
+            "support": 60.0
           }
         },
         "confusion_matrix": {
@@ -69,73 +69,73 @@
           ],
           "matrix": [
             [
-              7,
-              1,
+              2,
+              6,
               0,
-              0
+              1
             ],
             [
               3,
-              1,
-              0,
-              0
-            ],
-            [
-              0,
-              0,
               5,
+              0,
+              6
+            ],
+            [
+              3,
+              0,
+              4,
               0
             ],
             [
               0,
               0,
               0,
-              2
+              30
             ]
           ]
         }
       },
-      "Femenino": {
-        "n": 22,
-        "accuracy": 0.6818181818181818,
-        "f1_macro": 0.5418552036199095,
+      "Masculino": {
+        "n": 42,
+        "accuracy": 0.6666666666666666,
+        "f1_macro": 0.5311059907834101,
         "classification_report": {
           "Alto": {
+            "precision": 1.0,
+            "recall": 0.16666666666666666,
+            "f1-score": 0.2857142857142857,
+            "support": 6.0
+          },
+          "Elevado": {
             "precision": 0.0,
             "recall": 0.0,
             "f1-score": 0.0,
-            "support": 1.0
-          },
-          "Elevado": {
-            "precision": 0.5,
-            "recall": 0.42857142857142855,
-            "f1-score": 0.4615384615384615,
-            "support": 7.0
+            "support": 9.0
           },
           "Muy alto": {
             "precision": 1.0,
             "recall": 1.0,
             "f1-score": 1.0,
-            "support": 6.0
+            "support": 1.0
           },
           "Normal": {
-            "precision": 0.6666666666666666,
-            "recall": 0.75,
-            "f1-score": 0.7058823529411765,
-            "support": 8.0
+            "precision": 0.7222222222222222,
+            "recall": 1.0,
+            "f1-score": 0.8387096774193548,
+            "support": 26.0
           },
-          "accuracy": 0.6818181818181818,
+          "accuracy": 0.6666666666666666,
           "macro avg": {
-            "precision": 0.5416666666666666,
-            "recall": 0.5446428571428572,
-            "f1-score": 0.5418552036199095,
-            "support": 22.0
+            "precision": 0.6805555555555556,
+            "recall": 0.5416666666666667,
+            "f1-score": 0.5311059907834101,
+            "support": 42.0
           },
           "weighted avg": {
-            "precision": 0.6742424242424242,
-            "recall": 0.6818181818181818,
-            "f1-score": 0.6762649115590292,
-            "support": 22.0
+            "precision": 0.6137566137566137,
+            "recall": 0.6666666666666666,
+            "f1-score": 0.5838270792187843,
+            "support": 42.0
           }
         },
         "confusion_matrix": {
@@ -147,28 +147,28 @@
           ],
           "matrix": [
             [
+              1,
+              4,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              0,
+              9
+            ],
+            [
+              0,
               0,
               1,
-              0,
               0
             ],
             [
-              1,
-              3,
-              0,
-              3
-            ],
-            [
               0,
               0,
-              6,
-              0
-            ],
-            [
               0,
-              2,
-              0,
-              6
+              26
             ]
           ]
         }
@@ -176,71 +176,71 @@
     }
   },
   "holdout": {
-    "accuracy": 0.5555555555555556,
-    "f1_macro": 0.6,
+    "accuracy": 0.5714285714285714,
+    "f1_macro": 0.3782051282051282,
     "classification_report": {
       "Alto": {
-        "precision": 0.3333333333333333,
-        "recall": 0.5,
-        "f1-score": 0.4,
-        "support": 2.0
-      },
-      "Elevado": {
-        "precision": 0.3333333333333333,
-        "recall": 0.3333333333333333,
-        "f1-score": 0.3333333333333333,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
         "support": 3.0
       },
-      "Muy alto": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1-score": 1.0,
-        "support": 2.0
+      "Elevado": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 5.0
       },
-      "Normal": {
+      "Muy alto": {
         "precision": 1.0,
         "recall": 0.5,
         "f1-score": 0.6666666666666666,
         "support": 2.0
       },
-      "accuracy": 0.5555555555555556,
+      "Normal": {
+        "precision": 0.7333333333333333,
+        "recall": 1.0,
+        "f1-score": 0.846153846153846,
+        "support": 11.0
+      },
+      "accuracy": 0.5714285714285714,
       "macro avg": {
-        "precision": 0.6666666666666666,
-        "recall": 0.5833333333333333,
-        "f1-score": 0.6,
-        "support": 9.0
+        "precision": 0.43333333333333335,
+        "recall": 0.375,
+        "f1-score": 0.3782051282051282,
+        "support": 21.0
       },
       "weighted avg": {
-        "precision": 0.6296296296296295,
-        "recall": 0.5555555555555556,
-        "f1-score": 0.5703703703703703,
-        "support": 9.0
+        "precision": 0.4793650793650793,
+        "recall": 0.5714285714285714,
+        "f1-score": 0.5067155067155067,
+        "support": 21.0
       }
     },
     "confusion_matrix": [
       [
-        1,
-        1,
+        0,
+        3,
         0,
         0
       ],
       [
-        2,
         1,
         0,
+        0,
+        4
+      ],
+      [
+        1,
+        0,
+        1,
         0
       ],
       [
         0,
         0,
-        2,
-        0
-      ],
-      [
         0,
-        1,
-        0,
-        1
+        11
       ]
     ],
     "labels_order": [
@@ -249,6 +249,6 @@
       "Muy alto",
       "Normal"
     ],
-    "n_test": 9
+    "n_test": 21
   }
 }
