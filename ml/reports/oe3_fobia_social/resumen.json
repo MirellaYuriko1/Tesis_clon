@@ -1,6 +1,6 @@
 {
-  "timestamp": "2025-08-18T09:21:17.531147Z",
-  "n_registros_usados": 41,
+  "timestamp": "2025-09-07T23:49:06.604401Z",
+  "n_registros_usados": 102,
   "levels_order": [
     "Normal",
     "Alto",
@@ -10,37 +10,37 @@
   "dim_key": "Dim3",
   "dim_name": "Fobia social",
   "upperbound": {
-    "f1_macro": 0.49062097812097816,
-    "accuracy": 0.5853658536585366,
-    "balanced_accuracy": 0.4945436507936508,
-    "auc_ovr_macro": 0.8160577966364411,
-    "brier": 1.3104240853658535,
+    "f1_macro": 0.5157467532467532,
+    "accuracy": 0.7745098039215687,
+    "balanced_accuracy": 0.5029542920847269,
+    "auc_ovr_macro": 0.8400640061286043,
+    "brier": 1.5727638480392159,
     "confusion_matrix": [
       [
-        16,
+        62,
         0,
-        2,
+        3,
         0
       ],
       [
         0,
-        2,
+        8,
         4,
-        2
+        0
       ],
       [
-        3,
-        4,
+        13,
+        1,
+        9,
+        0
+      ],
+      [
+        0,
+        1,
         1,
         0
-      ],
-      [
-        0,
-        2,
-        0,
-        5
       ]
     ],
-    "n": 41
+    "n": 102
   }
 }

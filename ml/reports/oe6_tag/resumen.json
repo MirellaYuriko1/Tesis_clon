@@ -1,6 +1,6 @@
 {
-  "timestamp": "2025-08-18T09:37:48.828700Z",
-  "n_registros_usados": 41,
+  "timestamp": "2025-09-07T23:50:53.078461Z",
+  "n_registros_usados": 102,
   "levels_order": [
     "Normal",
     "Alto",
@@ -10,37 +10,37 @@
   "dim_key": "Dim6",
   "dim_name": "Ansiedad generalizada",
   "upperbound": {
-    "f1_macro": 0.6418055555555555,
-    "accuracy": 0.7073170731707317,
-    "balanced_accuracy": 0.6479166666666667,
-    "auc_ovr_macro": 0.8673281459919391,
-    "brier": 1.2905439703861015,
+    "f1_macro": 0.695968992248062,
+    "accuracy": 0.7941176470588235,
+    "balanced_accuracy": 0.6655241935483871,
+    "auc_ovr_macro": 0.9360077959502009,
+    "brier": 1.6362613088445035,
     "confusion_matrix": [
       [
-        12,
+        55,
+        1,
+        6,
+        0
+      ],
+      [
+        0,
+        18,
         2,
-        1,
         0
       ],
       [
-        1,
-        9,
-        1,
-        1
-      ],
-      [
-        4,
-        1,
-        1,
+        8,
+        2,
+        6,
         0
       ],
       [
         0,
-        1,
+        2,
         0,
-        7
+        2
       ]
     ],
-    "n": 41
+    "n": 102
   }
 }

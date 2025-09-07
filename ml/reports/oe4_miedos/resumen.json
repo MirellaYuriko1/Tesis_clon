@@ -1,6 +1,6 @@
 {
-  "timestamp": "2025-08-18T09:26:54.542706Z",
-  "n_registros_usados": 41,
+  "timestamp": "2025-09-07T23:49:40.947000Z",
+  "n_registros_usados": 102,
   "levels_order": [
     "Normal",
     "Alto",
@@ -10,37 +10,37 @@
   "dim_key": "Dim4",
   "dim_name": "Miedo a lesiones físicas",
   "upperbound": {
-    "f1_macro": 0.6648644661626406,
-    "accuracy": 0.7317073170731707,
-    "balanced_accuracy": 0.6702533577533578,
-    "auc_ovr_macro": 0.8416350155225663,
-    "brier": 1.261085670731707,
+    "f1_macro": 0.5661326911326912,
+    "accuracy": 0.7352941176470589,
+    "balanced_accuracy": 0.5262605042016807,
+    "auc_ovr_macro": 0.8790945808353811,
+    "brier": 1.628659900670009,
     "confusion_matrix": [
       [
-        12,
-        1,
+        63,
         0,
+        5,
         0
       ],
       [
-        1,
         5,
+        6,
         2,
         1
       ],
       [
-        3,
-        1,
-        2,
-        1
+        12,
+        0,
+        4,
+        0
       ],
       [
         0,
-        1,
+        2,
         0,
-        11
+        2
       ]
     ],
-    "n": 41
+    "n": 102
   }
 }
